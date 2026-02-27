@@ -4,6 +4,7 @@ import { logout } from "@/app/actions/auth";
 import MenuItem from "./MenuItem";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import path from "path";
 
 export function MenuContent(props: Readonly<{ open: boolean }>) {
     const menus = [
@@ -52,7 +53,13 @@ export function MenuContent(props: Readonly<{ open: boolean }>) {
                 { id: "motoristas", path: "/ui/motorista", icon: "user", label: "Motoristas" },
                 { id: "sensores", path: "/ui/sensores", icon: "thermometer", label: "Sensores (Hardware)" }
             ]
-        }
+        },
+                {
+            id: "usuarios",
+            label: "Usuários do sistema",
+            icon: "users",
+            path: "/ui/usuarios"
+        },
     ];
 
     const [menuAtual, setMenuAtual] = useState(menus);
