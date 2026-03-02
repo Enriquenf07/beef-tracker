@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Menu from "./components/Menu";
 import { MenuContent } from "./components/MenuContent";
+import { isAuthenticated } from "../lib/sessions";
+import Protected from "./components/Protected";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -23,10 +25,13 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+
 	return (
 		<main className="flex gap-1 min-h-screen">
-			<Menu/>
-			<section>{children}</section>
+			<Protected>
+				<Menu />
+				<section className="p-5 w-full">{children}</section>
+			</Protected>
 		</main>
 
 	);

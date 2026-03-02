@@ -1,6 +1,6 @@
 import { redirect, RedirectType } from 'next/navigation'
-import { clearSession, createSession } from '@/app/lib/sessions'
-import { cookies } from 'next/headers';
+import {  createSession } from '@/app/lib/sessions'
+import { publicApi } from '../lib/api';
 
 export async function handleLogin(formData: FormData) {
     'use server'
@@ -10,8 +10,10 @@ export async function handleLogin(formData: FormData) {
     try {
         const email = formData.get('email')
         const password = formData.get('password')
-
-        await createSession('fake-jwt-token2')
+       const {data} = await publicApi.post("/auth", {
+            email, senha: password
+        })
+        await createSession(data.token)
         isSuccess = true;
 
     } catch (error) {

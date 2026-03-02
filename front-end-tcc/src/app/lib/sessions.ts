@@ -2,6 +2,7 @@ import 'server-only'
 import { cookies } from 'next/headers'
 import { redirect, RedirectType } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { publicApi, createApi } from './api'
 
 export async function createSession(jwt: string) {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
@@ -9,7 +10,7 @@ export async function createSession(jwt: string) {
 
     cookieStore.set('jwt', jwt, {
         httpOnly: true,
-        secure: true,
+        secure: false,
         expires: expiresAt,
         sameSite: 'lax',
         path: '/',
@@ -23,18 +24,22 @@ export async function checkSession() {
 
 export async function clearSession() {
     "use server"
-    console.log('clearing session')
     const cookieStore = await cookies()
     cookieStore.delete('jwt')
     const jwt = await checkSession()
-    
-    console.log('jwt after clearing:', jwt)
 }
 
 export async function isAuthenticated() {
     const jwt = await checkSession()
-    console.log(jwt)
-    if (!jwt) {
+     const api = await createApi();
+    let success = false
+    try {
+        const response = await api.get("/auth/validate")
+        success = true
+    }catch(error){
+        success = false
+    }
+    if (!success) {
         redirect('/login', RedirectType.push)
     }
     return jwt
