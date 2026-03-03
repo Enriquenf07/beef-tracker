@@ -19,14 +19,12 @@ import com.beeftracker.backend.auth.repositories.UserRepository;
 @Service
 public class JwtService {
     private final UserRepository userRepository;
-    public JwtService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
     private final Key key;
 
-    public JwtService(@Value("${spring.secret}") String baseKey) {
+    public JwtService(UserRepository userRepository, @Value("${spring.secret}") String baseKey) {
+        this.userRepository = userRepository;
         this.key = Keys.hmacShaKeyFor(baseKey.getBytes());
+        
     }
 
     public String gerarToken(UserData loginForm) throws Exception {
