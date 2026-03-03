@@ -1,6 +1,7 @@
 package com.beeftracker.backend.compras.fornecedores.controllers;
 
 import com.beeftracker.backend.base.BaseController;
+import com.beeftracker.backend.base.exceptions.InvalidFormException;
 import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,7 @@ public class FornecedorController extends BaseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody FornecedorData fornecedorData) throws ResourceNotFoundException {
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody FornecedorData fornecedorData) throws ResourceNotFoundException, InvalidFormException {
         fornecedorService.atualizar(id, fornecedorData);
         return ResponseEntity.ok().build();
     }
