@@ -1,28 +1,36 @@
-'use client'
+"use client"; // Importante se estiver na pasta 'app' do Next.js
+
+import { useEffect, useRef } from "react";
 import * as Plot from "@observablehq/plot";
-import { useEffect, useRef, useState } from "react";
-import * as d3 from "d3";
 
-export default function Charts() {
-    const containerRef = useRef();
-    const [data, setData] = useState(null);
+// Definindo uma interface flexível para o GeoJSON
+interface GeoData {
+  type: string;
+  features?: any[];
+  geometries?: any[];
+  [key: string]: any;
+}
 
-useEffect(() => {
-    const url = "https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson";
-    d3.json(url).then(setData);
-  }, []);
+interface ChartProps {
+  data: GeoData | null;
+}
+
+export default function GeoChart({ data }: ChartProps) {
+  // 1. Tipamos o Ref explicitamente como HTMLDivElement
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!data) return;
+    // Verificações de segurança
+    if (!data || !containerRef.current) return;
 
+    // 2. Criamos o gráfico
     const chart = Plot.plot({
-      // Configuração da Projeção
       projection: {
         type: "mercator",
-        domain: data // Faz o zoom automático para caber os dados na tela
+        domain: data as any // 'any' aqui evita conflitos de tipos de projeção do D3
       },
       marks: [
-        Plot.geo(data, { 
+        Plot.geo(data as any, { 
           stroke: "white", 
           fill: "#2c3e50",
           strokeWidth: 0.5 
@@ -32,9 +40,23 @@ useEffect(() => {
       height: 600
     });
 
-    containerRef.current.append(chart);
-    return () => chart.remove();
+    // 3. Limpeza e Adição
+    // Usamos appendChild e fazemos o cast para 'Node' para evitar o erro de build
+    const container = containerRef.current;
+    container.innerHTML = ""; // Limpa duplicatas (comum no Strict Mode do React)
+    container.appendChild(chart as unknown as Node);
+
+    // 4. Cleanup
+    return () => {
+      chart.remove();
+    };
   }, [data]);
 
-return <div ref={containerRef} />;
+  return (
+    <div 
+      ref={containerRef} 
+      className="chart-container" 
+      style={{ width: "100%", height: "auto" }}
+    />
+  );
 }

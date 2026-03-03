@@ -31,9 +31,11 @@ import { useSearchParams } from "next/navigation"
 import Fornecedores from "../page"
 import { useRouter } from "next/navigation"
 
+
+
 export default function Content(props: any) {
     const [open, setOpen] = useState(false)
-    const [form, setForm] = useState()
+    const [form, setForm] = useState<any>({})
     const router = useRouter()
     const searchParams = useSearchParams()
     const status = searchParams.get('status')
@@ -124,7 +126,7 @@ export default function Content(props: any) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {props.fornecedores.map(f => (
+                            {props.fornecedores.map((f: any) => (
                                 <TableRow key={f.metadata.id}>
                                     <TableCell>
                                         <div className={f.ativo ? 'p-1 flex justify-center items-center rounded-xl border bg-blue-200' : 'p-1 flex justify-center items-center rounded-xl border bg-muted '}>

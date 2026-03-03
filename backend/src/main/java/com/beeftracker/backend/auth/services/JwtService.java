@@ -25,8 +25,11 @@ public class JwtService {
     @Value("${spring.secret}")
     private String baseKey;
 
-    private final Key key = Keys.hmacShaKeyFor(
-            baseKey.getBytes());
+    private final Key key;
+
+    public SuaClasse(@Value("${spring.secret}") String baseKey) {
+        this.key = Keys.hmacShaKeyFor(baseKey.getBytes());
+    }
 
     public String gerarToken(UserData loginForm) throws Exception {
         PasswordEncoder encoder = new BCryptPasswordEncoder();
