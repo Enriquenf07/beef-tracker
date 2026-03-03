@@ -27,7 +27,7 @@ public class FornecedorController extends BaseController {
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody FornecedorData fornecedorData) throws URISyntaxException {
+    public ResponseEntity<?> cadastrar(@RequestBody FornecedorData fornecedorData) throws Exception {
         Long id = fornecedorService.cadastrar(fornecedorData);
         return ResponseEntity.created(new URI("/compras/fornecedor/" + id)).build();
     }

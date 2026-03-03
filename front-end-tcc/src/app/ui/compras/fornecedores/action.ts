@@ -5,9 +5,6 @@ import { redirect, RedirectType } from "next/navigation";
 
 export async function handleCadastro(formData: FormData) {
     'use server'
-
-    let isSuccess = false;
-
     try {
         const nome = formData.get('nome')
         const apelido = formData.get('apelido')
@@ -19,22 +16,16 @@ export async function handleCadastro(formData: FormData) {
         if (!id) {
             const { data } = await api.post("/compras/fornecedor", {
                 nome, apelido, cnpj, cep, endereco
-            })
+            }) as any
         } else {
             const { data } = await api.put("/compras/fornecedor/" + id, {
                 nome, apelido, cnpj, cep, endereco
-            })
+            }) as any
         }
-        isSuccess = true;
-
-    } catch (error) {
-        console.error('Login failed:', error)
-    }
-
-    if (isSuccess) {
-        redirect('/ui/compras/fornecedores?success=true', RedirectType.push)
-    } else {
-        redirect('/ui/compras/fornecedores?success=false', RedirectType.push)
+    } catch (e: any) {
+        return e.response?.data
+    } finally {
+        revalidatePath('/ui/compras/fornecedores')
     }
 }
 
@@ -44,12 +35,10 @@ export async function handleInativar(id: number, status: boolean) {
         await api.put("/compras/fornecedor/" + id + '/status', {
             status
         })
-    } catch (e) {
-        console.log(e)
-        throw e
+    } catch (e: any) {
+        return e.response?.data
     } finally {
         revalidatePath('/ui/compras/fornecedores')
-
     }
 
 }

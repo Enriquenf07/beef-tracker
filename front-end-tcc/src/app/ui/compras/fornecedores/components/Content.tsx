@@ -35,7 +35,7 @@ import { useRouter } from "next/navigation"
 
 export default function Content(props: any) {
     const [open, setOpen] = useState(false)
-    const [error, setError] = useState(false)
+    const [error, setError] = useState<string | null>(null)
     const [form, setForm] = useState<any>({})
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -45,14 +45,25 @@ export default function Content(props: any) {
 
     const onHandleInativar = async () => {
         startTransition(async () => {
-            try {
-                await handleInativar(form?.metadata.id, !form?.ativo);
-            } catch (e) {
-                setError(true)
+            const erro = await handleInativar(form?.metadata.id, !form?.ativo) as any
+            if (erro) {
+                setError(erro.detail)
             }
             setOpen(false)
         })
     }
+    const onHandleCadastro = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const formData = new FormData(e.currentTarget)
+        startTransition(async () => {
+            const erro =  await handleCadastro(formData) as any;
+            if (erro) {
+                setError(erro.detail)
+            }
+            setOpen(false)
+        })
+    }
+    
     return (
         <>
             <div className="flex justify-between">
@@ -75,7 +86,7 @@ export default function Content(props: any) {
                             </DialogHeader>
                             {isPending ? <p>Carregando...</p> : (
                                 <>
-                                    <form action={handleCadastro} className="flex flex-col gap-2">
+                                    <form onSubmit={onHandleCadastro} className="flex flex-col gap-2">
                                         <input hidden name="id" defaultValue={form?.metadata?.id} />
                                         <Input placeholder="Nome"
                                             name="nome" type="text" defaultValue={form?.data?.nome} />
@@ -108,8 +119,8 @@ export default function Content(props: any) {
             <div>
                 {error && (
                     <div className="p-3 bg-red-100 rounded-md flex gap-2 items-center mb-2">
-                        <button onClick={() => setError(false)}className="text-xs">X</button>
-                        <p>Ocorreu um erro, tente novamente mais tarde.</p>
+                        <button onClick={() => setError(null)} className="text-xs">X</button>
+                        <p>{error}</p>
                     </div>
                 )}
                 <form className="flex gap-3">
