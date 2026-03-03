@@ -18,12 +18,8 @@ public class AuthController {
         this.service = service;
     }
     @PostMapping
-    public ResponseEntity<?> login(@RequestBody UserData user){
-        try{
-            return ResponseEntity.ok(new Token(service.gerarToken(user)));
-        }catch(Exception e){
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<?> login(@RequestBody UserData user) throws Exception {
+        return ResponseEntity.ok(new Token(service.gerarToken(user)));
     }
 }
 

@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.beeftracker.backend.compras.fornecedores.models.FornecedorData;
@@ -14,9 +16,17 @@ public class FornecedorCustomRepositoryImpl implements FornecedorCustomRepositor
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     @Override
-    public void salvar(FornecedorData fornecedor) {
+    public Long salvar(FornecedorData fornecedor) {
         String sql = "INSERT INTO fornecedores(nome, apelido, cep, cnpj, endereco) VALUES (:nome, :apelido, :cep, :cnpj, :endereco)";
-        jdbcTemplate.update(sql, new BeanPropertySqlParameterSource(fornecedor));
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(
+                sql,
+                new BeanPropertySqlParameterSource(fornecedor),
+                keyHolder,
+                new String[] {"id"} // Informe aqui o nome da coluna da chave primária no banco
+        );
+        return keyHolder.getKey() != null ? keyHolder.getKey().longValue() : null;
     }
 
     @Override

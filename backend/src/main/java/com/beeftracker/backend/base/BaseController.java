@@ -1,4 +1,4 @@
-package com.beeftracker.core.base;
+package com.beeftracker.backend.base;
 
 public class BaseController {
     

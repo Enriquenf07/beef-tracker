@@ -5,6 +5,7 @@ public record FornecedorData(
         String apelido,
         String cnpj,
         String cep,
+        Boolean ativo,
         String endereco) {
 
 }

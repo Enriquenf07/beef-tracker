@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import com.beeftracker.backend.compras.fornecedores.models.FornecedorData;
 
 public interface FornecedorCustomRepository {
-    void salvar(FornecedorData fornecedor);
+    Long salvar(FornecedorData fornecedor);
 
     void atualizar(Long id, FornecedorData fornecedorData);
     void atualizarStatus(Long id, Boolean status);
