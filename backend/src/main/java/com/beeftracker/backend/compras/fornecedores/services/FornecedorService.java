@@ -3,6 +3,7 @@ package com.beeftracker.backend.compras.fornecedores.services;
 import java.util.Comparator;
 import java.util.List;
 
+import com.beeftracker.backend.base.exceptions.InvalidFormException;
 import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +24,14 @@ public class FornecedorService {
         return fornecedores.stream().sorted(Comparator.comparingLong(f -> f.metadata().id())).toList();
     }
 
-    public Long cadastrar(FornecedorData fornecedorData) {
+    public Long cadastrar(FornecedorData fornecedorData) throws InvalidFormException {
+        fornecedorData.validate();
         return fornecedorRepository.salvar(fornecedorData);
     }
 
-    public void atualizar(Long id, FornecedorData fornecedorData) throws ResourceNotFoundException {
+    public void atualizar(Long id, FornecedorData fornecedorData) throws ResourceNotFoundException, InvalidFormException {
         findById(id);
+        fornecedorData.validate();
         fornecedorRepository.atualizar(id, fornecedorData);
     }
 
