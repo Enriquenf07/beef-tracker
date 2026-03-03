@@ -2,12 +2,12 @@ import axios, { AxiosRequestConfig } from "axios"
 import { checkSession } from "./sessions"
 
 export const publicApi = axios.create({
-    baseURL: `http://${API_URL}/public`,
+    baseURL: `http://${process.env.API_URL}/public`,
 });
 
 export const createApi = async () => {
     const instance = axios.create({
-        baseURL: `http://${API_URL}`,
+        baseURL: `http://${process.env.API_URL}`,
     });
     const jwt = await checkSession()
     instance.interceptors.request.use((config) => {
