@@ -27,7 +27,7 @@ public class JwtService {
 
     private final Key key;
 
-    public SuaClasse(@Value("${spring.secret}") String baseKey) {
+    public JwtService(@Value("${spring.secret}") String baseKey) {
         this.key = Keys.hmacShaKeyFor(baseKey.getBytes());
     }
 
