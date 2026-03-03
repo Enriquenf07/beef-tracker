@@ -22,8 +22,6 @@ public class JwtService {
     public JwtService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-    @Value("${spring.secret}")
-    private String baseKey;
 
     private final Key key;
 
