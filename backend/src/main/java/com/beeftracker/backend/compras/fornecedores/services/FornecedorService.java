@@ -30,8 +30,9 @@ public class FornecedorService {
         fornecedorRepository.atualizar(id, fornecedorData);
     }
 
-    public void atualizarStatus(Long id, Boolean status) {
-        fornecedorRepository.atualizarStatus(id, status);
+    public void atualizarStatus(Long id) {
+        Fornecedor fornecedor = fornecedorRepository.buscarPorId(id).orElse(null);
+        fornecedorRepository.atualizarStatus(id, !fornecedor.ativo());
     }
 
 }

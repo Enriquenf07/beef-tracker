@@ -1,5 +1,5 @@
 import { redirect, RedirectType } from 'next/navigation'
-import {  createSession } from '@/app/lib/sessions'
+import { createSession } from '@/app/lib/sessions'
 import { publicApi } from '../lib/api';
 
 export async function handleLogin(formData: FormData) {
@@ -10,9 +10,12 @@ export async function handleLogin(formData: FormData) {
     try {
         const email = formData.get('email')
         const password = formData.get('password')
-       const {data} = await publicApi.post("/auth", {
-            email, senha: password
+        const response = await fetch(`${process.env.API_URL}/public/auth`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, senha: password }),
         })
+        const data: any = await response.json();
         await createSession(data.token)
         isSuccess = true;
 

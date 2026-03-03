@@ -37,6 +37,7 @@ export async function isAuthenticated() {
         const response = await api.get("/auth/validate")
         success = true
     }catch(error){
+        console.log("Session validation failed:", error)
         success = false
     }
     if (!success) {

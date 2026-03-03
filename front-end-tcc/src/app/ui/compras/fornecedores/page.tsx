@@ -11,11 +11,10 @@ export default async function Fornecedores(props: any) {
         chave: searchParams?.chave,
         status: searchParams?.status,
     }
-    console.log(params)
     try {
         const { data } = await api.get('/compras/fornecedor', {
             params: {...params, status: params.status != 'null' ? params.status : null}
-        })
+        }) as any
         fornecedores = data
     } catch (e) {
         fornecedores = []

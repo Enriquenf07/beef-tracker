@@ -39,23 +39,17 @@ export async function handleCadastro(formData: FormData) {
 }
 
 export async function handleInativar(id: number, status: boolean) {
-    console.log('try', id, status)
     const api = await createApi()
-    let isSuccess = false;
     try {
         await api.put("/compras/fornecedor/" + id + '/status', {
             status
         })
-        isSuccess = true
-    }catch(e){
-        isSuccess = false
-    }
-    
-    if (isSuccess) {
+    } catch (e) {
+        console.log(e)
+        throw e
+    } finally {
         revalidatePath('/ui/compras/fornecedores')
-        redirect('/ui/compras/fornecedores?success=true', RedirectType.push)
-    } else {
-        revalidatePath('/ui/compras/fornecedores')
-        redirect('/ui/compras/fornecedores?success=false', RedirectType.push)
+
     }
+
 }

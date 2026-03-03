@@ -21,7 +21,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { Input } from "@/components/ui/input"
 
 
@@ -35,16 +35,23 @@ import { useRouter } from "next/navigation"
 
 export default function Content(props: any) {
     const [open, setOpen] = useState(false)
+    const [error, setError] = useState(false)
     const [form, setForm] = useState<any>({})
     const router = useRouter()
     const searchParams = useSearchParams()
     const status = searchParams.get('status')
     const chave = searchParams.get('chave')
+    const [isPending, startTransition] = useTransition()
 
     const onHandleInativar = async () => {
-        router.refresh()
-        setOpen(false)
-        await handleInativar(form?.metadata.id, !form?.ativo);
+        startTransition(async () => {
+            try {
+                await handleInativar(form?.metadata.id, !form?.ativo);
+            } catch (e) {
+                setError(true)
+            }
+            setOpen(false)
+        })
     }
     return (
         <>
@@ -64,36 +71,47 @@ export default function Content(props: any) {
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>{!form?.metadata?.id ? 'Cadastrar Fornecedor' : 'Editar Fornecedor'}</DialogTitle>
-                                <form action={handleCadastro} className="flex flex-col gap-2">
-                                    <input hidden name="id" defaultValue={form?.metadata?.id} />
-                                    <Input placeholder="Nome"
-                                        name="nome" type="text" defaultValue={form?.data?.nome} />
-                                    <Input placeholder="Apelido"
-                                        name="apelido" type="text" defaultValue={form?.data?.apelido} />
-                                    <Input placeholder="CNPJ"
-                                        name="cnpj" type="text" defaultValue={form?.data?.cnpj} />
-                                    <Input placeholder="CEP"
-                                        name="cep" type="text" defaultValue={form?.data?.cep} />
-                                    <Input placeholder="Endereço"
-                                        name="endereco" type="text" defaultValue={form?.data?.endereco} />
-                                    <Button type="submit">Salvar</Button>
-                                </form>
-                                {form?.metadata?.id && (
-                                    <Button
-                                        className={
-                                            form?.ativo
-                                                ? "bg-destructive hover:bg-destructive-hover text-white"
-                                                : "bg-accent hover:bg-accent-hover text-white"
-                                        }
-                                        onClick={onHandleInativar}>{form?.ativo ? 'Inativar' : 'Ativar'}</Button>
 
-                                )}
                             </DialogHeader>
+                            {isPending ? <p>Carregando...</p> : (
+                                <>
+                                    <form action={handleCadastro} className="flex flex-col gap-2">
+                                        <input hidden name="id" defaultValue={form?.metadata?.id} />
+                                        <Input placeholder="Nome"
+                                            name="nome" type="text" defaultValue={form?.data?.nome} />
+                                        <Input placeholder="Apelido"
+                                            name="apelido" type="text" defaultValue={form?.data?.apelido} />
+                                        <Input placeholder="CNPJ"
+                                            name="cnpj" type="text" defaultValue={form?.data?.cnpj} />
+                                        <Input placeholder="CEP"
+                                            name="cep" type="text" defaultValue={form?.data?.cep} />
+                                        <Input placeholder="Endereço"
+                                            name="endereco" type="text" defaultValue={form?.data?.endereco} />
+                                        <Button type="submit">Salvar</Button>
+                                    </form>
+                                    {form?.metadata?.id && (
+                                        <Button
+                                            className={
+                                                form?.ativo
+                                                    ? "bg-destructive hover:bg-destructive-hover text-white"
+                                                    : "bg-accent hover:bg-accent-hover text-white"
+                                            }
+                                            onClick={onHandleInativar}>{form?.ativo ? 'Inativar' : 'Ativar'}</Button>
+
+                                    )}
+                                </>
+                            )}
                         </DialogContent>
                     </Dialog>
                 </div>
             </div>
             <div>
+                {error && (
+                    <div className="p-3 bg-red-100 rounded-md flex gap-2 items-center mb-2">
+                        <button onClick={() => setError(false)}className="text-xs">X</button>
+                        <p>Ocorreu um erro, tente novamente mais tarde.</p>
+                    </div>
+                )}
                 <form className="flex gap-3">
                     <Input className="w-1/5" name="chave" defaultValue={chave || undefined} type="text" placeholder="Pesquisar" />
                     <Select defaultValue={status || undefined} name="status">
@@ -108,7 +126,7 @@ export default function Content(props: any) {
                             </SelectGroup>
                         </SelectContent>
                     </Select>
-                    <Button type="submit" ><Search/></Button>
+                    <Button type="submit" ><Search /></Button>
                 </form>
             </div>
             <div className="p-5 flex flex-col gap-3 justify-start">

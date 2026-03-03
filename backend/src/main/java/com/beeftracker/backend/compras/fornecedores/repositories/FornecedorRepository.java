@@ -1,6 +1,7 @@
 package com.beeftracker.backend.compras.fornecedores.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -19,5 +20,8 @@ public interface FornecedorRepository extends CrudRepository<Fornecedor, Long>, 
        "(:chave IS NULL OR LOWER(f.endereco) LIKE LOWER(CONCAT('%', :chave, '%')))) AND " +
        "(:status IS NULL OR f.ativo = :status)")
 List<Fornecedor> pesquisar(@Param("chave") String chave, @Param("status") Boolean status);
+
+    @Query("SELECT * FROM fornecedores WHERE id = :id")
+    Optional<Fornecedor> buscarPorId(Long id);
 
 }

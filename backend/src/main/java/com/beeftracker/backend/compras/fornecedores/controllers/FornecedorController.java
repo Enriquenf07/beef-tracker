@@ -41,8 +41,8 @@ public class FornecedorController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<?> atualizarStatus(@PathVariable Long id, @RequestBody StatusData status) {
-        fornecedorService.atualizarStatus(id, status.status());
+    public ResponseEntity<?> atualizarStatus(@PathVariable Long id) {
+        fornecedorService.atualizarStatus(id);
         return ResponseEntity.ok().build();
     }
 }
