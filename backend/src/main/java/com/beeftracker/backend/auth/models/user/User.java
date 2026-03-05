@@ -8,6 +8,5 @@ import com.beeftracker.backend.auth.models.metadata.Metadata;
 @Table("usuarios")
 public record User(
                 @Embedded(onEmpty = Embedded.OnEmpty.USE_NULL) UserData data,
-                @Embedded(onEmpty = Embedded.OnEmpty.USE_NULL) Metadata metadata,
-                Boolean ativo) {
+                @Embedded(onEmpty = Embedded.OnEmpty.USE_NULL) Metadata metadata) {
 }
