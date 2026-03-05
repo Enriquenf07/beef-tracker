@@ -32,9 +32,7 @@ export async function handleCadastro(formData: FormData) {
 export async function handleInativar(id: number, status: boolean) {
     const api = await createApi()
     try {
-        await api.put("/compras/fornecedor/" + id + '/status', {
-            status
-        })
+        await api.patch("/compras/fornecedor/" + id + '/status')
     } catch (e: any) {
         return e.response?.data
     } finally {

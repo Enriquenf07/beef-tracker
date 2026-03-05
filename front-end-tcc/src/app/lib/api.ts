@@ -78,11 +78,11 @@ export const createApi = async () => {
                 method: 'DELETE',
                 headers: { ...headers, ...options.headers as Record<string, string> },
             }),
-        patch: (endpoint: string, body: any, options: RequestInit = {}) =>
+        patch: (endpoint: string, body?: any, options: RequestInit = {}) =>
             fetcher(`${BASE_URL}${endpoint}`, {
                 ...options,
                 method: 'PATCH',
-                body: JSON.stringify(body),
+                body: JSON.stringify(body || ""),
                 headers: { ...headers, ...options.headers as Record<string, string> },
             }),
     };

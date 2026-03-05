@@ -29,7 +29,7 @@ export default function MenuItem({ open, label, icon, onClick }: { open: boolean
         <button onClick={onClick}
             className={`
                 flex items-center gap-3 p-2 rounded-md
-                text-md text-gray-100 hover:bg-[#3B82F6] 
+                text-md text-gray-100 hover:bg-sidebar-primary 
                 transition-all duration-300 group font-bold
                 ${open ? 'w-full' : 'w-9'}
             `}

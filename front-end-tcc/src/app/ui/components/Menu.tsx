@@ -16,7 +16,7 @@ export default function Menu() {
         <div className="flex gap-1">
             <aside
                 className={`
-                    bg-[#0F172A] min-h-screen text-white p-4 
+                    bg-sidebar min-h-screen text-white p-4 
                     transition-all duration-600 ease-in-out
                     ${open ? 'w-64' : 'w-20'} 
                 `}

@@ -51,60 +51,63 @@
 
 :root {
     --radius: 0.625rem;
-    
-    /* Fundo Principal e Texto */
-    --background: oklch(0.98 0.01 235); /* Um branco levemente azulado (Cinza Gelo) */
-    --foreground: #1E293B;             /* Slate Dark para texto principal */
-    
-    /* Cards e Popovers */
-    --card: oklch(1 0 0);
-    --card-foreground: #1E293B;
-    --popover: oklch(1 0 0);
-    --popover-foreground: #1E293B;
-    
-    /* Primária (Azul Oceano) e Texto sobre ela (Branco) */
-    --primary: #1E40AF;
-    --primary-foreground: #FFFFFF;
-    
-    /* Secundária (Para elementos menos importantes) */
-    --secondary: #64748B;              /* Slate Blue */
-    --secondary-foreground: #FFFFFF;
-    
-    /* Muted (Inputs desabilitados, placeholders) */
-    --muted: oklch(0.92 0.01 235);
-    --muted-foreground: #64748B;
-    
-    /* Ação/Destaque (Azul Royal que você pediu) */
-    --accent: #3B82F6; 
-    --accent-hover: #2563EB; 
-    --accent-foreground: #FFFFFF;
-    
-    /* Destrutivo (Erro/Perigo) */
-    --destructive: #E11D48;
-    --destructive-hover: #f54d6f;
-    --destructive-foreground: #FFFFFF;
 
-    /* Bordas e Inputs */
-    --border: #E2E8F0;
-    --input: #E2E8F0;
-    --ring: #3B82F6;
+    /* ─── FUNDO & TEXTO ─────────────────────────────────────────────── */
+    --background:           oklch(0.97 0.014 60);    /* Apricot cream bem claro    */
+    --foreground:           oklch(0.22 0.022 45);    /* Stone Brown escuro         */
 
-    /* --- SIDEBAR (MENU LATERAL DARK) --- */
-    --sidebar: #0F172A;                /* Dark Navy - Contraste forte */
-    --sidebar-foreground: #F1F5F9;     /* Texto quase branco no menu */
-    --sidebar-primary: #3B82F6;        /* Azul Royal para o item ativo */
-    --sidebar-primary-foreground: #FFFFFF;
-    --sidebar-accent: #1E293B;         /* Fundo do item quando passa o mouse (Hover) */
-    --sidebar-accent-foreground: #3B82F6; /* Cor do ícone/texto no Hover */
-    --sidebar-border: #1E293B;
-    --sidebar-ring: #3B82F6;
+    /* ─── CARDS & POPOVERS ──────────────────────────────────────────── */
+    --card:                 oklch(1.00 0.008 55);    /* Branco quente marfim       */
+    --card-foreground:      oklch(0.22 0.022 45);
+    --popover:              oklch(1.00 0.008 55);
+    --popover-foreground:   oklch(0.22 0.022 45);
 
-    /* Gráficos (Ajustados para combinar com o azul) */
-    --chart-1: #3B82F6; /* Azul Royal */
-    --chart-2: #10B981; /* Esmeralda (Sucesso) */
-    --chart-3: #F59E0B; /* Âmbar (Aviso) */
-    --chart-4: #6366F1; /* Índigo */
-    --chart-5: #0EA5E9; /* Cyan */
+    /* ─── PRIMÁRIA ───────────────────────────────────────────────────  */
+    /* Twilight Indigo — botões principais, CTA                          */
+    --primary:              oklch(0.30 0.080 262);   /* ≈ #29335c twilight indigo  */
+    --primary-foreground:   oklch(1.00 0.00  0);     /* Branco — contraste 9:1 ✓   */
+
+    /* ─── SECUNDÁRIA ─────────────────────────────────────────────────  */
+    /* Apricot Cream — badges, botões ghost                              */
+    --secondary:            oklch(0.85 0.060 60);    /* ≈ #f0cea0 apricot cream    */
+    --secondary-foreground: oklch(0.22 0.022 45);    /* Stone Brown — contraste ✓  */
+
+    /* ─── MUTED ──────────────────────────────────────────────────────  */
+    --muted:                oklch(0.93 0.020 55);    /* Apricot bem suave          */
+    --muted-foreground:     oklch(0.44 0.026 45);    /* Stone Brown médio          */
+
+    /* ─── ACCENT (DESTAQUE / ORANGE) ────────────────────────────────  */
+    --accent:               oklch(0.74 0.16  60);    /* ≈ #f3a712 orange           */
+    --accent-hover:         oklch(0.65 0.16  58);    /* 10% mais escuro            */
+    --accent-foreground:    oklch(0.15 0.020 45);    /* Dark — contraste 7:1 ✓     */
+
+    /* ─── DESTRUTIVO ─────────────────────────────────────────────────  */
+    /* Scarlet Rush — perfeito para destrutivo                           */
+    --destructive:          oklch(0.51 0.20  18);    /* ≈ #db2b39 scarlet rush     */
+    --destructive-hover:    oklch(0.59 0.18  18);    /* Hover mais claro           */
+    --destructive-foreground: oklch(1.00 0.00 0);    /* Contraste 5.5:1 ✓          */
+
+    /* ─── BORDAS & INPUTS ────────────────────────────────────────────  */
+    --border:               oklch(0.88 0.030 55);    /* Apricot/bege tênue         */
+    --input:                oklch(0.88 0.030 55);
+    --ring:                 oklch(0.74 0.16  60);    /* Orange — foco              */
+
+    /* ─── SIDEBAR TWILIGHT INDIGO ────────────────────────────────────  */
+    --sidebar:              oklch(0.30 0.080 262);   /* ≈ #29335c twilight indigo  */
+    --sidebar-foreground:   oklch(0.94 0.014 60);    /* Apricot cream claro        */
+    --sidebar-primary:      oklch(0.74 0.16  60);    /* Orange — item ativo        */
+    --sidebar-primary-foreground: oklch(0.15 0.020 45);
+    --sidebar-accent:       oklch(0.37 0.072 260);   /* Hover — indigo médio       */
+    --sidebar-accent-foreground: oklch(0.85 0.060 60);/* Apricot no hover          */
+    --sidebar-border:       oklch(0.37 0.072 260);
+    --sidebar-ring:         oklch(0.74 0.16  60);
+
+    /* ─── GRÁFICOS ───────────────────────────────────────────────────  */
+    --chart-1:              oklch(0.51 0.20  18);    /* Scarlet Rush    ≈ #db2b39  */
+    --chart-2:              oklch(0.30 0.080 262);   /* Twilight Indigo ≈ #29335c  */
+    --chart-3:              oklch(0.74 0.16  60);    /* Orange          ≈ #f3a712  */
+    --chart-4:              oklch(0.85 0.060 60);    /* Apricot Cream   ≈ #f0cea0  */
+    --chart-5:              oklch(0.36 0.022 45);    /* Stone Brown     ≈ #534d41  */
 }
 
 .dark {

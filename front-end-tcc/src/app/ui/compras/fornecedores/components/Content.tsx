@@ -103,11 +103,11 @@ export default function Content(props: any) {
                                     {form?.metadata?.id && (
                                         <Button
                                             className={
-                                                form?.ativo
+                                                form?.data?.ativo
                                                     ? "bg-destructive hover:bg-destructive-hover text-white"
                                                     : "bg-accent hover:bg-accent-hover text-white"
                                             }
-                                            onClick={onHandleInativar}>{form?.ativo ? 'Inativar' : 'Ativar'}</Button>
+                                            onClick={onHandleInativar}>{form?.data?.ativo ? 'Inativar' : 'Ativar'}</Button>
 
                                     )}
                                 </>
@@ -158,8 +158,8 @@ export default function Content(props: any) {
                             {props.fornecedores.map((f: any) => (
                                 <TableRow key={f.metadata.id}>
                                     <TableCell>
-                                        <div className={f.ativo ? 'p-1 flex justify-center items-center rounded-xl border bg-blue-200' : 'p-1 flex justify-center items-center rounded-xl border bg-muted '}>
-                                            {f.ativo ? 'Ativo' : 'Inativo'}
+                                        <div className={f.data.ativo ? 'p-1 flex justify-center items-center rounded-xl border bg-blue-200' : 'p-1 flex justify-center items-center rounded-xl border bg-muted '}>
+                                            {f.data.ativo ? 'Ativo' : 'Inativo'}
                                         </div>
                                     </TableCell>
                                     <TableCell className="font-medium">{f.data.nome}</TableCell>
