@@ -17,7 +17,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository{
     }
 
     @Override
-    public void salvar(UserData userData, String token) {
+    public void salvar(UserData userData, String token, String senhaTemp) {
         String sql = "INSERT INTO usuarios(nome, email, senha, ativo, token_primeiro_acesso, token_criado_em) VALUES (:nome, :email, :senha, :ativo, :token, :tokenData)";
 
         jdbcTemplate.update(
@@ -26,7 +26,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository{
                         .addValue("ativo", true)
                         .addValue("nome", userData.nome())
                         .addValue("email", userData.email())
-                        .addValue("senha", null)
+                        .addValue("senha", senhaTemp)
                         .addValue("token", token)
                         .addValue("tokenData", LocalDate.now())
         );
@@ -34,13 +34,15 @@ public class UserCustomRepositoryImpl implements UserCustomRepository{
 
     @Override
     public void finalizarCadastro(Long id, String senha) {
-        String sql = "UPDATE usuarios SET senha = :senha WHERE id = :id";
+        String sql = "UPDATE usuarios SET senha = :senha, token_primeiro_acesso=:token_primeiro_acesso, token_criado_em=:token_criado_em WHERE id = :id";
 
         jdbcTemplate.update(
                 sql,
                 new MapSqlParameterSource()
                         .addValue("id", id)
                         .addValue("senha", senha)
+                        .addValue("token_primeiro_acesso", null)
+                        .addValue("token_criado_em", null)
         );
     }
 }

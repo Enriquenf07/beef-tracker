@@ -54,13 +54,15 @@ public class UsuarioService {
 
     public void cadastrar(UserData user) throws ResendException {
         String token = gerarToken();
-        repository.salvar(user, token);
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String newSenha = passwordEncoder.encode(token);
+        repository.salvar(user, token, newSenha);
         enviarEmail(user.email(), token);
     }
 
     public void finalizarCadastro(Long id, String senha, String token) throws ResourceNotFoundException {
         User user = repository.findByDataTokenPrimeiroAcesso(token);
-        if(user == null){
+        if(user == null || user.metadata().id() != id){
             throw new ResourceNotFoundException();
         }
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
