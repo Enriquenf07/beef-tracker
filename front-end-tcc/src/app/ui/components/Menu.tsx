@@ -8,9 +8,10 @@ import MenuItem from "./MenuItem";
 import { useRouter } from "next/navigation";
 
 
-export default function Menu() {
+export default function Menu(props: Readonly<{ roles: string[] }>) {
     const [open, setOpen] = useState(true);
     const router = useRouter();
+    console.log("ROLES NO MENU", props.roles)
 
     return (
         <div className="flex gap-1">
@@ -29,7 +30,7 @@ export default function Menu() {
                     </div>
                 </div>
                 <div className="h-10/12">
-                    <MenuContent open={open} />
+                    <MenuContent open={open} roles={props.roles} />
                 </div>
                 <div className="h-1/12">
                     <MenuItem open={open} label="Configurações" icon="settings" onClick={() => router.push('/ui/configuracoes')} />

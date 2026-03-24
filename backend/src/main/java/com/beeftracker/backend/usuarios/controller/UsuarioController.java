@@ -16,6 +16,11 @@ public class UsuarioController {
         this.service = service;
     }
 
+    @GetMapping
+    public ResponseEntity<?> fetch()  {
+        return ResponseEntity.ok(service.pesquisar(null, null));
+    }
+
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody UserData user) throws ResendException {
         service.cadastrar(user);
@@ -27,7 +32,14 @@ public class UsuarioController {
         service.finalizarCadastro(id, senha.senha(), token);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/{id}/roles")
+    public ResponseEntity<?> getRoles(@PathVariable Long id)  {
+        return ResponseEntity.ok(service.getRoles(id));
+    }
+
 }
+
 
 record NovaSenha(
         String senha

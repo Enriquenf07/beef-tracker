@@ -1,19 +1,26 @@
 package com.beeftracker.backend.auth.repositories;
 
+import com.beeftracker.backend.auth.models.factory.UserFactory;
+import com.beeftracker.backend.auth.models.user.User;
 import com.beeftracker.backend.auth.models.user.UserData;
+import com.beeftracker.backend.base.query.QueryBuilder;
+import com.beeftracker.backend.usuarios.models.Roles;
+import io.micrometer.common.util.StringUtils;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public class UserCustomRepositoryImpl implements UserCustomRepository{
     private final NamedParameterJdbcTemplate jdbcTemplate;
+    private final UserFactory factory;
 
-    public UserCustomRepositoryImpl(NamedParameterJdbcTemplate jdbcTemplate) {
+    public UserCustomRepositoryImpl(NamedParameterJdbcTemplate jdbcTemplate, UserFactory factory) {
         this.jdbcTemplate = jdbcTemplate;
+        this.factory = factory;
     }
 
     @Override
@@ -44,5 +51,49 @@ public class UserCustomRepositoryImpl implements UserCustomRepository{
                         .addValue("token_primeiro_acesso", null)
                         .addValue("token_criado_em", null)
         );
+    }
+
+    @Override
+    public Roles findRolesByUser(Long userId) {
+        String sql = "SELECT r.nome from roles r LEFT JOIN role_usuario ru ON ru.role_id = r.id WHERE ru.usuario_id = :id";
+        List<String> roles = jdbcTemplate.query(
+                sql,
+                new MapSqlParameterSource()
+                        .addValue("id", userId),
+                (rs, rowNum) -> rs.getString("nome")
+        );
+        return new Roles(roles);
+    }
+
+    @Override
+    public List<User> pesquisar(String chave, Boolean status) {
+        QueryBuilder qb = new QueryBuilder()
+                .select("SELECT u.id, u.nome, u.email, u.ativo, u.token,\n" +
+                        "ARRAY_REMOVE(ARRAY_AGG(r.nome), NULL) as roles\n" +
+                        "FROM usuarios u\n" +
+                        "LEFT JOIN role_usuario ru ON u.id = ru.usuario_id\n" +
+                        "LEFT JOIN roles r ON ru.role_id = r.id")
+                .orderBy("u.id ASC")
+                .limit(2)
+                .groupBy("GROUP BY u.id")
+                .offset(0);
+        if(StringUtils.isNotBlank(chave)){
+            chave = chave.toLowerCase();
+            qb.where("WHERE u.nome like %:chave%");
+        }
+        if(status != null){
+            qb.where("AND status = :status");
+        }
+        String query = qb.build();
+
+
+        List<User> usuarios = jdbcTemplate.query(
+                query,
+                new MapSqlParameterSource()
+                        .addValue("chave", chave)
+                        .addValue("status", status),
+                (rs, rowNum) -> factory.create(rs)
+        );
+        return usuarios;
     }
 }

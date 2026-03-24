@@ -38,6 +38,9 @@ public class JwtService {
         if (!encoder.matches(loginForm.senha(), user.data().senha())) {
             throw new Exception();
         }
+        if(!user.data().ativo()){
+            throw new Exception();
+        }
 
         return Jwts.builder()
                 .setSubject(user.metadata().id().toString())

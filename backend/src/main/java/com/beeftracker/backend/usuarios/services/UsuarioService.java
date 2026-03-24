@@ -4,7 +4,9 @@ import com.beeftracker.backend.auth.models.user.User;
 import com.beeftracker.backend.auth.models.user.UserData;
 import com.beeftracker.backend.auth.repositories.UserRepository;
 import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
+import com.beeftracker.backend.compras.fornecedores.models.Fornecedor;
 import com.beeftracker.backend.email.EmailClient;
+import com.beeftracker.backend.usuarios.models.Roles;
 import com.resend.core.exception.ResendException;
 import com.resend.services.emails.model.CreateEmailOptions;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class UsuarioService {
@@ -70,5 +74,15 @@ public class UsuarioService {
         repository.finalizarCadastro(id, newSenha);
     }
 
+    public Roles getRoles(Long userId){
+        Roles roles = repository.findRolesByUser(userId);
+        return roles;
+    }
 
+    public List<User> pesquisar(String chave, Boolean status) {
+        List<User> usuarios = repository.pesquisar(chave, status);
+        return usuarios;
+    }
 }
+
+

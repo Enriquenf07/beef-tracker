@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import path from "path";
 
-export function MenuContent(props: Readonly<{ open: boolean }>) {
+export function MenuContent(props: Readonly<{ open: boolean, roles: string[] }>) {
     const menus = [
         {
             id: "home",
@@ -57,6 +57,7 @@ export function MenuContent(props: Readonly<{ open: boolean }>) {
                 {
             id: "usuarios",
             label: "Usuários do sistema",
+            roles: ["ADMIN"],
             icon: "users",
             path: "/ui/usuarios"
         },
@@ -86,9 +87,11 @@ export function MenuContent(props: Readonly<{ open: boolean }>) {
         }
     }
 
+    console.log("ROLES", props.roles)
+
     return (
         <div className="p-1">
-            {menuAtual.map(menu => (
+            {menuAtual.filter(i => !i.roles || i.roles.some(role => props.roles?.includes(role))).map(menu => (
                 <MenuItem onClick={() => handleClick(menu)} key={menu.id} open={props.open} label={menu.label} icon={menu.icon} />
             ))}
         </div>

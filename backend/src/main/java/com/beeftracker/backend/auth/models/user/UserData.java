@@ -1,5 +1,6 @@
 package com.beeftracker.backend.auth.models.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.annotation.Transient;
 
@@ -11,8 +12,11 @@ public record UserData(
         @Transient
         List<String> roles,
         String email,
+        @JsonIgnore
         String senha,
+        @JsonIgnore
         String tokenCriadoEm,
+        @JsonIgnore
         String tokenPrimeiroAcesso
 
         ) {

@@ -1,11 +1,9 @@
-
 'use client'
 
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -15,7 +13,6 @@ import { PenBox, Plus, Search } from "lucide-react"
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
     TableHead,
     TableHeader,
@@ -25,14 +22,13 @@ import { useState, useTransition } from "react"
 import { Input } from "@/components/ui/input"
 
 
-import { handleCadastro, handleInativar } from '../action'
+import { handleCadastro, handleInativar } from './action'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useSearchParams } from "next/navigation"
 import Fornecedores from "../page"
 import { useRouter } from "next/navigation"
 import Page from "@/app/components/CrudPage"
-
-
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 export default function Content(props: any) {
     const [open, setOpen] = useState(false)
@@ -56,18 +52,18 @@ export default function Content(props: any) {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
         startTransition(async () => {
-            const erro =  await handleCadastro(formData) as any;
+            const erro = await handleCadastro(formData) as any;
             if (erro) {
                 setError(erro.detail)
             }
             setOpen(false)
         })
     }
-    
+
     return (
         <Page.Content>
             <Page.Header>
-                <Page.Title>Fornecedores</Page.Title>
+                <Page.Title>Usuários</Page.Title>
                 <Page.Modal>
                     <Dialog open={open} onOpenChange={() => {
                         setForm({})
@@ -90,14 +86,6 @@ export default function Content(props: any) {
                                         <input hidden name="id" defaultValue={form?.metadata?.id} />
                                         <Input placeholder="Nome"
                                             name="nome" type="text" defaultValue={form?.data?.nome} />
-                                        <Input placeholder="Apelido"
-                                            name="apelido" type="text" defaultValue={form?.data?.apelido} />
-                                        <Input placeholder="CNPJ"
-                                            name="cnpj" type="text" defaultValue={form?.data?.cnpj} />
-                                        <Input placeholder="CEP"
-                                            name="cep" type="text" defaultValue={form?.data?.cep} />
-                                        <Input placeholder="Endereço"
-                                            name="endereco" type="text" defaultValue={form?.data?.endereco} />
                                         <Button type="submit">Salvar</Button>
                                     </form>
                                     {form?.metadata?.id && (
@@ -141,21 +129,18 @@ export default function Content(props: any) {
                 </form>
             </Page.Filter>
             <Page.Table>
-                {props.fornecedores.length > 0 ? (
+                {props.usuarios.length > 0 ? (
                     <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="w-30">Ativo/Inativo</TableHead>
                                 <TableHead>Nome</TableHead>
-                                <TableHead>Apelido</TableHead>
-                                <TableHead>Cnpj</TableHead>
-                                <TableHead>Cep</TableHead>
-                                <TableHead>Endereço</TableHead>
-                                <TableHead></TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Roles</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {props.fornecedores.map((f: any) => (
+                            {props.usuarios.map((f: any) => (
                                 <TableRow key={f.metadata.id}>
                                     <TableCell>
                                         <div className={f.data.ativo ? 'p-1 flex justify-center items-center rounded-xl border bg-blue-200' : 'p-1 flex justify-center items-center rounded-xl border bg-muted '}>
@@ -163,12 +148,21 @@ export default function Content(props: any) {
                                         </div>
                                     </TableCell>
                                     <TableCell className="font-medium">{f.data.nome}</TableCell>
-                                    <TableCell>{f.data.apelido}</TableCell>
-                                    <TableCell>{f.data.cnpj}</TableCell>
-                                    <TableCell>{f.data.cep}</TableCell>
-                                    <TableCell>{f.data.endereco}</TableCell>
-                                    <TableCell className="text-[#F1F5F9]">
-                                        <Button className="bg-secondary" onClick={() => {
+                                    <TableCell>{f.data.email}</TableCell>
+                                    <TableCell>
+                                        <Tooltip>
+                                            <TooltipTrigger className="bg-secondary p-1 flex justify-center items-center rounded-xl border w-full">{f.data.roles.length}</TooltipTrigger>
+                                            <TooltipContent className="">
+                                                {f.data.roles.length > 0 ? f.data.roles.map((r: string, i: number) => (
+                                                    <p key={i}>{r}</p>
+                                                )) : (
+                                                    <p>SEM ROLES</p>
+                                                )}
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TableCell>
+                                    <TableCell className="text-black">
+                                        <Button className="bg-secondary text-black hover:text-[#F1F5F9]" onClick={() => {
                                             setOpen(prev => !prev)
                                             setForm(f)
                                         }}>

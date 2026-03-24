@@ -6,7 +6,7 @@ export default async function Protected({
 }: {
     children: React.ReactNode;
 }) {
-    await isAuthenticated(); // sua função server-side
+    await isAuthenticated(); 
     return (
         <Suspense fallback={<p>carregando</p>}>
             {children}

@@ -1,4 +1,4 @@
-import 'server-only'
+'use server'
 import { cookies } from 'next/headers'
 import { redirect, RedirectType } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
@@ -23,20 +23,20 @@ export async function checkSession() {
 }
 
 export async function clearSession() {
-    "use server"
     const cookieStore = await cookies()
     cookieStore.delete('jwt')
     const jwt = await checkSession()
 }
 
 export async function isAuthenticated() {
+    console.log("auth")
     const jwt = await checkSession()
-     const api = await createApi();
+    const api = await createApi();
     let success = false
     try {
         const response = await api.get("/auth/validate")
         success = true
-    }catch(error){
+    } catch (error) {
         console.log("Session validation failed:", error)
         success = false
     }
