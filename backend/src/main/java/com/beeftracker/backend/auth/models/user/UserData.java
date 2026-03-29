@@ -1,6 +1,8 @@
 package com.beeftracker.backend.auth.models.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.annotation.Transient;
 
@@ -12,11 +14,11 @@ public record UserData(
         @Transient
         List<String> roles,
         String email,
-        @JsonIgnore
+        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         String senha,
-        @JsonIgnore
+        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         String tokenCriadoEm,
-        @JsonIgnore
+        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         String tokenPrimeiroAcesso
 
         ) {

@@ -4,7 +4,10 @@ import com.beeftracker.backend.auth.models.factory.UserFactory;
 import com.beeftracker.backend.auth.models.user.User;
 import com.beeftracker.backend.auth.models.user.UserData;
 import com.beeftracker.backend.base.query.QueryBuilder;
+import com.beeftracker.backend.usuarios.models.Role;
 import com.beeftracker.backend.usuarios.models.Roles;
+import com.beeftracker.backend.usuarios.models.RolesFull;
+
 import io.micrometer.common.util.StringUtils;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -54,15 +57,15 @@ public class UserCustomRepositoryImpl implements UserCustomRepository{
     }
 
     @Override
-    public Roles findRolesByUser(Long userId) {
-        String sql = "SELECT r.nome from roles r LEFT JOIN role_usuario ru ON ru.role_id = r.id WHERE ru.usuario_id = :id";
-        List<String> roles = jdbcTemplate.query(
+    public RolesFull findRolesByUser(Long userId) {
+        String sql = "SELECT r.nome, r.id from roles r LEFT JOIN role_usuario ru ON ru.role_id = r.id WHERE ru.usuario_id = :id";
+        List<Role> roles = jdbcTemplate.query(
                 sql,
                 new MapSqlParameterSource()
                         .addValue("id", userId),
-                (rs, rowNum) -> rs.getString("nome")
+                 (rs, rowNum) -> new Role(rs.getString("nome"), Long.parseLong(rs.getString("id")))
         );
-        return new Roles(roles);
+        return new RolesFull(roles);
     }
 
     @Override
@@ -95,5 +98,15 @@ public class UserCustomRepositoryImpl implements UserCustomRepository{
                 (rs, rowNum) -> factory.create(rs)
         );
         return usuarios;
+    }
+
+    @Override
+    public RolesFull findAllRoles() {
+        String sql = "SELECT r.nome, r.id from roles r";
+        List<Role> roles = jdbcTemplate.query(
+                sql,
+                (rs, rowNum) -> new Role(rs.getString("nome"), Long.parseLong(rs.getString("id")))
+        );
+        return new RolesFull(roles);
     }
 }

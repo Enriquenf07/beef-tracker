@@ -23,12 +23,29 @@ import { Input } from "@/components/ui/input"
 
 
 import { handleCadastro, handleInativar } from './action'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useSearchParams } from "next/navigation"
 import Fornecedores from "../page"
 import { useRouter } from "next/navigation"
 import Page from "@/app/components/CrudPage"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+//TODO separa em outro arquivo
+//Terminar o roles do cadastro
+function SelectOne(props: any) {
+    return (
+
+        <Select onValueChange={props.onChange}>
+            <SelectTrigger className="w-full max-w-48">
+                <SelectValue placeholder={props.placeholder} />
+            </SelectTrigger>
+            <SelectContent>
+                    {props.options.map((i: any, index: any) => (
+                        <SelectItem key={index} value={i.value}>{i.nome}</SelectItem>
+                    ))}
+            </SelectContent>
+        </Select>
+    )
+}
 
 export default function Content(props: any) {
     const [open, setOpen] = useState(false)
@@ -38,6 +55,7 @@ export default function Content(props: any) {
     const status = searchParams.get('status')
     const chave = searchParams.get('chave')
     const [isPending, startTransition] = useTransition()
+    const [roles, setRoles] = useState<Array<any>>([])
 
     const onHandleInativar = async () => {
         startTransition(async () => {
@@ -68,6 +86,7 @@ export default function Content(props: any) {
                     <Dialog open={open} onOpenChange={() => {
                         setForm({})
                         setOpen(prev => !prev)
+                        setRoles([])
                     }}>
                         <DialogTrigger>
                             <Button >
@@ -77,7 +96,7 @@ export default function Content(props: any) {
                         </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
-                                <DialogTitle>{!form?.metadata?.id ? 'Cadastrar Fornecedor' : 'Editar Fornecedor'}</DialogTitle>
+                                <DialogTitle>{!form?.metadata?.id ? 'Cadastrar Usuário' : 'Editar Usuário'}</DialogTitle>
 
                             </DialogHeader>
                             {isPending ? <p>Carregando...</p> : (
@@ -86,8 +105,20 @@ export default function Content(props: any) {
                                         <input hidden name="id" defaultValue={form?.metadata?.id} />
                                         <Input placeholder="Nome"
                                             name="nome" type="text" defaultValue={form?.data?.nome} />
+                                        <Input placeholder="Email"
+                                            name="email" type="text" defaultValue={form?.data?.email} />
+                                        <Input placeholder="Permissões" type="s" defaultValue={form?.data?.roles} />
+                                        <SelectOne options={props.roles.map(i => ({nome: i.nome, value: i}))} onChange={(e: any) => setRoles(p => [...p, {id: e.id, nome: e.nome, salvo: false}])}/>
+                                        <div>
+                                            {roles.map(i => (
+                                                <>
+                                                    {i.nome}
+                                                </>
+                                            ))}
+                                        </div>
                                         <Button type="submit">Salvar</Button>
                                     </form>
+
                                     {form?.metadata?.id && (
                                         <Button
                                             className={

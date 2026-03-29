@@ -38,6 +38,11 @@ public class UsuarioController {
         return ResponseEntity.ok(service.getRoles(id));
     }
 
+    @GetMapping("/roles")
+    public ResponseEntity<?> getAllRoles()  {
+        return ResponseEntity.ok(service.getAllRoles());
+    }
+
 }
 
 
