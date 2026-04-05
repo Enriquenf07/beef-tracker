@@ -18,7 +18,9 @@ public class UserFactory {
 
     public User create(ResultSet rs) throws SQLException {
         Array sqlArray = rs.getArray("roles");
+        Array sqlArrayId = rs.getArray("rolesId");
         List<String> roles;
+        List<Long> rolesId;
 
         if (sqlArray != null) {
             Object[] objArray = (Object[]) sqlArray.getArray();
@@ -30,8 +32,18 @@ public class UserFactory {
             roles = List.of();
         }
 
+        if (sqlArrayId != null) {
+            Object[] objArray = (Object[]) sqlArrayId.getArray();
+            rolesId = Arrays.stream(objArray)
+                    .filter(Objects::nonNull)
+                    .map(obj -> Long.parseLong(obj.toString()))
+                    .toList();
+        } else {
+            rolesId = List.of();
+        }
         UserData data = new UserDataBuilder()
                 .roles(roles)
+                .rolesId(rolesId)
                 .nome(rs.getString("nome"))
                 .ativo(rs.getBoolean("ativo"))
                 .email(rs.getString("email"))
@@ -43,7 +55,6 @@ public class UserFactory {
                 .build();
         return new User(
                 data,
-                metadata
-        );
+                metadata);
     }
 }

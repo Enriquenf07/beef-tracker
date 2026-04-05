@@ -8,19 +8,16 @@ import { Badge } from "@/components/ui/badge"
 import { Plus, Check, Shield, ShieldOff } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const AVAILABLE_ROLES = [
-  { value: "ADMIN", label: "Administrador", description: "Acesso total ao sistema" },
-  { value: "USER", label: "Usuário", description: "Acesso básico" },
-  { value: "LOG", label: "logistica", description: "Acesso" },
-]
 
-export function UserDialog({ form, setForm, isPending, onHandleCadastro, onHandleInativar, open, setOpen, selectedRoles, setSelectedRoles }: any) {
 
+export function UserDialog({ rolesOptions, form, setForm, isPending, onHandleCadastro, onHandleInativar, open, setOpen, selectedRoles, setSelectedRoles }: any) {
+  console.log("opt", rolesOptions)
   const toggleRole = (role: string) => {
     setSelectedRoles(prev =>
       prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]
     )
   }
+  console.log('slr', selectedRoles)
 
   const handleOpenChange = () => {
     setForm({})
@@ -90,61 +87,65 @@ export function UserDialog({ form, setForm, isPending, onHandleCadastro, onHandl
                 </>
               )}
 
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-foreground">
-                  Permissões
-                </label>
+              {
+                form?.metadata?.id && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-foreground">
+                      Permissões
+                    </label>
 
-                {selectedRoles.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-1">
-                    {selectedRoles.map(role => {
-                      const found = AVAILABLE_ROLES.find(r => r.value === role)
-                      return (
-                        <Badge key={role} variant="secondary" className="text-xs">
-                          {found?.label ?? role}
-                        </Badge>
-                      )
-                    })}
+                    {selectedRoles.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-1">
+                        {selectedRoles.map(role => {
+                          const found = rolesOptions.find(r => r.id === role)
+                          return (
+                            <Badge key={role} variant="secondary" className="text-xs">
+                              {found?.nome ?? role}
+                            </Badge>
+                          )
+                        })}
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-2">
+                      {rolesOptions.map(role => {
+                        const isSelected = selectedRoles.includes(role.id)
+                        return (
+                          <button
+                            key={role.id}
+                            type="button"
+                            onClick={() => toggleRole(role.id)}
+                            className={cn(
+                              "flex items-start gap-2 rounded-md border p-2.5 text-left text-sm transition-all",
+                              "hover:bg-accent hover:border-accent",
+                              isSelected
+                                ? "border-primary bg-primary/5 text-primary"
+                                : "border-border bg-background text-muted-foreground"
+                            )}
+                          >
+                            <span className={cn(
+                              "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border",
+                              isSelected
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : "border-muted-foreground"
+                            )}>
+                              {isSelected && <Check className="h-3 w-3" />}
+                            </span>
+                            <span className="flex flex-col">
+                              <span className={cn("font-medium", isSelected && "text-primary")}>
+                                {role.nome}
+                              </span>
+                              <span className="text-xs text-muted-foreground leading-tight">
+                                {role.descricao}
+                              </span>
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-2">
-                  {AVAILABLE_ROLES.map(role => {
-                    const isSelected = selectedRoles.includes(role.value)
-                    return (
-                      <button
-                        key={role.value}
-                        type="button"
-                        onClick={() => toggleRole(role.value)}
-                        className={cn(
-                          "flex items-start gap-2 rounded-md border p-2.5 text-left text-sm transition-all",
-                          "hover:bg-accent hover:border-accent",
-                          isSelected
-                            ? "border-primary bg-primary/5 text-primary"
-                            : "border-border bg-background text-muted-foreground"
-                        )}
-                      >
-                        <span className={cn(
-                          "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border",
-                          isSelected
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-muted-foreground"
-                        )}>
-                          {isSelected && <Check className="h-3 w-3" />}
-                        </span>
-                        <span className="flex flex-col">
-                          <span className={cn("font-medium", isSelected && "text-primary")}>
-                            {role.label}
-                          </span>
-                          <span className="text-xs text-muted-foreground leading-tight">
-                            {role.description}
-                          </span>
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
+                )
+              }
 
               <Button type="submit" className="mt-1">Salvar</Button>
             </form>

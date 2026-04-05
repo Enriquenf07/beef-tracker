@@ -2,6 +2,7 @@ package com.beeftracker.backend.usuarios.controller;
 
 import com.beeftracker.backend.auth.models.user.UserData;
 import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
+import com.beeftracker.backend.usuarios.models.RolesFull;
 import com.beeftracker.backend.usuarios.services.UsuarioService;
 import com.resend.core.exception.ResendException;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +28,9 @@ public class UsuarioController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping
-    public ResponseEntity<?> editar(@RequestBody UserData user) throws ResourceNotFoundException {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody UserData user) throws ResourceNotFoundException {
+        //roles id e criar método
         return ResponseEntity.ok().build();
     }
 
@@ -51,7 +53,8 @@ public class UsuarioController {
 
     @GetMapping("/roles")
     public ResponseEntity<?> getAllRoles()  {
-        return ResponseEntity.ok(service.getAllRoles());
+        RolesFull roles =  service.getAllRoles();
+        return ResponseEntity.ok(roles);
     }
 
 }

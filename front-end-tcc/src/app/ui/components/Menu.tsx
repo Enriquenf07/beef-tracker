@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 export default function Menu(props: Readonly<{ roles: string[] }>) {
     const [open, setOpen] = useState(true);
     const router = useRouter();
-    console.log("ROLES NO MENU", props.roles)
 
     return (
         <div className="flex gap-1">

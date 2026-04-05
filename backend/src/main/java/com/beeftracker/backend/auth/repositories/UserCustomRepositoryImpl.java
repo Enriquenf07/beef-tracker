@@ -57,12 +57,12 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
     @Override
     public RolesFull findRolesByUser(Long userId) {
-        String sql = "SELECT r.nome, r.id from roles r LEFT JOIN role_usuario ru ON ru.role_id = r.id WHERE ru.usuario_id = :id";
+        String sql = "SELECT r.nome, r.descricao, r.id from roles r LEFT JOIN role_usuario ru ON ru.role_id = r.id WHERE ru.usuario_id = :id";
         List<Role> roles = jdbcTemplate.query(
                 sql,
                 new MapSqlParameterSource()
                         .addValue("id", userId),
-                (rs, rowNum) -> new Role(rs.getString("nome"), Long.parseLong(rs.getString("id"))));
+                (rs, rowNum) -> new Role(rs.getString("nome"), rs.getString("descricao"), Long.parseLong(rs.getString("id"))));
         return new RolesFull(roles);
     }
 
@@ -71,6 +71,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         StringBuilder sql = new StringBuilder(
                 "SELECT u.id, u.nome, u.email, u.ativo, u.token, " +
                         "ARRAY_REMOVE(ARRAY_AGG(r.nome), NULL) as roles, " +
+                        "ARRAY_REMOVE(ARRAY_AGG(r.id), NULL) as rolesId, " +
                         "CASE WHEN u.token_primeiro_acesso IS NOT NULL THEN false ELSE true END as cadastrado " +
                         "FROM usuarios u " +
                         "LEFT JOIN role_usuario ru ON u.id = ru.usuario_id " +
@@ -105,10 +106,10 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
     @Override
     public RolesFull findAllRoles() {
-        String sql = "SELECT r.nome, r.id from roles r";
+        String sql = "SELECT r.nome, r.descricao, r.id from roles r";
         List<Role> roles = jdbcTemplate.query(
                 sql,
-                (rs, rowNum) -> new Role(rs.getString("nome"), Long.parseLong(rs.getString("id"))));
+                (rs, rowNum) -> new Role(rs.getString("nome"), rs.getString("descricao"), Long.parseLong(rs.getString("id"))));
         return new RolesFull(roles);
     }
 
@@ -138,5 +139,21 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .addValue("id", id);
 
         return jdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> factory.create(rs));
+    }
+
+    @Override
+    public void editarRoles(Long id, UserData data) {
+        String deleteSql = "DELETE FROM role_usuario WHERE usuario_id = :id";
+        jdbcTemplate.update(deleteSql, new MapSqlParameterSource().addValue("id", id));
+        if (data.roles() != null && !data.roles().isEmpty()) {
+            String insertSql = "INSERT INTO role_usuario (usuario_id, role_id) " +
+                    "SELECT :usuarioId, r.id FROM roles r WHERE r.nome = :role";
+
+            for (String role : data.roles()) {
+                jdbcTemplate.update(insertSql, new MapSqlParameterSource()
+                        .addValue("usuarioId", id)
+                        .addValue("role", role));
+            }
+        }
     }
 }

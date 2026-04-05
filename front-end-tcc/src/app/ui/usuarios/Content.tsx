@@ -55,7 +55,7 @@ export default function Content(props: any) {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
         const body: Record<string, any> = Object.fromEntries(formData.entries())
-        body.roles = selectedRoles
+        body.rolesId = selectedRoles
         startTransition(async () => {
             const erro = await handleCadastro(body) as any;
             if (erro) {
@@ -78,6 +78,7 @@ export default function Content(props: any) {
                         onHandleInativar={onHandleInativar}
                         open={open}
                         setOpen={setOpen}
+                        rolesOptions={props.roles}
                         setSelectedRoles={setSelectedRoles}
                         selectedRoles={selectedRoles}
                     />
@@ -149,7 +150,7 @@ export default function Content(props: any) {
                                         <Button className="bg-secondary text-black hover:text-[#F1F5F9]" onClick={() => {
                                             setOpen(prev => !prev)
                                             setForm(f)
-                                            setSelectedRoles(f?.data?.roles ?? [])
+                                            setSelectedRoles(f?.data?.rolesId ?? [])
                                         }}>
                                             <PenBox />
                                         </Button>

@@ -8,6 +8,7 @@ public class UserDataBuilder {
     private String nome;
     private Boolean ativo;
     private List<String> roles = List.of();
+    private List<Long> rolesId = List.of();
     private String email;
     private String senha;
     private String tokenCriadoEm;
@@ -34,6 +35,11 @@ public class UserDataBuilder {
         return this;
     }
 
+    public UserDataBuilder rolesId(List<Long> roles) {
+        this.rolesId = roles;
+        return this;
+    }
+
     public UserDataBuilder email(String email) {
         this.email = email;
         return this;
@@ -55,6 +61,6 @@ public class UserDataBuilder {
     }
 
     public UserData build() {
-        return new UserData(nome, ativo, roles, cadastrado, email, senha, tokenCriadoEm, tokenPrimeiroAcesso);
+        return new UserData(nome, ativo, roles, rolesId, cadastrado, email, senha, tokenCriadoEm, tokenPrimeiroAcesso);
     }
 }

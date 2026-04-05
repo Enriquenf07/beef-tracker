@@ -17,4 +17,5 @@ public interface UserCustomRepository {
     void editarStatus(Long id, boolean b);
     List<User> pesquisar(String chave, Boolean status);
     User carregar(Long id);
+    void editarRoles(Long id, UserData data);
 }
