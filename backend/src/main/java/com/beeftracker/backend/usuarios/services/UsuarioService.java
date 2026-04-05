@@ -30,7 +30,7 @@ public class UsuarioService {
         this.repository = repository;
     }
 
-    public void enviarEmail(String to, String token) throws ResendException {
+    public void enviarEmail(String nome, String to, String token) throws ResendException {
         CreateEmailOptions email = CreateEmailOptions.builder()
                 .from("CRM Frigorífico <suporte@beeftracker.xyz>")
                 .to(to)
@@ -46,7 +46,7 @@ public class UsuarioService {
                         <small>Se você não criou uma conta, ignore este e-mail.</small>
                       </body>
                     </html>
-                """.formatted("enrique", "beeftracker.xyz/cadastro?token=" + token))
+                """.formatted(nome, "beeftracker.xyz/cadastro?token=" + token))
                 .build();
         emailClient.enviarEmail(email);
     }
@@ -64,7 +64,7 @@ public class UsuarioService {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String newSenha = passwordEncoder.encode(token);
         repository.salvar(user, token, newSenha);
-        enviarEmail(user.email(), token);
+        enviarEmail(user.nome(), user.email(), token);
     }
 
     public void finalizarCadastro(Long id, String senha, String token) throws ResourceNotFoundException {
