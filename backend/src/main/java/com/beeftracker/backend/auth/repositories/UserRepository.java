@@ -12,4 +12,5 @@ public interface UserRepository extends CrudRepository<User, Long>, UserCustomRe
     User findByDataEmail(String email);
     @Query("SELECT * FROM usuarios WHERE token_primeiro_acesso = :token")
     User findByDataTokenPrimeiroAcesso(@Param("token") String token);
+    
 }

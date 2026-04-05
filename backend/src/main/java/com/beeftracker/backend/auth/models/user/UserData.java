@@ -13,6 +13,9 @@ public record UserData(
         Boolean ativo,
         @Transient
         List<String> roles,
+        @Transient
+        @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+        Boolean cadastrado,
         String email,
         @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         String senha,
@@ -23,7 +26,7 @@ public record UserData(
 
         ) {
     @PersistenceCreator
-    public UserData(Boolean ativo, String email, String senha, String nome, String tokenCriadoEm, String tokenPrimeiroAcesso) {
-        this(nome, ativo, List.of(), email, senha, tokenCriadoEm, tokenPrimeiroAcesso);
+    public UserData(Boolean ativo, Boolean cadastrado, String email, String senha, String nome, String tokenCriadoEm, String tokenPrimeiroAcesso) {
+        this(nome, ativo, List.of(), cadastrado, email, senha, tokenCriadoEm, tokenPrimeiroAcesso);
     }
 }

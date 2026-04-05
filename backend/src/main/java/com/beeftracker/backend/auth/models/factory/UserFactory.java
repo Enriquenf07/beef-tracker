@@ -35,6 +35,7 @@ public class UserFactory {
                 .nome(rs.getString("nome"))
                 .ativo(rs.getBoolean("ativo"))
                 .email(rs.getString("email"))
+                .cadastrado(rs.getBoolean("cadastrado"))
                 .build();
         Metadata metadata = new MetaDataBuilder()
                 .id(rs.getLong("id"))

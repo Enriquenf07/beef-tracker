@@ -29,6 +29,7 @@ import Fornecedores from "../page"
 import { useRouter } from "next/navigation"
 import Page from "@/app/components/CrudPage"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { UserDialog } from "./userDialog"
 
 export default function Content(props: any) {
     const [open, setOpen] = useState(false)
@@ -38,6 +39,8 @@ export default function Content(props: any) {
     const status = searchParams.get('status')
     const chave = searchParams.get('chave')
     const [isPending, startTransition] = useTransition()
+    const [selectedRoles, setSelectedRoles] = useState<string[]>([])
+
 
     const onHandleInativar = async () => {
         startTransition(async () => {
@@ -51,8 +54,10 @@ export default function Content(props: any) {
     const onHandleCadastro = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
+        const body: Record<string, any> = Object.fromEntries(formData.entries())
+        body.roles = selectedRoles
         startTransition(async () => {
-            const erro = await handleCadastro(formData) as any;
+            const erro = await handleCadastro(body) as any;
             if (erro) {
                 setError(erro.detail)
             }
@@ -65,43 +70,17 @@ export default function Content(props: any) {
             <Page.Header>
                 <Page.Title>Usuários</Page.Title>
                 <Page.Modal>
-                    <Dialog open={open} onOpenChange={() => {
-                        setForm({})
-                        setOpen(prev => !prev)
-                    }}>
-                        <DialogTrigger>
-                            <Button >
-                                <Plus />
-                                Cadastrar
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>{!form?.metadata?.id ? 'Cadastrar Fornecedor' : 'Editar Fornecedor'}</DialogTitle>
-
-                            </DialogHeader>
-                            {isPending ? <p>Carregando...</p> : (
-                                <>
-                                    <form onSubmit={onHandleCadastro} className="flex flex-col gap-2">
-                                        <input hidden name="id" defaultValue={form?.metadata?.id} />
-                                        <Input placeholder="Nome"
-                                            name="nome" type="text" defaultValue={form?.data?.nome} />
-                                        <Button type="submit">Salvar</Button>
-                                    </form>
-                                    {form?.metadata?.id && (
-                                        <Button
-                                            className={
-                                                form?.data?.ativo
-                                                    ? "bg-destructive hover:bg-destructive-hover text-white"
-                                                    : "bg-accent hover:bg-accent-hover text-white"
-                                            }
-                                            onClick={onHandleInativar}>{form?.data?.ativo ? 'Inativar' : 'Ativar'}</Button>
-
-                                    )}
-                                </>
-                            )}
-                        </DialogContent>
-                    </Dialog>
+                    <UserDialog
+                        form={form}
+                        setForm={setForm}
+                        isPending={false}
+                        onHandleCadastro={onHandleCadastro}
+                        onHandleInativar={onHandleInativar}
+                        open={open}
+                        setOpen={setOpen}
+                        setSelectedRoles={setSelectedRoles}
+                        selectedRoles={selectedRoles}
+                    />
                 </Page.Modal>
             </Page.Header>
             <Page.Filter>
@@ -133,15 +112,19 @@ export default function Content(props: any) {
                     <Table>
                         <TableHeader>
                             <TableRow>
+                                <TableHead className="w-30">ID</TableHead>
                                 <TableHead className="w-30">Ativo/Inativo</TableHead>
                                 <TableHead>Nome</TableHead>
                                 <TableHead>Email</TableHead>
+                                <TableHead>Cadastro Finalizado?</TableHead>
                                 <TableHead>Roles</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {props.usuarios.map((f: any) => (
                                 <TableRow key={f.metadata.id}>
+                                    <TableCell>{f.metadata.token}</TableCell>
+
                                     <TableCell>
                                         <div className={f.data.ativo ? 'p-1 flex justify-center items-center rounded-xl border bg-blue-200' : 'p-1 flex justify-center items-center rounded-xl border bg-muted '}>
                                             {f.data.ativo ? 'Ativo' : 'Inativo'}
@@ -149,6 +132,7 @@ export default function Content(props: any) {
                                     </TableCell>
                                     <TableCell className="font-medium">{f.data.nome}</TableCell>
                                     <TableCell>{f.data.email}</TableCell>
+                                    <TableCell>{f.data.cadastrado ? "SIM" : "NÃO"}</TableCell>
                                     <TableCell>
                                         <Tooltip>
                                             <TooltipTrigger className="bg-secondary p-1 flex justify-center items-center rounded-xl border w-full">{f.data.roles.length}</TooltipTrigger>
@@ -165,6 +149,7 @@ export default function Content(props: any) {
                                         <Button className="bg-secondary text-black hover:text-[#F1F5F9]" onClick={() => {
                                             setOpen(prev => !prev)
                                             setForm(f)
+                                            setSelectedRoles(f?.data?.roles ?? [])
                                         }}>
                                             <PenBox />
                                         </Button>

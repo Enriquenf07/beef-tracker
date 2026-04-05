@@ -27,7 +27,18 @@ public class UsuarioController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/{id}")
+    @PutMapping
+    public ResponseEntity<?> editar(@RequestBody UserData user) throws ResourceNotFoundException {
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> Inativar(@PathVariable Long id) throws ResourceNotFoundException  {
+        service.editarStatus(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/finalizar")
     public ResponseEntity<?> finalizarCadastro(@PathVariable Long id, @RequestBody NovaSenha senha, @RequestParam String token) throws ResourceNotFoundException {
         service.finalizarCadastro(id, senha.senha(), token);
         return ResponseEntity.ok().build();

@@ -3,26 +3,22 @@ import { createApi } from "@/app/lib/api";
 import { revalidatePath } from "next/cache";
 import { redirect, RedirectType } from "next/navigation";
 
-export async function handleCadastro(formData: FormData) {
+export async function handleCadastro(body: Record<string, any>) {
     try {
-        const nome = formData.get('nome')
-        const id = formData.get('id')
+        const id = body.id
         const api = await createApi()
         if (!id) {
-            const { data } = await api.post("/usuario", {
-                nome
-            }) as any
+            const { data } = await api.post("/usuario", body) as any
         } else {
-            const { data } = await api.put("/compras/" + id, {
-                nome
-            }) as any
+            const { data } = await api.put("/usuario/" + id, body) as any
         }
     } catch (e: any) {
         return e.response?.data
     } finally {
-        revalidatePath('/ui/compras/fornecedores')
+        revalidatePath('/ui/usuarios')
     }
 }
+
 
 export async function handleInativar(id: number, status: boolean) {
     const api = await createApi()

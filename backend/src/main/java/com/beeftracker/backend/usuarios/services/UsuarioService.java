@@ -77,6 +77,11 @@ public class UsuarioService {
         repository.finalizarCadastro(id, newSenha);
     }
 
+    public void editarStatus(Long id) throws ResourceNotFoundException {
+        User user = repository.carregar(id);
+        repository.editarStatus(id, !user.data().ativo());
+    }
+
     public RolesFull getRoles(Long userId){
         RolesFull roles = repository.findRolesByUser(userId);
         return roles;

@@ -14,10 +14,11 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class UserCustomRepositoryImpl implements UserCustomRepository{
+public class UserCustomRepositoryImpl implements UserCustomRepository {
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final UserFactory factory;
 
@@ -38,8 +39,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository{
                         .addValue("email", userData.email())
                         .addValue("senha", senhaTemp)
                         .addValue("token", token)
-                        .addValue("tokenData", LocalDate.now())
-        );
+                        .addValue("tokenData", LocalDate.now()));
     }
 
     @Override
@@ -52,8 +52,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository{
                         .addValue("id", id)
                         .addValue("senha", senha)
                         .addValue("token_primeiro_acesso", null)
-                        .addValue("token_criado_em", null)
-        );
+                        .addValue("token_criado_em", null));
     }
 
     @Override
@@ -63,41 +62,45 @@ public class UserCustomRepositoryImpl implements UserCustomRepository{
                 sql,
                 new MapSqlParameterSource()
                         .addValue("id", userId),
-                 (rs, rowNum) -> new Role(rs.getString("nome"), Long.parseLong(rs.getString("id")))
-        );
+                (rs, rowNum) -> new Role(rs.getString("nome"), Long.parseLong(rs.getString("id"))));
         return new RolesFull(roles);
     }
 
     @Override
     public List<User> pesquisar(String chave, Boolean status) {
-        QueryBuilder qb = new QueryBuilder()
-                .select("SELECT u.id, u.nome, u.email, u.ativo, u.token,\n" +
-                        "ARRAY_REMOVE(ARRAY_AGG(r.nome), NULL) as roles\n" +
-                        "FROM usuarios u\n" +
-                        "LEFT JOIN role_usuario ru ON u.id = ru.usuario_id\n" +
-                        "LEFT JOIN roles r ON ru.role_id = r.id")
-                .orderBy("u.id ASC")
-                .limit(2)
-                .groupBy("GROUP BY u.id")
-                .offset(0);
-        if(StringUtils.isNotBlank(chave)){
-            chave = chave.toLowerCase();
-            qb.where("WHERE u.nome like %:chave%");
-        }
-        if(status != null){
-            qb.where("AND status = :status");
-        }
-        String query = qb.build();
+        StringBuilder sql = new StringBuilder(
+                "SELECT u.id, u.nome, u.email, u.ativo, u.token, " +
+                        "ARRAY_REMOVE(ARRAY_AGG(r.nome), NULL) as roles, " +
+                        "CASE WHEN u.token_primeiro_acesso IS NOT NULL THEN false ELSE true END as cadastrado " +
+                        "FROM usuarios u " +
+                        "LEFT JOIN role_usuario ru ON u.id = ru.usuario_id " +
+                        "LEFT JOIN roles r ON ru.role_id = r.id ");
 
+        List<String> conditions = new ArrayList<>();
 
-        List<User> usuarios = jdbcTemplate.query(
-                query,
-                new MapSqlParameterSource()
-                        .addValue("chave", chave)
-                        .addValue("status", status),
-                (rs, rowNum) -> factory.create(rs)
-        );
-        return usuarios;
+        if (StringUtils.isNotBlank(chave)) {
+            conditions.add("LOWER(u.nome) LIKE :chave");
+        }
+
+        if (status != null) {
+            conditions.add("u.ativo = :status");
+        }
+
+        if (!conditions.isEmpty()) {
+            sql.append("WHERE ").append(String.join(" AND ", conditions)).append(" ");
+        }
+
+        sql.append("GROUP BY u.id, u.nome, u.email, u.ativo, u.token ");
+        sql.append("ORDER BY u.id ASC ");
+        sql.append("LIMIT :limit OFFSET :offset");
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("chave", StringUtils.isNotBlank(chave) ? "%" + chave.toLowerCase() + "%" : null)
+                .addValue("status", status)
+                .addValue("limit", 10)
+                .addValue("offset", 0);
+
+        return jdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> factory.create(rs));
     }
 
     @Override
@@ -105,8 +108,35 @@ public class UserCustomRepositoryImpl implements UserCustomRepository{
         String sql = "SELECT r.nome, r.id from roles r";
         List<Role> roles = jdbcTemplate.query(
                 sql,
-                (rs, rowNum) -> new Role(rs.getString("nome"), Long.parseLong(rs.getString("id")))
-        );
+                (rs, rowNum) -> new Role(rs.getString("nome"), Long.parseLong(rs.getString("id"))));
         return new RolesFull(roles);
+    }
+
+    @Override
+    public void editarStatus(Long id, boolean ativo) {
+        String sql = "UPDATE usuarios SET ativo = :ativo WHERE id = :id";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("ativo", ativo)
+                .addValue("id", id);
+
+        jdbcTemplate.update(sql, params);
+    }
+
+    @Override
+    public User carregar(Long id) {
+        String sql = "SELECT u.id, u.nome, u.email, u.ativo, u.token, " +
+                "ARRAY_REMOVE(ARRAY_AGG(r.nome), NULL) as roles, " +
+                "CASE WHEN u.token_primeiro_acesso IS NOT NULL THEN true ELSE false END as cadastrado " +
+                "FROM usuarios u " +
+                "LEFT JOIN role_usuario ru ON u.id = ru.usuario_id " +
+                "LEFT JOIN roles r ON ru.role_id = r.id " +
+                "WHERE u.id = :id " +
+                "GROUP BY u.id, u.nome, u.email, u.ativo, u.token, u.token_primeiro_acesso";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", id);
+
+        return jdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> factory.create(rs));
     }
 }

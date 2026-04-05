@@ -14,5 +14,7 @@ public interface UserCustomRepository {
     RolesFull findRolesByUser(Long userId);
     RolesFull findAllRoles();
 
+    void editarStatus(Long id, boolean b);
     List<User> pesquisar(String chave, Boolean status);
+    User carregar(Long id);
 }

@@ -12,6 +12,7 @@ public class UserDataBuilder {
     private String senha;
     private String tokenCriadoEm;
     private String tokenPrimeiroAcesso;
+    private Boolean cadastrado;
 
     public UserDataBuilder nome(String nome) {
         this.nome = nome;
@@ -20,6 +21,11 @@ public class UserDataBuilder {
 
     public UserDataBuilder ativo(Boolean ativo) {
         this.ativo = ativo;
+        return this;
+    }
+
+    public UserDataBuilder cadastrado(Boolean cadastrado) {
+        this.cadastrado = cadastrado;
         return this;
     }
 
@@ -49,6 +55,6 @@ public class UserDataBuilder {
     }
 
     public UserData build() {
-        return new UserData(nome, ativo, roles, email, senha, tokenCriadoEm, tokenPrimeiroAcesso);
+        return new UserData(nome, ativo, roles, cadastrado, email, senha, tokenCriadoEm, tokenPrimeiroAcesso);
     }
 }
