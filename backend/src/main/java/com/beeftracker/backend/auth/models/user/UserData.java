@@ -21,8 +21,8 @@ public record UserData(
 
 ) {
     @PersistenceCreator
-    public UserData(Boolean ativo, Boolean cadastrado, String email, String senha, String nome, String tokenCriadoEm,
+    public UserData(Boolean ativo, String email, String senha, String nome, String tokenCriadoEm,
             String tokenPrimeiroAcesso) {
-        this(nome, ativo, List.of(), List.of(), cadastrado, email, senha, tokenCriadoEm, tokenPrimeiroAcesso);
+        this(nome, ativo, List.of(), List.of(), true, email, senha, tokenCriadoEm, tokenPrimeiroAcesso);
     }
 }
