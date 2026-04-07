@@ -1,31 +1,27 @@
-"use server";
+export async function handleCadastroVeiculo(formData: FormData) {
+  try {
+    const id = formData.get('id');
+    const api = await createApi();
 
-import { createApi } from "@/app/lib/api";
-import { revalidatePath } from "next/cache";
 
-export async function handleCadastro(formData: FormData) {
-    try {
-        const placa = formData.get("placa");
-        const modelo = formData.get("modelo");
-        const marca = formData.get("marca");
-        const ano = formData.get("ano");
-        const capacidadeCarga = formData.get("capacidadeCarga");
-        const ativo = formData.get("ativo") === "on";
+    const payload = {
+      placa: formData.get('placa'),
+      modelo: formData.get('modelo'),
+      marca: formData.get('marca'),
+      ano: parseInt(formData.get('ano') as string),
+      capacidadeCarga: parseFloat(formData.get('capacidadeCarga') as string),
+      ativo: true
+    };
 
-        const api = await createApi();
+    if (!id) {
+      await api.post("/api/veiculos", payload);
+    } else {
 
-        await api.post("/api/veiculos", {
-            placa,
-            modelo,
-            marca,
-            ano: ano ? Number(ano) : null,
-            capacidadeCarga: Number(capacidadeCarga),
-            ativo,
-        });
-
-    } catch (e: any) {
-        return e.response?.data;
-    } finally {
-        revalidatePath("/ui/veiculos");
+      await api.put(`/api/veiculos/${id}`, payload);
     }
+  } catch (e: any) {
+    return e.response?.data;
+  } finally {
+    revalidatePath('/ui/veiculos');
+  }
 }
