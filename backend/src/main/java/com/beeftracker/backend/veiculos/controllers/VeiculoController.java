@@ -20,12 +20,15 @@ public class VeiculoController extends BaseController {
     private VeiculoService veiculoService;
 
     @PostMapping
-    public ResponseEntity<Veiculo> cadastrar(@RequestBody VeiculoData data) throws InvalidFormException {
-        return ResponseEntity.ok(veiculoService.salvar(data));
+    public ResponseEntity<Long> cadastrar(@RequestBody VeiculoData data) throws InvalidFormException {
+        return ResponseEntity.ok(veiculoService.cadastrar(data));
     }
 
     @GetMapping
-    public ResponseEntity<List<Veiculo>> listar() {
-        return ResponseEntity.ok(veiculoService.listarTodos());
+    public ResponseEntity<List<Veiculo>> listar(
+            @RequestParam(required = false) String chave,
+            @RequestParam(required = false) Boolean status) {
+        // Chamando o método 'listar' que criamos no Service
+        return ResponseEntity.ok(veiculoService.listar(chave, status));
     }
 }
