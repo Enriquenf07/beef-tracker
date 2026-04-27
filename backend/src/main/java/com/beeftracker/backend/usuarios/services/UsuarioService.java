@@ -3,6 +3,7 @@ package com.beeftracker.backend.usuarios.services;
 import com.beeftracker.backend.auth.models.user.User;
 import com.beeftracker.backend.auth.models.user.UserData;
 import com.beeftracker.backend.auth.repositories.UserRepository;
+import com.beeftracker.backend.base.Page;
 import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
 import com.beeftracker.backend.compras.fornecedores.models.Fornecedor;
 import com.beeftracker.backend.email.EmailClient;
@@ -12,9 +13,12 @@ import com.resend.core.exception.ResendException;
 import com.resend.services.emails.model.CreateEmailOptions;
 
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Comparator;
@@ -23,6 +27,8 @@ import java.util.List;
 @Service
 public class UsuarioService {
     private final EmailClient emailClient;
+    @Value("${beeftracker.url}")
+    private String beefTrackerUrl;
     private final UserRepository repository;
 
     public UsuarioService(EmailClient emailClient, UserRepository repository) {
@@ -31,6 +37,8 @@ public class UsuarioService {
     }
 
     public void enviarEmail(String nome, String to, String token) throws ResendException {
+        String link = beefTrackerUrl + "/cadastro?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
+
         CreateEmailOptions email = CreateEmailOptions.builder()
                 .from("CRM Frigorífico <suporte@beeftracker.xyz>")
                 .to(to)
@@ -46,7 +54,7 @@ public class UsuarioService {
                         <small>Se você não criou uma conta, ignore este e-mail.</small>
                       </body>
                     </html>
-                """.formatted(nome, "beeftracker.xyz/cadastro?token=" + token))
+                """.formatted(nome, link))
                 .build();
         emailClient.enviarEmail(email);
     }
@@ -67,14 +75,24 @@ public class UsuarioService {
         enviarEmail(user.nome(), user.email(), token);
     }
 
-    public void finalizarCadastro(Long id, String senha, String token) throws ResourceNotFoundException {
+    public void reenviarEmail(Long id) throws ResendException {
+        UserData data = repository.carregar(id).data();
+        if(data.cadastrado() == true){
+            return;
+        }
+        String token = gerarToken();
+        repository.update(data, token, id);
+        enviarEmail(data.nome(), data.email(), token);
+    }
+
+    public void finalizarCadastro(String senha, String token) throws ResourceNotFoundException {
         User user = repository.findByDataTokenPrimeiroAcesso(token);
-        if(user == null || user.metadata().id() != id){
+        if(user == null){
             throw new ResourceNotFoundException();
         }
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String newSenha = passwordEncoder.encode(senha);
-        repository.finalizarCadastro(id, newSenha);
+        repository.finalizarCadastro(user.metadata().id(), newSenha);
     }
 
     public void editarStatus(Long id) throws ResourceNotFoundException {
@@ -87,8 +105,9 @@ public class UsuarioService {
         return roles;
     }
 
-    public List<User> pesquisar(String chave, Boolean status) {
-        List<User> usuarios = repository.pesquisar(chave, status);
+    public Page<User> pesquisar(String chave, Boolean status, Integer page) {
+        Integer pageNew = page != null && page > 0 ? page : 1;
+        Page<User> usuarios = repository.pesquisar(chave, status, pageNew);
         return usuarios;
     }
 
@@ -96,5 +115,7 @@ public class UsuarioService {
         return repository.findAllRoles();
     }
 }
+
+
 
 

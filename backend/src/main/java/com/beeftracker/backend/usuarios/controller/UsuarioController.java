@@ -18,13 +18,24 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public ResponseEntity<?> fetch()  {
-        return ResponseEntity.ok(service.pesquisar(null, null));
+    public ResponseEntity<?> fetch(
+            @RequestParam(required = false) String chave,
+            @RequestParam(required = false) Boolean status,
+            @RequestParam(required = false) Integer page
+
+    ) {
+        return ResponseEntity.ok(service.pesquisar(chave, status, page));
     }
 
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody UserData user) throws ResendException {
         service.cadastrar(user);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/reenviar-email")
+    public ResponseEntity<?> reenviarEmail(@PathVariable Long id) throws ResendException {
+        service.reenviarEmail(id);
         return ResponseEntity.ok().build();
     }
 
@@ -40,9 +51,9 @@ public class UsuarioController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/{id}/finalizar")
-    public ResponseEntity<?> finalizarCadastro(@PathVariable Long id, @RequestBody NovaSenha senha, @RequestParam String token) throws ResourceNotFoundException {
-        service.finalizarCadastro(id, senha.senha(), token);
+    @PatchMapping("/finalizar")
+    public ResponseEntity<?> finalizarCadastro(@RequestBody NovaSenha body) throws ResourceNotFoundException {
+        service.finalizarCadastro(body.senha(), body.token());
         return ResponseEntity.ok().build();
     }
 
@@ -61,5 +72,6 @@ public class UsuarioController {
 
 
 record NovaSenha(
-        String senha
+        String senha,
+        String token
 ){}

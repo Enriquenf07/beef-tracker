@@ -29,5 +29,15 @@ export async function handleInativar(id: number, status: boolean) {
     } finally {
         revalidatePath('/ui/compras/fornecedores')
     }
+}
 
+export async function handleReenviarEmail(id: number) {
+    const api = await createApi()
+    try {
+        await api.post("/usuario/" + id + '/reenviar-email')
+    } catch (e: any) {
+        return e.response?.data
+    } finally {
+        revalidatePath('/ui/compras/fornecedores')
+    }
 }

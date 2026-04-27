@@ -22,14 +22,15 @@ import { useState, useTransition } from "react"
 import { Input } from "@/components/ui/input"
 
 
-import { handleCadastro, handleInativar } from './action'
+import { handleCadastro, handleInativar, handleReenviarEmail } from './action'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useSearchParams } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import Fornecedores from "../page"
 import { useRouter } from "next/navigation"
 import Page from "@/app/components/CrudPage"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { UserDialog } from "./userDialog"
+import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 
 export default function Content(props: any) {
     const [open, setOpen] = useState(false)
@@ -51,6 +52,16 @@ export default function Content(props: any) {
             setOpen(false)
         })
     }
+    
+    const onHandleReenviarEmail = async () => {
+        startTransition(async () => {
+            const erro = await handleReenviarEmail(form?.metadata.id) as any
+            if (erro) {
+                setError(erro.detail)
+            }
+            setOpen(false)
+        })
+    }
     const onHandleCadastro = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
@@ -64,6 +75,16 @@ export default function Content(props: any) {
             setOpen(false)
         })
     }
+    const pathname = usePathname();
+    const { replace } = useRouter();
+
+    const currentPage = Number(searchParams.get('page')) || 1;
+
+    const createPageURL = (pageNumber: number | string) => {
+        const params = new URLSearchParams(searchParams);
+        params.set('page', pageNumber.toString());
+        return `${pathname}?${params.toString()}`;
+    };
 
     return (
         <Page.Content>
@@ -76,6 +97,7 @@ export default function Content(props: any) {
                         isPending={false}
                         onHandleCadastro={onHandleCadastro}
                         onHandleInativar={onHandleInativar}
+                        onHandleReenviarEmail={onHandleReenviarEmail}
                         open={open}
                         setOpen={setOpen}
                         rolesOptions={props.roles}
@@ -164,6 +186,32 @@ export default function Content(props: any) {
                         <p>Nenhum item encontrado</p>
                     </div>
                 )}
+                <Pagination>
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationPrevious
+                                l
+                                href={createPageURL(currentPage - 1)}
+                                aria-disabled={currentPage <= 1}
+                                className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
+                            />
+                        </PaginationItem>
+
+                        <PaginationItem>
+                            <span className="text-sm px-4">
+                                Página <strong>{currentPage}</strong> de {props.totalPages}
+                            </span>
+                        </PaginationItem>
+
+                        <PaginationItem>
+                            <PaginationNext
+                                href={createPageURL(currentPage + 1)}
+                                aria-disabled={currentPage >= props.totalPages}
+                                className={currentPage >= props.totalPages ? "pointer-events-none opacity-50" : ""}
+                            />
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
 
             </Page.Table>
         </Page.Content>

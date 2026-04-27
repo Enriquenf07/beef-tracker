@@ -5,12 +5,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Check, Shield, ShieldOff } from "lucide-react"
+import { Plus, Check, Shield, ShieldOff, Mail } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 
 
-export function UserDialog({ rolesOptions, form, setForm, isPending, onHandleCadastro, onHandleInativar, open, setOpen, selectedRoles, setSelectedRoles }: any) {
+export function UserDialog({ rolesOptions, form, setForm, isPending, onHandleCadastro, onHandleInativar, onHandleReenviarEmail, open, setOpen, selectedRoles, setSelectedRoles }: any) {
   console.log("opt", rolesOptions)
   const toggleRole = (role: string) => {
     setSelectedRoles(prev =>
@@ -165,6 +165,17 @@ export function UserDialog({ rolesOptions, form, setForm, isPending, onHandleCad
                 ) : (
                   <><Shield className="mr-2 h-4 w-4" /> Ativar</>
                 )}
+              </Button>
+            )}
+            {form?.metadata?.id && !form?.data?.cadastrado && (
+              <Button
+                type="button"
+                className={cn(
+                  "bg-transparent hover:bg-secondary/90 text-black"
+                )}
+                onClick={onHandleReenviarEmail}
+              >
+                <><Mail className="mr-2 h-4 w-4" /> Reenviar Email</>
               </Button>
             )}
           </>
