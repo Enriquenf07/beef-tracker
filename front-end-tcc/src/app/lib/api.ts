@@ -42,7 +42,7 @@ type FetchOptions = RequestInit & {
     params?: Record<string, string | number | boolean>;
 };
 
-// 2. Instância Protegida (createApi)
+
 export const createApi = async () => {
     const jwt = await checkSession();
     const headers: Record<string, string> = {
@@ -50,19 +50,24 @@ export const createApi = async () => {
         'Authorization': jwt ? `Bearer ${jwt.value}` : ``
     };
 
-    // Retorna um objeto com os métodos que você usa
+
     return {
-        get: (endpoint: string, options: FetchOptions = {}) =>
-            fetcher(`${BASE_URL}${endpoint}`, {
-                ...options,
+        get: (endpoint: string, options: FetchOptions = {}) => {
+            const { params, ...rest } = options;
+            const query = params
+                ? '?' + new URLSearchParams(params as Record<string, string>).toString()
+                : '';
+            return fetcher(`${BASE_URL}${endpoint}${query}`, {
+                ...rest,
                 method: 'GET',
                 headers: { ...headers, ...options.headers as Record<string, string> },
-            }),
-        post: (endpoint: string, body: any, options: RequestInit = {}) =>
+            });
+        },
+        post: (endpoint: string, body?: any, options: RequestInit = {}) =>
             fetcher(`${BASE_URL}${endpoint}`, {
                 ...options,
                 method: 'POST',
-                body: JSON.stringify(body),
+                body: body ? JSON.stringify(body) : undefined,
                 headers: { ...headers, ...options.headers as Record<string, string> },
             }),
         put: (endpoint: string, body: any, options: RequestInit = {}) =>
