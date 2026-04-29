@@ -24,7 +24,6 @@ export default async function LoginPage() {
                         <div className="flex flex-col gap-1">
                             <div className="flex justify-between items-center text-black">
                                 <label className="text-sm font-semibold text-gray-700">Senha</label>
-                                <Link href="#" className="text-xs text-blue-600 hover:underline">Esqueceu sua senha?</Link>
                             </div>
                             <input
                                 type="password"

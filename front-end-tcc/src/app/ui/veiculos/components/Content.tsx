@@ -32,11 +32,11 @@ export default function Content({ veiculos }: { veiculos: any[] }) {
     }
 
     const onHandleInativar = async () => {
-        startTransition(async () => {
-            const erro = await handleInativarVeiculo(form?.metadata.id)
-            if (erro) setError(erro.detail)
-            else setOpen(false)
-        })
+        // startTransition(async () => {
+        //     const erro = await handleInativarVeiculo(form?.metadata.id)
+        //     if (erro) setError(erro.detail)
+        //     else setOpen(false)
+        // })
     }
 
     return (
