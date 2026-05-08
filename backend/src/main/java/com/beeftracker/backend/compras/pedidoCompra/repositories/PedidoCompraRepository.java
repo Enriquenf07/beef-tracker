@@ -16,8 +16,7 @@ public interface PedidoCompraRepository {
 
     PedidoCompra carregar(Long id);
 
-    List<PedidoCompra> pesquisar(Long fornecedorId, String status);
-
+    List<PedidoCompra> pesquisar(Long fornecedorId, String status, int page);
     void salvarLote(LoteBrutoData data);
 
     void editarLote(Long id, LoteBrutoData data);

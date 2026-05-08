@@ -81,7 +81,7 @@ public class PedidoCompraRepositoryImpl implements PedidoCompraRepository {
     }
 
     @Override
-    public List<PedidoCompra> pesquisar(Long fornecedorId, String status) {
+    public List<PedidoCompra> pesquisar(Long fornecedorId, String status, int page) {
         StringBuilder sql = new StringBuilder(
                 "SELECT p.id, p.token, p.fornecedor_id, p.valor_total, p.status, " +
                         "p.observacao, p.data_emissao, p.data_entrega, p.criado_em, p.atualizado_em " +
@@ -101,17 +101,15 @@ public class PedidoCompraRepositoryImpl implements PedidoCompraRepository {
         }
 
         sql.append("ORDER BY p.id ASC ");
-        sql.append("LIMIT :limit OFFSET :offset");
+        sql.append("LIMIT 10 OFFSET :offset");
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("fornecedorId", fornecedorId)
                 .addValue("status", status)
-                .addValue("limit", 10)
-                .addValue("offset", 0);
+                .addValue("offset", page * 10);
 
         return jdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> mapRow(rs));
     }
-
     private PedidoCompra mapRow(ResultSet rs) throws SQLException {
         PedidoCompraData data = new PedidoCompraData(
                 rs.getLong("fornecedor_id"),
