@@ -8,8 +8,8 @@ import org.springframework.data.repository.query.Param;
 
 import com.beeftracker.backend.viagens.model.Viagem;
 
-public interface ViagemRepository extends CrudRepository<Viagem, Long> {
- 
+public interface ViagemRepository extends CrudRepository<Viagem, Long>, ViagemCustomRepository {
+
     @Query("""
             SELECT * FROM viagem
             WHERE status_viagem = :status

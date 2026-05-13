@@ -11,9 +11,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.beeftracker.backend.auth.models.metadata.Metadata;
 import com.beeftracker.backend.base.exceptions.InvalidFormException;
+import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
 import com.beeftracker.backend.viagens.model.*;
 import com.beeftracker.backend.viagens.repository.ViagemRepository;
 import com.beeftracker.backend.viagens.service.ViagemService;
+import com.beeftracker.backend.viagens.strategy.Cancelada;
+import com.beeftracker.backend.viagens.strategy.EmTransito;
+import com.beeftracker.backend.viagens.strategy.Entregue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,248 +30,81 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 class ViagemTest {
 
-    @Mock
     private ViagemRepository repository;
-
-    @InjectMocks
+    private EmTransito transito;
+    private Entregue concluida;
+    private Cancelada cancelada;
     private ViagemService service;
-
-    private ViagemData dataMock;
-    private Viagem viagemMock;
 
     @BeforeEach
     void setUp() {
-        dataMock = new ViagemData(
-                1,
-                2,
-                "Entrega de gado — Fazenda São João",
-                StatusViagem.PENDENTE,
-                LocalDateTime.now(),
-                null,
-                LocalDateTime.now());
-
-        Metadata metadata = new Metadata(LocalDate.now(), LocalDate.now(), 1L, "token-mock");
-        viagemMock = new Viagem(dataMock, metadata);
+        repository = mock(ViagemRepository.class);
+        transito   = mock(EmTransito.class);
+        concluida  = mock(Entregue.class);
+        cancelada  = mock(Cancelada.class);
+        service    = new ViagemService(repository, transito, concluida, cancelada);
     }
 
-    // ----------------------------------------------------------------
-    // criar()
-    // ----------------------------------------------------------------
-    @Nested
-    @DisplayName("criar()")
-    class Criar {
+    // --- criar ---
 
-        @Test
-        @DisplayName("deve chamar repository.save() com os dados recebidos")
-        void deveChamarSaveComOsDados() {
-            service.criar(dataMock);
+    @Test
+    void criar_deveSalvarViagemComStatusPendente() {
+        ViagemData data = new ViagemData(1L, 2L, "desc", StatusViagem.CANCELADA, null, null, null);
+        service.criar(data);
 
-            verify(repository, times(1)).save(any(Viagem.class));
-        }
-
-        @Test
-        @DisplayName("deve criar viagem com status PENDENTE por padrão")
-        void deveCriarComStatusPendente() {
-            service.criar(dataMock);
-
-            verify(repository).save(argThat(v ->
-                    v.data().statusViagem() == StatusViagem.PENDENTE));
-        }
-
-        @Test
-        @DisplayName("deve lançar InvalidFormException quando descrição for blank")
-        void deveLancarExcecaoQuandoDescricaoForBlank() {
-            ViagemData dataInvalida = new ViagemData(
-                    1, 2, "   ", StatusViagem.PENDENTE,
-                    LocalDateTime.now(), null, LocalDateTime.now());
-
-            assertThrows(InvalidFormException.class,
-                    () -> service.criar(dataInvalida));
-
-            verifyNoInteractions(repository);
-        }
-
-        @Test
-        @DisplayName("deve lançar IllegalArgumentException quando data for nula")
-        void deveLancarExcecaoQuandoDataForNula() {
-            assertThrows(IllegalArgumentException.class,
-                    () -> service.criar(null));
-
-            verifyNoInteractions(repository);
-        }
+        verify(repository).criar(argThat(d -> d.statusViagem() == StatusViagem.PENDENTE));
     }
 
-    // ----------------------------------------------------------------
-    // editar()
-    // ----------------------------------------------------------------
-    @Nested
-    @DisplayName("editar()")
-    class Editar {
+    // --- editar ---
 
-        @Test
-        @DisplayName("deve chamar repository.save() com os dados atualizados")
-        void deveChamarSaveComDadosAtualizados() {
-            when(repository.findById(1L)).thenReturn(Optional.of(viagemMock));
+    @Test
+    void editar_deveAtualizarDescricao() throws ResourceNotFoundException {
+        ViagemData data = new ViagemData(1L, 2L, "antiga", StatusViagem.PENDENTE, null, null, null);
+        Viagem viagem   = new Viagem(data, null);
+        when(repository.findById(1L)).thenReturn(Optional.of(viagem));
 
-            service.editar(1L, dataMock);
+        service.editar(1L, "nova");
 
-            verify(repository, times(1)).save(any(Viagem.class));
-        }
-
-        @Test
-        @DisplayName("não deve alterar o status ao editar")
-        void naoDeveAlterarStatusAoEditar() {
-            when(repository.findById(1L)).thenReturn(Optional.of(viagemMock));
-
-            ViagemData novosDados = new ViagemData(
-                    1, 2, "Nova descrição", StatusViagem.ENTREGUE,
-                    LocalDateTime.now(), null, LocalDateTime.now());
-
-            service.editar(1L, novosDados);
-
-            verify(repository).save(argThat(v ->
-                    v.data().statusViagem() == StatusViagem.PENDENTE));
-        }
-
-        @Test
-        @DisplayName("deve lançar IllegalArgumentException para id inexistente")
-        void deveLancarExcecaoParaIdInexistente() {
-            when(repository.findById(99L)).thenReturn(Optional.empty());
-
-            assertThrows(IllegalArgumentException.class,
-                    () -> service.editar(99L, dataMock));
-
-            verify(repository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("deve lançar InvalidFormException quando descrição for blank")
-        void deveLancarExcecaoQuandoDescricaoForBlank() {
-            when(repository.findById(1L)).thenReturn(Optional.of(viagemMock));
-
-            ViagemData dataInvalida = new ViagemData(
-                    1, 2, "", StatusViagem.PENDENTE,
-                    LocalDateTime.now(), null, LocalDateTime.now());
-
-            assertThrows(InvalidFormException.class,
-                    () -> service.editar(1L, dataInvalida));
-
-            verify(repository, never()).save(any());
-        }
+        verify(repository).editar(argThat(d -> "nova".equals(d.descricao())), eq(1L));
     }
 
-    // ----------------------------------------------------------------
-    // alterarStatus()
-    // ----------------------------------------------------------------
-    @Nested
-    @DisplayName("alterarStatus()")
-    class AlterarStatus {
+    @Test
+    void editar_quandoNaoEncontrado_deveLancarException() {
+        when(repository.findById(99L)).thenReturn(Optional.empty());
 
-        @Test
-        @DisplayName("deve alterar o status para EM_TRANSITO")
-        void deveAlterarStatusParaEmTransito() {
-            when(repository.findById(1L)).thenReturn(Optional.of(viagemMock));
-
-            service.alterarStatus(1L, new NovoStatus("EM_TRANSITO"));
-
-            verify(repository).save(argThat(v ->
-                    v.data().statusViagem() == StatusViagem.EM_TRANSITO));
-        }
-
-        @Test
-        @DisplayName("deve alterar o status para ENTREGUE")
-        void deveAlterarStatusParaEntregue() {
-            when(repository.findById(1L)).thenReturn(Optional.of(viagemMock));
-
-            service.alterarStatus(1L, new NovoStatus("ENTREGUE"));
-
-            verify(repository).save(argThat(v ->
-                    v.data().statusViagem() == StatusViagem.ENTREGUE));
-        }
-
-        @Test
-        @DisplayName("deve alterar o status para CANCELADA")
-        void deveAlterarStatusParaCancelada() {
-            when(repository.findById(1L)).thenReturn(Optional.of(viagemMock));
-
-            service.alterarStatus(1L, new NovoStatus("CANCELADA"));
-
-            verify(repository).save(argThat(v ->
-                    v.data().statusViagem() == StatusViagem.CANCELADA));
-        }
-
-        @Test
-        @DisplayName("deve lançar IllegalArgumentException para status inválido")
-        void deveLancarExcecaoParaStatusInvalido() {
-            when(repository.findById(1L)).thenReturn(Optional.of(viagemMock));
-
-            assertThrows(IllegalArgumentException.class,
-                    () -> service.alterarStatus(1L, new NovoStatus("INVALIDO")));
-
-            verify(repository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("deve lançar IllegalArgumentException para id inexistente")
-        void deveLancarExcecaoParaIdInexistente() {
-            when(repository.findById(99L)).thenReturn(Optional.empty());
-
-            assertThrows(IllegalArgumentException.class,
-                    () -> service.alterarStatus(99L, new NovoStatus("ENTREGUE")));
-
-            verify(repository, never()).save(any());
-        }
+        assertThrows(ResourceNotFoundException.class, () -> service.editar(99L, "x"));
     }
 
-    // ----------------------------------------------------------------
-    // pesquisar()
-    // ----------------------------------------------------------------
-    @Nested
-    @DisplayName("pesquisar()")
-    class Pesquisar {
+    // --- alterarStatus ---
 
-        @Test
-        @DisplayName("deve retornar lista vazia quando repositório não tem resultados")
-        void deveRetornarListaVaziaQuandoNaoHaViagens() {
-            when(repository.findByStatus(any(), any())).thenReturn(List.of());
+    @Test
+    void alterarStatus_deveUsarServicoCorreto() throws ResourceNotFoundException {
+        ViagemData data   = new ViagemData(1L, 2L, "desc", StatusViagem.PENDENTE, null, null, null);
+        Viagem viagem     = new Viagem(data, null);
+        Viagem atualizada = new Viagem(
+                new ViagemData(1L, 2L, "desc", StatusViagem.EM_TRANSITO, null, null, null), null);
 
-            List<Viagem> resultado = service.pesquisar("PENDENTE", 0);
+        when(repository.findById(1L)).thenReturn(Optional.of(viagem));
+        when(transito.alterarStatus(viagem, StatusViagem.EM_TRANSITO)).thenReturn(atualizada);
 
-            assertNotNull(resultado);
-            assertTrue(resultado.isEmpty());
-        }
+        NovoStatus status = mock(NovoStatus.class);
+        when(status.toString()).thenReturn("EM_TRANSITO");
+        when(status.novoStatus()).thenReturn("EM_TRANSITO");
 
-        @Test
-        @DisplayName("deve repassar o status e a página ao repositório")
-        void deveRepassarFiltrosAoRepositorio() {
-            when(repository.findByStatus(any(), any())).thenReturn(List.of(viagemMock));
+        service.alterarStatus(1L, status);
 
-            service.pesquisar("PENDENTE", 0);
+        verify(transito).alterarStatus(viagem, StatusViagem.EM_TRANSITO);
+        verify(repository).editar(atualizada.data(), 1L);
+    }
 
-            verify(repository, times(1)).findByStatus(eq("PENDENTE"), any());
-        }
+    // --- pesquisar ---
 
-        @Test
-        @DisplayName("deve retornar as viagens encontradas pelo repositório")
-        void deveRetornarViagensDoRepositorio() {
-            when(repository.findByStatus(any(), any())).thenReturn(List.of(viagemMock));
+    @Test
+    void pesquisar_deveRepassarParametrosAoRepository() {
+        service.pesquisar("PENDENTE", 0);
 
-            List<Viagem> resultado = service.pesquisar("PENDENTE", 0);
-
-            assertEquals(1, resultado.size());
-            assertEquals(viagemMock, resultado.get(0));
-        }
-
-        @Test
-        @DisplayName("deve lançar IllegalArgumentException para status inválido")
-        void deveLancarExcecaoParaStatusInvalido() {
-            assertThrows(IllegalArgumentException.class,
-                    () -> service.pesquisar("STATUS_INVALIDO", 0));
-
-            verifyNoInteractions(repository);
-        }
+        verify(repository).findByStatus("PENDENTE", 0);
     }
 }

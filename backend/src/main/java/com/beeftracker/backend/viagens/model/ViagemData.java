@@ -10,8 +10,8 @@ import com.beeftracker.backend.base.exceptions.InvalidFormException;
 import io.micrometer.common.util.StringUtils;
 
 public record ViagemData(
-        Integer veiculoId,
-        Integer sensorId,
+        Long veiculoId,
+        Long sensorId,
         String descricao,
         StatusViagem statusViagem,
         LocalDateTime saidaEm,

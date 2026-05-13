@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
 import com.beeftracker.backend.compras.pedidoCompra.models.PedidoCompra;
 import com.beeftracker.backend.compras.pedidoCompra.models.PedidoCompraData;
 import com.beeftracker.backend.viagens.model.NovoStatus;
@@ -47,15 +48,15 @@ public class ViagemController {
     }
 
     @PatchMapping("/status/{id}")
-    public ResponseEntity<?> alterarStatus(@PathVariable Long id, @RequestBody NovoStatus status) {
+    public ResponseEntity<?> alterarStatus(@PathVariable Long id, @RequestBody NovoStatus status) throws ResourceNotFoundException {
         service.alterarStatus(id, status);
         return ResponseEntity.ok().build();
 
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody ViagemData data) {
-        service.editar(id, data);
+    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody ViagemData data) throws ResourceNotFoundException {
+        service.editar(id, data.descricao());
         return ResponseEntity.ok().build();
 
     }
