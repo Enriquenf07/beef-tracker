@@ -10,7 +10,7 @@ export async function handleLogin(formData: FormData) {
         const email = formData.get('email')
         const password = formData.get('password')
 
-        // Certifique-se que seu .env tenha a variável API_URL
+
         const response = await fetch(`${process.env.API_URL}/public/auth`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -21,7 +21,7 @@ export async function handleLogin(formData: FormData) {
 
         const data: any = await response.json();
 
-        // Supondo que sua API retorne o token no campo 'token'
+
         if (data.token) {
             await createSession(data.token)
             isSuccess = true;

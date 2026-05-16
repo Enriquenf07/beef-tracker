@@ -1,5 +1,5 @@
 'use client'
-import { Camera, House, Undo, ShoppingBag, Store, Beef, Refrigerator, Settings, Route, Globe, Thermometer, ThermometerSnowflake, Truck, User, FileInput, Building2, BarChart, BarChart2, Handshake, Bell, Timer, Users} from 'lucide-react';
+import { Camera, House, Undo, ShoppingBag, Store, Beef, Refrigerator, Settings, Route, Globe, Thermometer, ThermometerSnowflake, Truck, User, FileInput, Building2, BarChart, BarChart2, Handshake, Bell, Timer, Users } from 'lucide-react';
 import { JSX } from 'react';
 
 export default function MenuItem({ open, label, icon, onClick }: { open: boolean, label: string, icon: string, onClick: () => void }) {
@@ -34,10 +34,10 @@ export default function MenuItem({ open, label, icon, onClick }: { open: boolean
                 ${open ? 'w-full' : 'w-9'}
             `}
         >
-            {/* shrink-0 impede o ícone de ser "esmagado" durante a animação */}
+            { }
             {icons[icon]}
 
-            {/* O container do texto precisa lidar com o overflow para não quebrar a linha */}
+            { }
             <span className={`
                 overflow-hidden transition-all duration-1000 ease-in-out whitespace-nowrap
                 ${open ? 'opacity-100 w-auto' : 'opacity-0 w-0'}
