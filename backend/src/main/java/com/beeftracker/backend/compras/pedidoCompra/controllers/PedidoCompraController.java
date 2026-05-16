@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/compras/pedido")
 public class PedidoCompraController extends BaseController {
@@ -32,13 +31,15 @@ public class PedidoCompraController extends BaseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody PedidoCompraData data) throws ResourceNotFoundException {
+    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody PedidoCompraData data)
+            throws ResourceNotFoundException {
         service.editar(id, data);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<?> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusForm request) throws ResourceNotFoundException {
+    public ResponseEntity<?> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusForm request)
+            throws ResourceNotFoundException {
         service.atualizarStatus(id, request.status());
         return ResponseEntity.ok().build();
     }
@@ -55,27 +56,30 @@ public class PedidoCompraController extends BaseController {
             @RequestParam(defaultValue = "0") int page) {
         return ResponseEntity.ok(service.pesquisar(fornecedorId, status, page));
     }
+
     @PostMapping("/{pedidoId}/lote")
-    public ResponseEntity<?> criarLote(@PathVariable Long pedidoId, @RequestBody LoteBrutoData data) throws ResourceNotFoundException {
+    public ResponseEntity<?> criarLote(@PathVariable Long pedidoId, @RequestBody LoteBrutoData data)
+            throws ResourceNotFoundException {
         service.criarLote(new LoteBrutoData(data.nome(), data.descricao(), data.peso(), pedidoId));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/{pedidoId}/lote/{id}")
-    public ResponseEntity<?> editarLote(@PathVariable Long pedidoId, @PathVariable Long id, @RequestBody LoteBrutoData data) throws ResourceNotFoundException {
+    public ResponseEntity<?> editarLote(@PathVariable Long pedidoId, @PathVariable Long id,
+            @RequestBody LoteBrutoData data) throws ResourceNotFoundException {
         service.editarLote(id, new LoteBrutoData(data.nome(), data.descricao(), data.peso(), pedidoId));
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{pedidoId}/lote/{id}")
-    public ResponseEntity<LoteBruto> carregarLote(@PathVariable Long pedidoId, @PathVariable Long id) throws ResourceNotFoundException {
+    public ResponseEntity<LoteBruto> carregarLote(@PathVariable Long pedidoId, @PathVariable Long id)
+            throws ResourceNotFoundException {
         return ResponseEntity.ok(service.carregarLote(id));
     }
 
     @GetMapping("/{pedidoId}/lote")
-    public ResponseEntity<List<LoteBruto>> pesquisarLotes(@PathVariable Long pedidoId) throws ResourceNotFoundException {
+    public ResponseEntity<List<LoteBruto>> pesquisarLotes(@PathVariable Long pedidoId)
+            throws ResourceNotFoundException {
         return ResponseEntity.ok(service.pesquisarLotes(pedidoId));
     }
 }
-
-

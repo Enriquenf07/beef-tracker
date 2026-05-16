@@ -5,5 +5,6 @@ import com.beeftracker.backend.viagens.model.ViagemData;
 
 public interface ViagemCustomRepository {
     void criar(ViagemData viagem);
+
     void editar(ViagemData viagem, Long id);
 }

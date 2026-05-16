@@ -23,7 +23,7 @@ create table public.pedido_compra (
 CREATE INDEX idx_pedido_compra_fornecedor_id 
 ON public.pedido_compra (fornecedor_id);
 
--- Atualiza automaticamente atualizado_em
+
 create or replace function public.set_updated_at()
 returns trigger as $$
 begin

@@ -23,7 +23,7 @@ import { handleCadastro, handleInativar } from '../action'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useSearchParams } from "next/navigation"
 import Page from "@/app/components/CrudPage"
-import { InputCnpj } from "./InputCnpj"
+import { InputCpfCnpj } from "./InputCpfCnpj"
 import { maskCpfCnpjPrivate } from "@/app/lib/masks"
 
 export default function Content(props: any) {
@@ -37,7 +37,7 @@ export default function Content(props: any) {
 
     const onHandleInativar = async () => {
         startTransition(async () => {
-            const erro = await handleInativar(form?.metadata.id, !form?.data?.ativo) as any
+            const erro = await handleInativar(form?.metadata.id) as any
             if (erro) setError(erro.detail)
             setOpen(false)
         })
@@ -56,7 +56,7 @@ export default function Content(props: any) {
     return (
         <Page.Content>
             <Page.Header>
-                <Page.Title>Fornecedores</Page.Title>
+                <Page.Title>Clientes</Page.Title>
                 <Page.Modal>
                     <Dialog open={open} onOpenChange={() => {
                         setForm({})
@@ -71,7 +71,7 @@ export default function Content(props: any) {
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>
-                                    {!form?.metadata?.id ? 'Cadastrar Fornecedor' : 'Editar Fornecedor'}
+                                    {!form?.metadata?.id ? 'Cadastrar Cliente' : 'Editar Cliente'}
                                 </DialogTitle>
                             </DialogHeader>
                             {isPending ? <p>Carregando...</p> : (
@@ -90,9 +90,22 @@ export default function Content(props: any) {
                                             type="text"
                                             defaultValue={form?.data?.apelido}
                                         />
-                                        <InputCnpj
-                                            name="cnpj"
-                                            defaultValue={form?.data?.cnpj}
+                                        { }
+                                        <InputCpfCnpj
+                                            name="cpfCnpj"
+                                            defaultValue={form?.data?.cpfCnpj}
+                                        />
+                                        <Input
+                                            placeholder="E-mail"
+                                            name="email"
+                                            type="email"
+                                            defaultValue={form?.data?.email}
+                                        />
+                                        <Input
+                                            placeholder="Telefone"
+                                            name="telefone"
+                                            type="text"
+                                            defaultValue={form?.data?.telefone}
                                         />
                                         <Input
                                             placeholder="CEP"
@@ -101,10 +114,11 @@ export default function Content(props: any) {
                                             defaultValue={form?.data?.cep}
                                         />
                                         <Input
-                                            placeholder="Endereço"
-                                            name="endereco"
+                                            placeholder="UF (ex: SP)"
+                                            name="uf"
                                             type="text"
-                                            defaultValue={form?.data?.endereco}
+                                            maxLength={2}
+                                            defaultValue={form?.data?.uf}
                                         />
                                         <Button type="submit">Salvar</Button>
                                     </form>
@@ -150,39 +164,43 @@ export default function Content(props: any) {
                 </form>
             </Page.Filter>
             <Page.Table>
-                {props.fornecedores.length > 0 ? (
+                {props.clientes.length > 0 ? (
                     <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="w-30">Ativo/Inativo</TableHead>
                                 <TableHead>Nome</TableHead>
                                 <TableHead>Apelido</TableHead>
-                                <TableHead>CNPJ</TableHead>
+                                <TableHead>CPF/CNPJ</TableHead>
+                                <TableHead>E-mail</TableHead>
+                                <TableHead>Telefone</TableHead>
                                 <TableHead>CEP</TableHead>
-                                <TableHead>Endereço</TableHead>
+                                <TableHead>UF</TableHead>
                                 <TableHead></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {props.fornecedores.map((f: any) => (
-                                <TableRow key={f.metadata.id}>
+                            {props.clientes.map((c: any) => (
+                                <TableRow key={c.metadata.id}>
                                     <TableCell>
-                                        <div className={f.data.ativo
+                                        <div className={c.data.ativo
                                             ? 'p-1 flex justify-center items-center rounded-xl border bg-blue-200'
                                             : 'p-1 flex justify-center items-center rounded-xl border bg-muted'}>
-                                            {f.data.ativo ? 'Ativo' : 'Inativo'}
+                                            {c.data.ativo ? 'Ativo' : 'Inativo'}
                                         </div>
                                     </TableCell>
-                                    <TableCell className="font-medium">{f.data.nome}</TableCell>
-                                    <TableCell>{f.data.apelido}</TableCell>
-                                    {/* CNPJ anonimizado na tabela (LGPD) */}
-                                    <TableCell>{maskCpfCnpjPrivate(f.data.cnpj)}</TableCell>
-                                    <TableCell>{f.data.cep}</TableCell>
-                                    <TableCell>{f.data.endereco}</TableCell>
+                                    <TableCell className="font-medium">{c.data.nome}</TableCell>
+                                    <TableCell>{c.data.apelido}</TableCell>
+                                    {/* Exibe CPF/CNPJ anonimizado na tabela (LGPD) */}
+                                    <TableCell>{maskCpfCnpjPrivate(c.data.cpfCnpj)}</TableCell>
+                                    <TableCell>{c.data.email}</TableCell>
+                                    <TableCell>{c.data.telefone}</TableCell>
+                                    <TableCell>{c.data.cep}</TableCell>
+                                    <TableCell>{c.data.uf}</TableCell>
                                     <TableCell>
                                         <Button className="bg-secondary" onClick={() => {
+                                            setForm(c)
                                             setOpen(prev => !prev)
-                                            setForm(f)
                                         }}>
                                             <PenBox />
                                         </Button>
