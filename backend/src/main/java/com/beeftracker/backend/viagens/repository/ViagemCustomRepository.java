@@ -7,4 +7,5 @@ public interface ViagemCustomRepository {
     void criar(ViagemData viagem);
 
     void editar(ViagemData viagem, Long id);
+    Viagem carregar(Long id);
 }

@@ -15,6 +15,7 @@ public abstract class AlterarStatus {
         return new Viagem(new ViagemData(
             viagem.data().veiculoId(),
             viagem.data().sensorId(),
+            "",
             viagem.data().descricao(),
             getStatus(),
             viagem.data().saidaEm(),

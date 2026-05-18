@@ -1,0 +1,1 @@
+ALTER TABLE public.viagem ADD COLUMN descricao text;

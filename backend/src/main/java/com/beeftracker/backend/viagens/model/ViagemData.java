@@ -12,6 +12,7 @@ import io.micrometer.common.util.StringUtils;
 public record ViagemData(
         Long veiculoId,
         Long sensorId,
+        String sensorToken,
         String descricao,
         StatusViagem statusViagem,
         LocalDateTime saidaEm,

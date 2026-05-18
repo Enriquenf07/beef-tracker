@@ -1,16 +1,9 @@
 package com.beeftracker.backend.viagem;
 
+import com.influxdb.v3.client.InfluxDBClient;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.beeftracker.backend.auth.models.metadata.Metadata;
-import com.beeftracker.backend.base.exceptions.InvalidFormException;
 import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
 import com.beeftracker.backend.viagens.model.*;
 import com.beeftracker.backend.viagens.repository.ViagemRepository;
@@ -19,9 +12,6 @@ import com.beeftracker.backend.viagens.strategy.Cancelada;
 import com.beeftracker.backend.viagens.strategy.EmTransito;
 import com.beeftracker.backend.viagens.strategy.Entregue;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,6 +27,7 @@ class ViagemTest {
     private Entregue concluida;
     private Cancelada cancelada;
     private ViagemService service;
+    private InfluxDBClient influxDBClient;
 
     @BeforeEach
     void setUp() {
@@ -44,14 +35,14 @@ class ViagemTest {
         transito   = mock(EmTransito.class);
         concluida  = mock(Entregue.class);
         cancelada  = mock(Cancelada.class);
-        service    = new ViagemService(repository, transito, concluida, cancelada);
+        service    = new ViagemService(repository, transito, concluida, cancelada, influxDBClient);
     }
 
     // --- criar ---
 
     @Test
     void criar_deveSalvarViagemComStatusPendente() {
-        ViagemData data = new ViagemData(1L, 2L, "desc", StatusViagem.CANCELADA, null, null, null);
+        ViagemData data = new ViagemData(1L, 2L, "", "desc", StatusViagem.CANCELADA, null, null, null);
         service.criar(data);
 
         verify(repository).criar(argThat(d -> d.statusViagem() == StatusViagem.PENDENTE));
@@ -61,7 +52,7 @@ class ViagemTest {
 
     @Test
     void editar_deveAtualizarDescricao() throws ResourceNotFoundException {
-        ViagemData data = new ViagemData(1L, 2L, "antiga", StatusViagem.PENDENTE, null, null, null);
+        ViagemData data = new ViagemData(1L, 2L, "", "antiga", StatusViagem.PENDENTE, null, null, null);
         Viagem viagem   = new Viagem(data, null);
         when(repository.findById(1L)).thenReturn(Optional.of(viagem));
 
@@ -81,10 +72,10 @@ class ViagemTest {
 
     @Test
     void alterarStatus_deveUsarServicoCorreto() throws ResourceNotFoundException {
-        ViagemData data   = new ViagemData(1L, 2L, "desc", StatusViagem.PENDENTE, null, null, null);
+        ViagemData data   = new ViagemData(1L, 2L,"", "desc", StatusViagem.PENDENTE, null, null, null);
         Viagem viagem     = new Viagem(data, null);
         Viagem atualizada = new Viagem(
-                new ViagemData(1L, 2L, "desc", StatusViagem.EM_TRANSITO, null, null, null), null);
+                new ViagemData(1L, 2L, "", "desc", StatusViagem.EM_TRANSITO, null, null, null), null);
 
         when(repository.findById(1L)).thenReturn(Optional.of(viagem));
         when(transito.alterarStatus(viagem, StatusViagem.EM_TRANSITO)).thenReturn(atualizada);

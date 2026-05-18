@@ -2,6 +2,7 @@ package com.beeftracker.backend.viagens.controller;
 
 import java.util.List;
 
+import com.beeftracker.backend.viagens.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
 import com.beeftracker.backend.compras.pedidoCompra.models.PedidoCompra;
 import com.beeftracker.backend.compras.pedidoCompra.models.PedidoCompraData;
-import com.beeftracker.backend.viagens.model.NovoStatus;
-import com.beeftracker.backend.viagens.model.StatusViagem;
-import com.beeftracker.backend.viagens.model.Viagem;
-import com.beeftracker.backend.viagens.model.ViagemData;
 import com.beeftracker.backend.viagens.service.ViagemService;
 
 @RestController
@@ -59,6 +56,11 @@ public class ViagemController {
         service.editar(id, data.descricao());
         return ResponseEntity.ok().build();
 
+    }
+
+    @GetMapping("/{id}/leituras")
+    public ResponseEntity<List<SensorLeitura>> getLeituras(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getLeituras(id));
     }
 
 }
