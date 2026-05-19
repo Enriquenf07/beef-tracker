@@ -42,7 +42,7 @@ class ViagemTest {
 
     @Test
     void criar_deveSalvarViagemComStatusPendente() {
-        ViagemData data = new ViagemData(1L, 2L, "", "desc", StatusViagem.CANCELADA, null, null, null);
+        ViagemData data = new ViagemData(1L, 2L, "", "desc", StatusViagem.CANCELADA, null, null, null, null);
         service.criar(data);
 
         verify(repository).criar(argThat(d -> d.statusViagem() == StatusViagem.PENDENTE));
@@ -52,7 +52,7 @@ class ViagemTest {
 
     @Test
     void editar_deveAtualizarDescricao() throws ResourceNotFoundException {
-        ViagemData data = new ViagemData(1L, 2L, "", "antiga", StatusViagem.PENDENTE, null, null, null);
+        ViagemData data = new ViagemData(1L, 2L, "", "antiga", StatusViagem.PENDENTE, null, null, null, null);
         Viagem viagem   = new Viagem(data, null);
         when(repository.findById(1L)).thenReturn(Optional.of(viagem));
 
@@ -72,10 +72,10 @@ class ViagemTest {
 
     @Test
     void alterarStatus_deveUsarServicoCorreto() throws ResourceNotFoundException {
-        ViagemData data   = new ViagemData(1L, 2L,"", "desc", StatusViagem.PENDENTE, null, null, null);
+        ViagemData data   = new ViagemData(1L, 2L,"", "desc", StatusViagem.PENDENTE, null, null, null, null);
         Viagem viagem     = new Viagem(data, null);
         Viagem atualizada = new Viagem(
-                new ViagemData(1L, 2L, "", "desc", StatusViagem.EM_TRANSITO, null, null, null), null);
+                new ViagemData(1L, 2L, "", "desc", StatusViagem.EM_TRANSITO, null, null, null,null), null);
 
         when(repository.findById(1L)).thenReturn(Optional.of(viagem));
         when(transito.alterarStatus(viagem, StatusViagem.EM_TRANSITO)).thenReturn(atualizada);

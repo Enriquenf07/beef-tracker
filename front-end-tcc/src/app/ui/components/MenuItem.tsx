@@ -34,10 +34,7 @@ export default function MenuItem({ open, label, icon, onClick }: { open: boolean
                 ${open ? 'w-full' : 'w-9'}
             `}
         >
-            { }
             {icons[icon]}
-
-            { }
             <span className={`
                 overflow-hidden transition-all duration-1000 ease-in-out whitespace-nowrap
                 ${open ? 'opacity-100 w-auto' : 'opacity-0 w-0'}

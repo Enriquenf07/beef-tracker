@@ -32,8 +32,8 @@ export default async function RootLayout({
 
 	return (
 		<main className="flex gap-1 min-h-screen">
+			<Menu roles={roles} />
 			<Protected>
-				<Menu roles={roles}/>
 				<section className="p-5 w-full">{children}</section>
 			</Protected>
 		</main>

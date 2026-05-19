@@ -8,7 +8,9 @@ import java.util.UUID;
 import com.beeftracker.backend.base.exceptions.InvalidFormException;
 
 import io.micrometer.common.util.StringUtils;
+import lombok.With;
 
+@With
 public record ViagemData(
         Long veiculoId,
         Long sensorId,
@@ -16,6 +18,7 @@ public record ViagemData(
         String descricao,
         StatusViagem statusViagem,
         LocalDateTime saidaEm,
+        LocalDateTime saidaRealEm,
         LocalDateTime entregueEm,
         LocalDateTime atualizadoEm) {
 

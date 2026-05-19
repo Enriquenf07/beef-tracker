@@ -44,7 +44,7 @@ public class ViagemController {
         return ResponseEntity.ok(service.pesquisar(status, page));
     }
 
-    @PatchMapping("/status/{id}")
+    @PatchMapping("/{id}/status")
     public ResponseEntity<?> alterarStatus(@PathVariable Long id, @RequestBody NovoStatus status) throws ResourceNotFoundException {
         service.alterarStatus(id, status);
         return ResponseEntity.ok().build();
@@ -59,8 +59,13 @@ public class ViagemController {
     }
 
     @GetMapping("/{id}/leituras")
-    public ResponseEntity<List<SensorLeitura>> getLeituras(@PathVariable Long id) {
+    public ResponseEntity<?> getLeituras(@PathVariable Long id) {
         return ResponseEntity.ok(service.getLeituras(id));
+    }
+
+    @GetMapping("/{id}/stats")
+    public ResponseEntity<?> getStats(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getStats(id));
     }
 
 }

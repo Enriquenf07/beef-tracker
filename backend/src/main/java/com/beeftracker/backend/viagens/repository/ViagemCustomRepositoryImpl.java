@@ -43,7 +43,8 @@ public class ViagemCustomRepositoryImpl implements ViagemCustomRepository {
                         sensor_id = ?,
                         descricao = ?,
                         status_viagem = ?,
-                        entregue_em = ?
+                        entregue_em = ?,
+                        saida_real_em = ?
                     WHERE id = ?
                 """;
 
@@ -53,13 +54,14 @@ public class ViagemCustomRepositoryImpl implements ViagemCustomRepository {
                 viagem.descricao(),
                 viagem.statusViagem().name(),
                 viagem.entregueEm(),
+                viagem.saidaRealEm(),
                 id);
 
     }
 
     @Override
     public Viagem carregar(Long id) {
-        String sql = "SELECT v.veiculo_id, v.sensor_id, v.descricao, v.status_viagem, v.saida_em, v.entregue_em, v.atualizado_em, v.criado_em, v.id, v.token, s.token AS sensor_token FROM viagem v LEFT JOIN sensor s ON s.id = v.sensor_id WHERE v.id = ?";
+        String sql = "SELECT v.veiculo_id, v.sensor_id, v.descricao, v.status_viagem, v.saida_em, v.saida_real_em, v.entregue_em, v.atualizado_em, v.criado_em, v.id, v.token, s.token AS sensor_token FROM viagem v LEFT JOIN sensor s ON s.id = v.sensor_id WHERE v.id = ?";
 
         return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> mapRow(rs), id);
     }
@@ -80,6 +82,8 @@ public class ViagemCustomRepositoryImpl implements ViagemCustomRepository {
                 StatusViagem.valueOf(rs.getString("status_viagem")),
                 rs.getObject("saida_em", OffsetDateTime.class) != null
                         ? rs.getObject("saida_em", OffsetDateTime.class).toLocalDateTime() : null,
+                rs.getObject("saida_real_em", OffsetDateTime.class) != null
+                        ? rs.getObject("saida_real_em", OffsetDateTime.class).toLocalDateTime() : null,
                 rs.getObject("entregue_em", OffsetDateTime.class) != null
                         ? rs.getObject("entregue_em", OffsetDateTime.class).toLocalDateTime() : null,
                 rs.getObject("atualizado_em", OffsetDateTime.class) != null

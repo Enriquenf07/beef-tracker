@@ -4,10 +4,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 import com.beeftracker.backend.viagens.model.*;
@@ -50,6 +47,7 @@ public class ViagemService {
                 "",
                 descricao,
                 viagem.data().statusViagem(),
+                viagem.data().saidaRealEm(),
                 viagem.data().saidaEm(),
                 viagem.data().entregueEm(),
                 viagem.data().atualizadoEm()), viagem.metadata());
@@ -57,8 +55,8 @@ public class ViagemService {
     }
 
     public void alterarStatus(Long id, NovoStatus status) throws ResourceNotFoundException {
-        Viagem viagem = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException());
-        AlterarStatus service = services.get(status.toString());
+        Viagem viagem = repository.carregar(id);
+        AlterarStatus service = services.get(status.novoStatus().toString());
         viagem = service.alterarStatus(viagem, StatusViagem.valueOf(status.novoStatus()));
         repository.editar(viagem.data(), id);
     }
@@ -74,6 +72,7 @@ public class ViagemService {
                 "",
                 data.descricao(),
                 StatusViagem.PENDENTE,
+                null,
                 data.saidaEm(),
                 data.entregueEm(),
                 data.atualizadoEm());
@@ -81,12 +80,51 @@ public class ViagemService {
         repository.criar(novaViagem);
     }
 
-    public List<SensorLeitura> getLeituras(Long viagemId) {
+    public StatsViagem getStats(Long viagemId) {
+        Viagem viagem = repository.carregar(viagemId);
+        List<SensorLeitura> leituras = getLeituras(viagemId).get("leituras");
+
+        if (leituras == null || leituras.isEmpty()) {
+            return new StatsViagem(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0L);
+        }
+
+        DoubleSummaryStatistics statsTemp = leituras.stream()
+                .mapToDouble(SensorLeitura::temp)
+                .summaryStatistics();
+
+        DoubleSummaryStatistics statsUmidade = leituras.stream()
+                .mapToDouble(SensorLeitura::umidade)
+                .summaryStatistics();
+
+        long timestampInicialRaw = leituras.get(0).timestamp().longValue();
+        long timestampFinalRaw = leituras.get(leituras.size() - 1).timestamp().longValue();
+
+        long diferencaNanosegundos = timestampFinalRaw - timestampInicialRaw;
+
+        long duracaoSegundos = diferencaNanosegundos / 1_000_000_000L;
+
+
+
+        return new StatsViagem(
+                leituras.size(),
+                statsTemp.getAverage(),
+                statsTemp.getMin(),
+                statsTemp.getMax(),
+                statsUmidade.getAverage(),
+                statsUmidade.getMin(),
+                statsUmidade.getMax(),
+                duracaoSegundos
+        );
+    }
+
+    public HashMap<String, List<SensorLeitura>> getLeituras(Long viagemId) {
         Viagem viagem = repository.carregar(viagemId);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        if(viagem.data().saidaRealEm() == null || viagem.data().statusViagem() == StatusViagem.PENDENTE || viagem.data().statusViagem() == StatusViagem.CANCELADA){
+            return null; // TODO add erro depois
+        }
 
-
-        String saidaEm = viagem.data().saidaEm()
+        String saidaEm = viagem.data().saidaRealEm()
                 .atZone(ZoneId.of("America/Sao_Paulo"))
                 .toInstant()
                 .toString();
@@ -126,8 +164,9 @@ public class ViagemService {
                 leituras.add(leitura);
             });
         }
-
-        return leituras;
+        HashMap<String, List<SensorLeitura>> map = new HashMap<>();
+        map.put("leituras", leituras);
+        return map;
     }
 
 }

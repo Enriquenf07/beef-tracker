@@ -18,16 +18,19 @@ public abstract class AlterarStatus {
             "",
             viagem.data().descricao(),
             getStatus(),
-            viagem.data().saidaEm(),
+                viagem.data().saidaEm(),
+                viagem.data().saidaRealEm(),
             viagem.data().entregueEm(),
             LocalDateTime.now()
         ), viagem.metadata());
     }
 
     public Viagem alterarStatus(Viagem viagem, StatusViagem atual){
-        validarStatus(atual);
-        sideEffect(viagem);
-        return atualizarData(viagem);
+        if(!validarStatus(atual)){
+            return null;
+        };
+        Viagem newViagem = sideEffect(viagem);
+        return atualizarData(newViagem);
     }
-    abstract void sideEffect(Viagem viagem);
+    abstract Viagem sideEffect(Viagem viagem);
 }
