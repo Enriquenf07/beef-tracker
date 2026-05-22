@@ -18,6 +18,7 @@ public class Entregue extends AlterarStatus {
 
     @Override
     Viagem sideEffect(Viagem viagem) {
+
         ViagemData dadosAtualizados = viagem.data()
                 .withEntregueEm(LocalDateTime.now());
         return new Viagem(

@@ -2,6 +2,7 @@ package com.beeftracker.backend.ativos.sensores.services;
 
 import java.util.List;
 
+import com.beeftracker.backend.veiculos.models.Veiculo;
 import org.springframework.stereotype.Service;
 
 import com.beeftracker.backend.ativos.sensores.models.Sensor;
@@ -48,4 +49,5 @@ public class SensorService {
         }
         return sensor;
     }
+
 }

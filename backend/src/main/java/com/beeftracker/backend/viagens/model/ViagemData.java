@@ -20,7 +20,10 @@ public record ViagemData(
         LocalDateTime saidaEm,
         LocalDateTime saidaRealEm,
         LocalDateTime entregueEm,
-        LocalDateTime atualizadoEm) {
+        LocalDateTime atualizadoEm,
+        Long motoristaId
+
+        ) {
 
     public void validate() throws InvalidFormException {
         if (StringUtils.isBlank(descricao)) {

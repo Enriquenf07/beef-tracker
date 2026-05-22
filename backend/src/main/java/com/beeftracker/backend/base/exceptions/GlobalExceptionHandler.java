@@ -23,6 +23,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(e.getBody());
     }
 
+    @ExceptionHandler(SensorIndisponivelException.class)
+    public ResponseEntity<?> handleSensorIndisponivel(SensorIndisponivelException e) {
+        return ResponseEntity.badRequest().body(e.getBody());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGeneralException(Exception e) {
         ErrorBody body = new ErrorBody(null, "Erro Interno", HttpStatus.BAD_REQUEST.value(), "Erro Interno. Tente novamente mais tarde.", "");

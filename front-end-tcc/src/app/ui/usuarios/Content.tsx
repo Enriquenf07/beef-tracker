@@ -190,7 +190,6 @@ export default function Content(props: any) {
                     <PaginationContent>
                         <PaginationItem>
                             <PaginationPrevious
-                                l
                                 href={createPageURL(currentPage - 1)}
                                 aria-disabled={currentPage <= 1}
                                 className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}

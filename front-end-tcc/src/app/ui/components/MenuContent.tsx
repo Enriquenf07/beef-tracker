@@ -17,6 +17,7 @@ export function MenuContent(props: Readonly<{ open: boolean, roles: any[] }>) {
         {
             id: "compras",
             label: "Compras",
+            roles: ["ADMIN", "COMPRAS"],
             icon: "shoppingBag",
             menu: [
                 { id: "fornecedores", path: "/ui/compras/fornecedores", icon: "building2", label: "Fornecedores" },
@@ -27,6 +28,7 @@ export function MenuContent(props: Readonly<{ open: boolean, roles: any[] }>) {
         {
             id: "vendas",
             label: "Vendas",
+            roles: ["ADMIN", "VENDAS"],
             icon: "store",
             menu: [
                 { id: "clientes", path: "/ui/vendas/clientes", icon: "users", label: "Clientes" }, 
@@ -37,6 +39,7 @@ export function MenuContent(props: Readonly<{ open: boolean, roles: any[] }>) {
         {
             id: "monitoramento",
             label: "Monitoramento",
+            roles: ["ADMIN", "MONITORAMENTO"],
             icon: "timer",
             menu: [
                 { id: "viagens", path: "/ui/viagens", icon: "globe", label: "Viagens" },
@@ -46,6 +49,7 @@ export function MenuContent(props: Readonly<{ open: boolean, roles: any[] }>) {
         {
             id: "logistica",
             label: "Gestão de Ativos",
+            roles: ["ADMIN", "LOGISTICA"],
             icon: "route",
             menu: [
                 { id: "estoque", path: "/ui/estoque", icon: "refrigerator", label: "Estoque" },

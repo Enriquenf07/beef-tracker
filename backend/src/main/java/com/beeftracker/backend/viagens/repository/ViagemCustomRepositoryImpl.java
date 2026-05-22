@@ -1,6 +1,9 @@
 package com.beeftracker.backend.viagens.repository;
 
+import com.beeftracker.backend.base.Page;
+import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
 import com.beeftracker.backend.viagens.model.StatusViagem;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +16,8 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class ViagemCustomRepositoryImpl implements ViagemCustomRepository {
@@ -60,10 +65,14 @@ public class ViagemCustomRepositoryImpl implements ViagemCustomRepository {
     }
 
     @Override
-    public Viagem carregar(Long id) {
-        String sql = "SELECT v.veiculo_id, v.sensor_id, v.descricao, v.status_viagem, v.saida_em, v.saida_real_em, v.entregue_em, v.atualizado_em, v.criado_em, v.id, v.token, s.token AS sensor_token FROM viagem v LEFT JOIN sensor s ON s.id = v.sensor_id WHERE v.id = ?";
+    public Viagem carregar(Long id) throws ResourceNotFoundException {
+        String sql = "SELECT v.veiculo_id, v.sensor_id, v.descricao, v.status_viagem, v.saida_em, v.saida_real_em, v.entregue_em, v.atualizado_em, v.criado_em, v.id, v.token, s.token AS sensor_token, v.motorista_id FROM viagem v LEFT JOIN sensor s ON s.id = v.sensor_id WHERE v.id = ?";
 
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> mapRow(rs), id);
+        try {
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> mapRow(rs), id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFoundException();
+        }
     }
 
     private Viagem mapRow(ResultSet rs) throws SQLException {
@@ -87,7 +96,10 @@ public class ViagemCustomRepositoryImpl implements ViagemCustomRepository {
                 rs.getObject("entregue_em", OffsetDateTime.class) != null
                         ? rs.getObject("entregue_em", OffsetDateTime.class).toLocalDateTime() : null,
                 rs.getObject("atualizado_em", OffsetDateTime.class) != null
-                        ? rs.getObject("atualizado_em", OffsetDateTime.class).toLocalDateTime() : null
+                        ? rs.getObject("atualizado_em", OffsetDateTime.class).toLocalDateTime() : null,
+                rs.getLong("motorista_id")
+
+
         );
     }
 
@@ -100,5 +112,55 @@ public class ViagemCustomRepositoryImpl implements ViagemCustomRepository {
                 rs.getLong("id"),
                 rs.getString("token")
         );
+    }
+    public Page<Viagem> findByStatusAndData(String status, LocalDate dataInicio, LocalDate dataFim, int page) {
+        StringBuilder sql = new StringBuilder("""
+    SELECT v.*, s.token AS sensor_token
+    FROM viagem v
+    LEFT JOIN sensor s ON s.id = v.sensor_id
+    WHERE 1=1
+""");
+
+        List<Object> params = new ArrayList<>();
+        StringBuilder filterSql = new StringBuilder();
+
+        if (status != null && !status.isBlank()) {
+            filterSql.append(" AND v.status_viagem = ?");
+            params.add(status);
+        }
+        if (dataInicio != null) {
+            filterSql.append(" AND v.saida_real_em >= ?");
+            params.add(dataInicio);
+        }
+        if (dataFim != null) {
+            filterSql.append(" AND v.saida_real_em <= ?");
+            params.add(dataFim);
+        }
+
+        String sqlCount = "SELECT COUNT(*) FROM viagem v WHERE 1=1" + filterSql.toString();
+        Long totalRegistros = jdbcTemplate.queryForObject(sqlCount, Long.class, params.toArray());
+
+        if (totalRegistros == null) {
+            totalRegistros = 0L;
+        }
+
+        int pageSize = 10;
+        int totalPaginas = (int) Math.ceil((double) totalRegistros / pageSize);
+
+        int paginaAjustada = page - 1;
+        if (paginaAjustada < 0) {
+            paginaAjustada = 0;
+        }
+
+        if (paginaAjustada >= totalPaginas || totalRegistros == 0) {
+            return new Page<>(new ArrayList<>(), totalPaginas);
+        }
+
+        sql.append(filterSql);
+        sql.append(" LIMIT ").append(pageSize).append(" OFFSET ").append(paginaAjustada * pageSize);
+
+        List<Viagem> viagens = jdbcTemplate.query(sql.toString(), (rs, rowNum) -> mapRow(rs), params.toArray());
+
+        return new Page<>(viagens, totalPaginas);
     }
 }

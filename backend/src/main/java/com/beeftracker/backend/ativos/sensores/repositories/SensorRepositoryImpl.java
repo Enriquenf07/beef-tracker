@@ -1,6 +1,8 @@
 package com.beeftracker.backend.ativos.sensores.repositories;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,15 +59,24 @@ public class SensorRepositoryImpl implements SensorRepository {
 
         return jdbcTemplate.queryForObject(sql,
                 new MapSqlParameterSource().addValue("id", id),
-                (rs, rowNum) -> new Sensor(
-                        new SensorData(rs.getString("descricao"), rs.getBoolean("ativo")),
-                        new Metadata(
-                                rs.getObject("criado_em", LocalDate.class),
-                                rs.getObject("atualizado_em", LocalDate.class),
-                                rs.getLong("id"),
-                                rs.getString("token"))));
-    }
+                (rs, rowNum) -> {
+                    OffsetDateTime criadoOdt = rs.getObject("criado_em", OffsetDateTime.class);
+                    OffsetDateTime atualizadoOdt = rs.getObject("atualizado_em", OffsetDateTime.class);
 
+                    LocalDate criadoDate = (criadoOdt != null) ? criadoOdt.toLocalDate() : null;
+                    LocalDate atualizadoDate = (atualizadoOdt != null) ? atualizadoOdt.toLocalDate() : null;
+
+                    return new Sensor(
+                            new SensorData(rs.getString("descricao"), rs.getBoolean("ativo")),
+                            new Metadata(
+                                    criadoDate,
+                                    atualizadoDate,
+                                    rs.getLong("id"),
+                                    rs.getString("token")
+                            )
+                    );
+                });
+    }
     @Override
     public List<Sensor> pesquisar(String chave, Boolean status) {
         StringBuilder sql = new StringBuilder(

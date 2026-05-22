@@ -3,7 +3,7 @@ import Content from "./components/Content"
 import { LeituraStats } from "./components/Stats"
 
 
-export default async function Viagens(props: any) {
+export default async function Viagem(props: any) {
     const api = await createApi()
     let itens = [] as any
     let stats = {} as LeituraStats
@@ -16,9 +16,6 @@ export default async function Viagens(props: any) {
         stats = res.data
         console.log(stats)
     } catch (e) {
-        console.error("Erro status:", e?.response?.status)
-        console.error("Erro message:", e?.message)
-        console.error("Erro data:", e?.response?.data)
         itens = []
     }
 

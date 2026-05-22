@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Leitura } from './Content';
 
-// Configura o token de acesso do ambiente Next.js
+
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAP_TOKEN || '';
 
 interface MapaRotaProps {

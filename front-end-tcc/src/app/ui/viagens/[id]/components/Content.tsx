@@ -1,8 +1,12 @@
+'use client'
 import { map } from "d3"
 import { LeiturasChart } from "./Charts"
 import { MapComponent } from "./Map"
 import MapTelemetria from "./MapTelemetria"
 import PainelStats, { LeituraStats } from "./Stats"
+import { useState } from "react"
+import MapTelemetria2 from "./MapTelemetria2"
+import { Button } from "@/components/ui/button"
 
 export interface Leitura {
     timestamp: number
@@ -40,7 +44,18 @@ export function LeituraItem({ leitura }: { leitura: Leitura }) {
 }
 
 function Content({ leituras, stats }: { leituras: Leitura[]; stats: LeituraStats | null  }) {
-
+    const [mapaTipo, setMapaTipo] = useState(2);
+    if(leituras.length === 0) {
+        return (
+            <div className="flex flex-col gap-3 justify-start">
+                <h1 className="text-2xl font-bold">Viagem</h1>
+                <p className="text-gray-500">Aqui estão os detalhes da viagem.</p>
+                <div className="flex justify-center items-center h-40 w-full">
+                    <p>Nenhuma leitura encontrada para esta viagem.</p>
+                </div>
+            </div>
+        )
+    }
     return (
         <div className="flex flex-col gap-3 justify-start">
             <h1 className="text-2xl font-bold">Viagem</h1>
@@ -49,7 +64,18 @@ function Content({ leituras, stats }: { leituras: Leitura[]; stats: LeituraStats
                 <PainelStats stats={stats}/>
             </div>
             <div>
-                <MapTelemetria leituras={leituras} />
+                <Button variant="outline" size="sm" onClick={() => setMapaTipo(mapaTipo === 1 ? 2 : 1)}>
+                    {mapaTipo === 1 ? "Ver Mapa Principal (com ajustes na rota)" : "Ver Mapa Alternativo (com rota original do gps)"}
+                </Button>
+            </div>
+            <div>
+                {
+                    mapaTipo === 1 ? (
+                        <MapTelemetria leituras={leituras} />
+                    ) : (
+                        <MapTelemetria2 leituras={leituras} />
+                    )
+                }
             </div>
             <div>
                 <LeiturasChart leituras={leituras} />

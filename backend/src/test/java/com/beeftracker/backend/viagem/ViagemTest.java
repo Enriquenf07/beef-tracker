@@ -1,5 +1,8 @@
 package com.beeftracker.backend.viagem;
 
+import com.beeftracker.backend.ativos.sensores.services.SensorService;
+import com.beeftracker.backend.base.exceptions.SensorIndisponivelException;
+import com.beeftracker.backend.veiculos.services.VeiculoService;
 import com.influxdb.v3.client.InfluxDBClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +15,7 @@ import com.beeftracker.backend.viagens.strategy.Cancelada;
 import com.beeftracker.backend.viagens.strategy.EmTransito;
 import com.beeftracker.backend.viagens.strategy.Entregue;
 
-import java.util.Optional;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,6 +31,8 @@ class ViagemTest {
     private Cancelada cancelada;
     private ViagemService service;
     private InfluxDBClient influxDBClient;
+    private VeiculoService veiculoService;
+    private SensorService sensorService;
 
     @BeforeEach
     void setUp() {
@@ -35,13 +40,15 @@ class ViagemTest {
         transito   = mock(EmTransito.class);
         concluida  = mock(Entregue.class);
         cancelada  = mock(Cancelada.class);
-        service    = new ViagemService(repository, transito, concluida, cancelada, influxDBClient);
+        veiculoService  = mock(VeiculoService.class);
+        sensorService  = mock(SensorService.class);
+        service    = new ViagemService(repository, transito, concluida, cancelada, influxDBClient, veiculoService, sensorService);
     }
 
     // --- criar ---
 
     @Test
-    void criar_deveSalvarViagemComStatusPendente() {
+    void criar_deveSalvarViagemComStatusPendente() throws ResourceNotFoundException {
         ViagemData data = new ViagemData(1L, 2L, "", "desc", StatusViagem.CANCELADA, null, null, null, null);
         service.criar(data);
 
@@ -54,7 +61,7 @@ class ViagemTest {
     void editar_deveAtualizarDescricao() throws ResourceNotFoundException {
         ViagemData data = new ViagemData(1L, 2L, "", "antiga", StatusViagem.PENDENTE, null, null, null, null);
         Viagem viagem   = new Viagem(data, null);
-        when(repository.findById(1L)).thenReturn(Optional.of(viagem));
+        when(repository.carregar(1L)).thenReturn(viagem);
 
         service.editar(1L, "nova");
 
@@ -62,8 +69,8 @@ class ViagemTest {
     }
 
     @Test
-    void editar_quandoNaoEncontrado_deveLancarException() {
-        when(repository.findById(99L)).thenReturn(Optional.empty());
+    void editar_quandoNaoEncontrado_deveLancarException() throws ResourceNotFoundException {
+        when(repository.carregar(99L)).thenThrow(new ResourceNotFoundException());
 
         assertThrows(ResourceNotFoundException.class, () -> service.editar(99L, "x"));
     }
@@ -71,14 +78,14 @@ class ViagemTest {
     // --- alterarStatus ---
 
     @Test
-    void alterarStatus_deveUsarServicoCorreto() throws ResourceNotFoundException {
+    void alterarStatus_deveUsarServicoCorreto() throws ResourceNotFoundException, SensorIndisponivelException {
         ViagemData data   = new ViagemData(1L, 2L,"", "desc", StatusViagem.PENDENTE, null, null, null, null);
         Viagem viagem     = new Viagem(data, null);
         Viagem atualizada = new Viagem(
                 new ViagemData(1L, 2L, "", "desc", StatusViagem.EM_TRANSITO, null, null, null,null), null);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(viagem));
-        when(transito.alterarStatus(viagem, StatusViagem.EM_TRANSITO)).thenReturn(atualizada);
+        when(repository.carregar(1L)).thenReturn(viagem);
+        when(transito.alterarStatus(viagem)).thenReturn(atualizada);
 
         NovoStatus status = mock(NovoStatus.class);
         when(status.toString()).thenReturn("EM_TRANSITO");
@@ -86,7 +93,7 @@ class ViagemTest {
 
         service.alterarStatus(1L, status);
 
-        verify(transito).alterarStatus(viagem, StatusViagem.EM_TRANSITO);
+        verify(transito).alterarStatus(viagem);
         verify(repository).editar(atualizada.data(), 1L);
     }
 
@@ -94,8 +101,8 @@ class ViagemTest {
 
     @Test
     void pesquisar_deveRepassarParametrosAoRepository() {
-        service.pesquisar("PENDENTE", 0);
+        service.pesquisar("PENDENTE", LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31), 0);
 
-        verify(repository).findByStatus("PENDENTE", 0);
+        verify(repository).findByStatusAndData("PENDENTE", LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31), 0);
     }
 }

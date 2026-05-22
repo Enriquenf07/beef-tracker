@@ -2,6 +2,7 @@ package com.beeftracker.backend.viagens.strategy;
 
 import java.time.LocalDateTime;
 
+import com.beeftracker.backend.base.exceptions.SensorIndisponivelException;
 import org.springframework.stereotype.Service;
 
 import com.beeftracker.backend.viagens.model.StatusViagem;
@@ -21,16 +22,17 @@ public abstract class AlterarStatus {
                 viagem.data().saidaEm(),
                 viagem.data().saidaRealEm(),
             viagem.data().entregueEm(),
-            LocalDateTime.now()
+            LocalDateTime.now(),
+                viagem.data().motoristaId()
         ), viagem.metadata());
     }
 
-    public Viagem alterarStatus(Viagem viagem, StatusViagem atual){
-        if(!validarStatus(atual)){
+    public Viagem alterarStatus(Viagem viagem) throws SensorIndisponivelException {
+        if(!validarStatus(viagem.data().statusViagem())){
             return null;
         };
         Viagem newViagem = sideEffect(viagem);
         return atualizarData(newViagem);
     }
-    abstract Viagem sideEffect(Viagem viagem);
+    abstract Viagem sideEffect(Viagem viagem) throws SensorIndisponivelException;
 }
