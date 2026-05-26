@@ -49,7 +49,7 @@ class ViagemTest {
 
     @Test
     void criar_deveSalvarViagemComStatusPendente() throws ResourceNotFoundException {
-        ViagemData data = new ViagemData(1L, 2L, "", "desc", StatusViagem.CANCELADA, null, null, null, null);
+        ViagemData data = new ViagemData(1L, 2L, "", "desc", StatusViagem.CANCELADA, null, null, null, null, null);
         service.criar(data);
 
         verify(repository).criar(argThat(d -> d.statusViagem() == StatusViagem.PENDENTE));
@@ -59,7 +59,7 @@ class ViagemTest {
 
     @Test
     void editar_deveAtualizarDescricao() throws ResourceNotFoundException {
-        ViagemData data = new ViagemData(1L, 2L, "", "antiga", StatusViagem.PENDENTE, null, null, null, null);
+        ViagemData data = new ViagemData(1L, 2L, "", "antiga", StatusViagem.PENDENTE, null, null, null, null, null);
         Viagem viagem   = new Viagem(data, null);
         when(repository.carregar(1L)).thenReturn(viagem);
 
@@ -79,10 +79,10 @@ class ViagemTest {
 
     @Test
     void alterarStatus_deveUsarServicoCorreto() throws ResourceNotFoundException, SensorIndisponivelException {
-        ViagemData data   = new ViagemData(1L, 2L,"", "desc", StatusViagem.PENDENTE, null, null, null, null);
+        ViagemData data   = new ViagemData(1L, 2L,"", "desc", StatusViagem.PENDENTE, null, null, null, null, null);
         Viagem viagem     = new Viagem(data, null);
         Viagem atualizada = new Viagem(
-                new ViagemData(1L, 2L, "", "desc", StatusViagem.EM_TRANSITO, null, null, null,null), null);
+                new ViagemData(1L, 2L, "", "desc", StatusViagem.EM_TRANSITO, null, null, null,null, null), null);
 
         when(repository.carregar(1L)).thenReturn(viagem);
         when(transito.alterarStatus(viagem)).thenReturn(atualizada);
@@ -101,8 +101,8 @@ class ViagemTest {
 
     @Test
     void pesquisar_deveRepassarParametrosAoRepository() {
-        service.pesquisar("PENDENTE", LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31), 0);
+        service.pesquisar("PENDENTE", LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31), 1);
 
-        verify(repository).findByStatusAndData("PENDENTE", LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31), 0);
+        verify(repository).findByStatusAndData("PENDENTE", LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31), 1);
     }
 }
