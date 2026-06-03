@@ -72,15 +72,22 @@ export default function Content(props: any) {
     const [open, setOpen] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [form, setForm] = useState<any>({})
+    const [clienteId, setClienteId] = useState<string>('')
     const [isPending, startTransition] = useTransition()
     const searchParams = useSearchParams()
     const status = searchParams.get('status')
+
+    const clientes: any[] = props.clientes ?? []
 
     const onHandleCadastro = async (
         e: React.FormEvent<HTMLFormElement>
     ) => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
+
+        // injeta clienteId do state (Select não vai pro FormData)
+        formData.set('clienteId', clienteId)
+
         startTransition(async () => {
             const erro = await handleCadastro(formData) as any
             if (erro) {
@@ -88,6 +95,7 @@ export default function Content(props: any) {
                 return
             }
             setOpen(false)
+            setClienteId('')
         })
     }
 
@@ -109,6 +117,7 @@ export default function Content(props: any) {
                         open={open}
                         onOpenChange={() => {
                             setForm({})
+                            setClienteId('')
                             setOpen(prev => !prev)
                         }}
                     >
@@ -141,12 +150,34 @@ export default function Content(props: any) {
                                         defaultValue={form?.metadata?.id}
                                     />
 
-                                    <Input
-                                        placeholder="Cliente ID"
-                                        name="clienteId"
-                                        type="number"
-                                        defaultValue={form?.data?.clienteId}
-                                    />
+                                    {/* SELECT DE CLIENTES */}
+                                    <Select
+                                        value={clienteId}
+                                        onValueChange={(val) => setClienteId(val)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Selecione um cliente" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                {clientes.length === 0 ? (
+                                                    <SelectItem value="__none" disabled>
+                                                        Nenhum cliente cadastrado
+                                                    </SelectItem>
+                                                ) : (
+                                                    clientes.map((c: any) => (
+                                                        <SelectItem
+                                                            key={c.metadata.id}
+                                                            value={String(c.metadata.id)}
+                                                        >
+                                                            {c.data.nome}
+                                                            {c.data.apelido ? ` (${c.data.apelido})` : ''}
+                                                        </SelectItem>
+                                                    ))
+                                                )}
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
 
                                     <Input
                                         placeholder="Valor Total"
@@ -234,58 +265,68 @@ export default function Content(props: any) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {props.pedidos.map((p: any) => (
-                                <TableRow key={p.metadata.id}>
-                                    <TableCell>#{p.metadata.id}</TableCell>
-                                    <TableCell>{p.data.clienteId}</TableCell>
-                                    <TableCell>
-                                        R$ {Number(p.data.valorTotal).toFixed(2)}
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className={`p-1 flex justify-center items-center rounded-xl border ${statusColor[p.data.status] ?? 'bg-muted'}`}>
-                                            {STATUS_VENDA.find(s => s.value === p.data.status)?.label ?? p.data.status}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        {p.data.dataVenda
-                                            ? new Date(p.data.dataVenda).toLocaleDateString('pt-BR')
-                                            : '-'}
-                                    </TableCell>
-                                    <TableCell>
-                                        {p.data.dataVencimento
-                                            ? new Date(p.data.dataVencimento).toLocaleDateString('pt-BR')
-                                            : '-'}
-                                    </TableCell>
-                                    <TableCell className="flex gap-2">
-                                        <Button
-                                            className="bg-secondary"
-                                            onClick={() => {
-                                                setOpen(prev => !prev)
-                                                setForm(p)
-                                            }}
-                                        >
-                                            <PenBox />
-                                        </Button>
+                            {props.pedidos.map((p: any) => {
+                                const cliente = clientes.find(
+                                    (c: any) => c.metadata.id === p.data.clienteId
+                                )
+                                return (
+                                    <TableRow key={p.metadata.id}>
+                                        <TableCell>#{p.metadata.id}</TableCell>
+                                        <TableCell>
+                                            {cliente
+                                                ? cliente.data.nome
+                                                : `#${p.data.clienteId}`}
+                                        </TableCell>
+                                        <TableCell>
+                                            R$ {Number(p.data.valorTotal).toFixed(2)}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className={`p-1 flex justify-center items-center rounded-xl border ${statusColor[p.data.status] ?? 'bg-muted'}`}>
+                                                {STATUS_VENDA.find(s => s.value === p.data.status)?.label ?? p.data.status}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            {p.data.dataVenda
+                                                ? new Date(p.data.dataVenda).toLocaleDateString('pt-BR')
+                                                : '-'}
+                                        </TableCell>
+                                        <TableCell>
+                                            {p.data.dataVencimento
+                                                ? new Date(p.data.dataVencimento).toLocaleDateString('pt-BR')
+                                                : '-'}
+                                        </TableCell>
+                                        <TableCell className="flex gap-2">
+                                            <Button
+                                                className="bg-secondary"
+                                                onClick={() => {
+                                                    setClienteId(String(p.data.clienteId))
+                                                    setOpen(prev => !prev)
+                                                    setForm(p)
+                                                }}
+                                            >
+                                                <PenBox />
+                                            </Button>
 
-                                        <Select
-                                            onValueChange={(value) =>
-                                                onHandleStatus(p.metadata.id, value)
-                                            }
-                                        >
-                                            <SelectTrigger className="w-40">
-                                                <SelectValue placeholder="Alterar status" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {STATUS_VENDA.map(s => (
-                                                    <SelectItem key={s.value} value={s.value}>
-                                                        {s.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
+                                            <Select
+                                                onValueChange={(value) =>
+                                                    onHandleStatus(p.metadata.id, value)
+                                                }
+                                            >
+                                                <SelectTrigger className="w-40">
+                                                    <SelectValue placeholder="Alterar status" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {STATUS_VENDA.map(s => (
+                                                        <SelectItem key={s.value} value={s.value}>
+                                                            {s.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            })}
                         </TableBody>
                     </Table>
                 ) : (

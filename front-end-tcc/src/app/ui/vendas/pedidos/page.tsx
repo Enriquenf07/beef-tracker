@@ -5,6 +5,7 @@ export default async function PedidosVenda(props: any) {
     const api = await createApi()
 
     let pedidos = []
+    let clientes = []
 
     const searchParams = await props?.searchParams
 
@@ -40,9 +41,16 @@ export default async function PedidosVenda(props: any) {
         pedidos = []
     }
 
+    try {
+        const { data } = await api.get('/vendas/cliente') as any
+        clientes = data
+    } catch (e) {
+        clientes = []
+    }
+
     return (
         <div className="flex flex-col gap-3 justify-start">
-            <Content pedidos={pedidos} />
+            <Content pedidos={pedidos} clientes={clientes} />
         </div>
     )
 }

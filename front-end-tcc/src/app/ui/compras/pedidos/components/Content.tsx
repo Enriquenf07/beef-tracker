@@ -58,6 +58,9 @@ export default function Content(props: any) {
 
     const [form, setForm] = useState<any>({})
 
+    const [fornecedorId, setFornecedorId] =
+        useState<string>('')
+
     const [isPending, startTransition] =
         useTransition()
 
@@ -65,19 +68,20 @@ export default function Content(props: any) {
 
     const status = searchParams.get('status')
 
+    const fornecedores: any[] = props.fornecedores ?? []
+
     const onHandleCadastro = async (
         e: React.FormEvent<HTMLFormElement>
     ) => {
         e.preventDefault()
 
-        const formData = new FormData(
-            e.currentTarget
-        )
+        const formData = new FormData(e.currentTarget)
+
+        // injeta o fornecedorId do state (Select não vai pro FormData)
+        formData.set('fornecedorId', fornecedorId)
 
         startTransition(async () => {
-            const erro = await handleCadastro(
-                formData
-            ) as any
+            const erro = await handleCadastro(formData) as any
 
             if (erro) {
                 setError(erro.detail)
@@ -85,6 +89,7 @@ export default function Content(props: any) {
             }
 
             setOpen(false)
+            setFornecedorId('')
         })
     }
 
@@ -94,10 +99,7 @@ export default function Content(props: any) {
     ) => {
         startTransition(async () => {
             const erro =
-                await handleAtualizarStatus(
-                    id,
-                    status
-                ) as any
+                await handleAtualizarStatus(id, status) as any
 
             if (erro) {
                 setError(erro.detail)
@@ -117,6 +119,7 @@ export default function Content(props: any) {
                         open={open}
                         onOpenChange={() => {
                             setForm({})
+                            setFornecedorId('')
                             setOpen(prev => !prev)
                         }}
                     >
@@ -140,63 +143,71 @@ export default function Content(props: any) {
                                 <p>Carregando</p>
                             ) : (
                                 <form
-                                    onSubmit={
-                                        onHandleCadastro
-                                    }
+                                    onSubmit={onHandleCadastro}
                                     className="flex flex-col gap-2"
                                 >
                                     <input
                                         hidden
                                         name="id"
-                                        defaultValue={
-                                            form?.metadata?.id
-                                        }
+                                        defaultValue={form?.metadata?.id}
                                     />
 
-                                    <Input
-                                        placeholder="Fornecedor ID"
-                                        name="fornecedorId"
-                                        type="number"
-                                        defaultValue={
-                                            form?.data?.fornecedorId
-                                        }
-                                    />
+                                    {/* SELECT DE FORNECEDORES */}
+                                    <Select
+                                        value={fornecedorId}
+                                        onValueChange={(val) => setFornecedorId(val)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Selecione um fornecedor" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                {fornecedores.length === 0 ? (
+                                                    <SelectItem value="__none" disabled>
+                                                        Nenhum fornecedor cadastrado
+                                                    </SelectItem>
+                                                ) : (
+                                                    fornecedores.map((f: any) => (
+                                                        <SelectItem
+                                                            key={f.metadata.id}
+                                                            value={String(f.metadata.id)}
+                                                        >
+                                                            {f.data.nome}
+                                                            {f.data.apelido ? ` (${f.data.apelido})` : ''}
+                                                        </SelectItem>
+                                                    ))
+                                                )}
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
 
                                     <Input
                                         placeholder="Valor Total"
                                         name="valorTotal"
                                         type="number"
                                         step="0.01"
-                                        defaultValue={
-                                            form?.data?.valorTotal
-                                        }
+                                        defaultValue={form?.data?.valorTotal}
                                     />
 
                                     <Input
                                         placeholder="Observação"
                                         name="observacao"
                                         type="text"
-                                        defaultValue={
-                                            form?.data?.observacao
-                                        }
+                                        defaultValue={form?.data?.observacao}
                                     />
 
                                     <Input
                                         placeholder="Data Emissão"
                                         name="dataEmissao"
                                         type="date"
-                                        defaultValue={
-                                            form?.data?.dataEmissao
-                                        }
+                                        defaultValue={form?.data?.dataEmissao}
                                     />
 
                                     <Input
                                         placeholder="Data Entrega"
                                         name="dataEntrega"
                                         type="date"
-                                        defaultValue={
-                                            form?.data?.dataEntrega
-                                        }
+                                        defaultValue={form?.data?.dataEntrega}
                                     />
 
                                     <Button type="submit">
@@ -213,23 +224,18 @@ export default function Content(props: any) {
                 {error && (
                     <div className="p-3 bg-red-100 rounded-md flex gap-2 items-center mb-2">
                         <button
-                            onClick={() =>
-                                setError(null)
-                            }
+                            onClick={() => setError(null)}
                             className="text-xs"
                         >
                             X
                         </button>
-
                         <p>{error}</p>
                     </div>
                 )}
 
                 <form className="flex gap-3">
                     <Select
-                        defaultValue={
-                            status || undefined
-                        }
+                        defaultValue={status || undefined}
                         name="status"
                     >
                         <SelectTrigger className="w-52">
@@ -272,123 +278,69 @@ export default function Content(props: any) {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>
-                                    ID
-                                </TableHead>
-
-                                <TableHead>
-                                    Fornecedor
-                                </TableHead>
-
-                                <TableHead>
-                                    Valor
-                                </TableHead>
-
-                                <TableHead>
-                                    Status
-                                </TableHead>
-
-                                <TableHead>
-                                    Emissão
-                                </TableHead>
-
-                                <TableHead>
-                                    Entrega
-                                </TableHead>
-
-                                <TableHead>
-                                </TableHead>
+                                <TableHead>ID</TableHead>
+                                <TableHead>Fornecedor</TableHead>
+                                <TableHead>Valor</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Emissão</TableHead>
+                                <TableHead>Entrega</TableHead>
+                                <TableHead></TableHead>
                             </TableRow>
                         </TableHeader>
 
                         <TableBody>
-                            {props.pedidos.map(
-                                (p: any) => (
-                                    <TableRow
-                                        key={
-                                            p.metadata.id
-                                        }
-                                    >
+                            {props.pedidos.map((p: any) => {
+                                const fornecedor = fornecedores.find(
+                                    (f: any) => f.metadata.id === p.data.fornecedorId
+                                )
+                                return (
+                                    <TableRow key={p.metadata.id}>
                                         <TableCell>
-                                            #
-                                            {
-                                                p.metadata
-                                                    .id
-                                            }
+                                            #{p.metadata.id}
                                         </TableCell>
 
                                         <TableCell>
-                                            {
-                                                p.data
-                                                    .fornecedorId
-                                            }
+                                            {fornecedor
+                                                ? fornecedor.data.nome
+                                                : `#${p.data.fornecedorId}`}
                                         </TableCell>
 
                                         <TableCell>
-                                            R$
-                                            {
-                                                p.data
-                                                    .valorTotal
-                                            }
+                                            R$ {p.data.valorTotal}
                                         </TableCell>
 
                                         <TableCell>
-                                            <div
-                                                className="
-                                                p-1
-                                                flex
-                                                justify-center
-                                                items-center
-                                                rounded-xl
-                                                border
-                                                bg-muted
-                                            "
-                                            >
-                                                {
-                                                    p.data
-                                                        .status
-                                                }
+                                            <div className="p-1 flex justify-center items-center rounded-xl border bg-muted">
+                                                {p.data.status}
                                             </div>
                                         </TableCell>
 
                                         <TableCell>
-                                            {
-                                                p.data
-                                                    .dataEmissao
-                                            }
+                                            {p.data.dataEmissao}
                                         </TableCell>
 
                                         <TableCell>
-                                            {
-                                                p.data
-                                                    .dataEntrega
-                                            }
+                                            {p.data.dataEntrega}
                                         </TableCell>
 
                                         <TableCell className="flex gap-2">
                                             <Button
                                                 className="bg-secondary"
                                                 onClick={() => {
-                                                    setOpen(
-                                                        prev => !prev
+                                                    setFornecedorId(
+                                                        String(p.data.fornecedorId)
                                                     )
-
-                                                    setForm(
-                                                        p
-                                                    )
+                                                    setOpen(prev => !prev)
+                                                    setForm(p)
                                                 }}
                                             >
                                                 <PenBox />
                                             </Button>
 
                                             <Select
-                                                onValueChange={(
-                                                    value
-                                                ) =>
+                                                onValueChange={(value) =>
                                                     onHandleStatus(
-                                                        p
-                                                            .metadata
-                                                            .id,
+                                                        p.metadata.id,
                                                         value
                                                     )
                                                 }
@@ -418,14 +370,12 @@ export default function Content(props: any) {
                                         </TableCell>
                                     </TableRow>
                                 )
-                            )}
+                            })}
                         </TableBody>
                     </Table>
                 ) : (
                     <div className="flex justify-center items-center h-20 w-full">
-                        <p>
-                            Nenhum item encontrado
-                        </p>
+                        <p>Nenhum item encontrado</p>
                     </div>
                 )}
             </Page.Table>
