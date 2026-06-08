@@ -23,18 +23,7 @@ public class SensorLeituraMultiplaSubscriber {
 
     @PostConstruct
     public void iniciar() {
-        mqttClient.connectWith()
-                .cleanStart(true)
-                .send()
-                .whenComplete((ack, throwable) -> {
-                    if (throwable != null) {
-                        System.err.println("MQTT conexão falhou: " + throwable.getMessage());
-                        throwable.printStackTrace();
-                    } else {
-                        System.out.println("MQTT conectado: " + ack);
-                        subscribe();
-                    }
-                });
+        subscribe();
     }
 
     private void subscribe() {
@@ -51,8 +40,7 @@ public class SensorLeituraMultiplaSubscriber {
 
             List<SensorLeitura> requests = objectMapper.readValue(
                     payload,
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, SensorLeitura.class)
-            );
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, SensorLeitura.class));
             viagemService.criarMultiple(requests);
         } catch (IllegalStateException e) {
             System.out.println("Leitura descartada: " + e.getMessage());

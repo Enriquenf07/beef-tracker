@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
-
 @Component
 @RequiredArgsConstructor
 public class SensorLeituraSubscriber {
@@ -22,18 +21,7 @@ public class SensorLeituraSubscriber {
 
     @PostConstruct
     public void iniciar() {
-        mqttClient.connectWith()
-                .cleanStart(true)
-                .send()
-                .whenComplete((ack, throwable) -> {
-                    if (throwable != null) {
-                        System.err.println("MQTT conexão falhou: " + throwable.getMessage());
-                        throwable.printStackTrace();
-                    } else {
-                        System.out.println("MQTT conectado: " + ack);
-                        subscribe();
-                    }
-                });
+        subscribe();
     }
 
     private void subscribe() {
@@ -41,12 +29,20 @@ public class SensorLeituraSubscriber {
                 .topicFilter(TOPICO)
                 .qos(MqttQos.AT_LEAST_ONCE)
                 .callback(this::processarMensagem)
-                .send();
+                .send()
+                .whenComplete((ack, throwable) -> {
+                    if (throwable != null) {
+                        System.err.println("MQTT subscribe falhou [" + TOPICO + "]: " + throwable.getMessage());
+                    } else {
+                        System.out.println("MQTT subscrito no tópico: " + TOPICO);
+                    }
+                });
     }
 
     private void processarMensagem(Mqtt5Publish publish) {
         try {
             String payload = new String(publish.getPayloadAsBytes());
+            System.out.println("MQTT recebido [" + TOPICO + "]: " + payload);
             SensorLeitura request = objectMapper.readValue(payload, SensorLeitura.class);
             viagemService.criarLeitura(request);
 

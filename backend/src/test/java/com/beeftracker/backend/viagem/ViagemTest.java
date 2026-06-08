@@ -37,12 +37,13 @@ class ViagemTest {
     @BeforeEach
     void setUp() {
         repository = mock(ViagemRepository.class);
-        transito   = mock(EmTransito.class);
-        concluida  = mock(Entregue.class);
-        cancelada  = mock(Cancelada.class);
-        veiculoService  = mock(VeiculoService.class);
-        sensorService  = mock(SensorService.class);
-        service    = new ViagemService(repository, transito, concluida, cancelada, influxDBClient, veiculoService, sensorService);
+        transito = mock(EmTransito.class);
+        concluida = mock(Entregue.class);
+        cancelada = mock(Cancelada.class);
+        veiculoService = mock(VeiculoService.class);
+        sensorService = mock(SensorService.class);
+        service = new ViagemService(repository, transito, concluida, cancelada, influxDBClient, veiculoService,
+                sensorService);
     }
 
     // --- criar ---
@@ -60,7 +61,7 @@ class ViagemTest {
     @Test
     void editar_deveAtualizarDescricao() throws ResourceNotFoundException {
         ViagemData data = new ViagemData(1L, 2L, "", "antiga", StatusViagem.PENDENTE, null, null, null, null, null);
-        Viagem viagem   = new Viagem(data, null);
+        Viagem viagem = new Viagem(data, null);
         when(repository.carregar(1L)).thenReturn(viagem);
 
         service.editar(1L, "nova");
@@ -79,10 +80,10 @@ class ViagemTest {
 
     @Test
     void alterarStatus_deveUsarServicoCorreto() throws ResourceNotFoundException, SensorIndisponivelException {
-        ViagemData data   = new ViagemData(1L, 2L,"", "desc", StatusViagem.PENDENTE, null, null, null, null, null);
-        Viagem viagem     = new Viagem(data, null);
+        ViagemData data = new ViagemData(1L, 2L, "", "desc", StatusViagem.PENDENTE, null, null, null, null, null);
+        Viagem viagem = new Viagem(data, null);
         Viagem atualizada = new Viagem(
-                new ViagemData(1L, 2L, "", "desc", StatusViagem.EM_TRANSITO, null, null, null,null, null), null);
+                new ViagemData(1L, 2L, "", "desc", StatusViagem.EM_TRANSITO, null, null, null, null, null), null);
 
         when(repository.carregar(1L)).thenReturn(viagem);
         when(transito.alterarStatus(viagem)).thenReturn(atualizada);

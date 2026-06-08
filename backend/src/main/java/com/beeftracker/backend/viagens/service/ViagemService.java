@@ -12,7 +12,6 @@ import com.beeftracker.backend.base.Page;
 import com.beeftracker.backend.base.exceptions.SensorIndisponivelException;
 import com.beeftracker.backend.veiculos.services.VeiculoService;
 import com.beeftracker.backend.viagens.model.*;
-import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.v3.client.InfluxDBClient;
 import com.influxdb.v3.client.Point;
 import com.influxdb.v3.client.PointValues;
@@ -26,6 +25,7 @@ import com.beeftracker.backend.viagens.strategy.AlterarStatus;
 import com.beeftracker.backend.viagens.strategy.Cancelada;
 import com.beeftracker.backend.viagens.strategy.EmTransito;
 import com.beeftracker.backend.viagens.strategy.Entregue;
+
 @Service
 public class ViagemService {
     private final ViagemRepository repository;
@@ -38,7 +38,8 @@ public class ViagemService {
             ViagemRepository repository,
             EmTransito transito,
             Entregue concluida,
-            Cancelada cancelada, InfluxDBClient influxDBClient, VeiculoService veiculoService, SensorService sensorService) {
+            Cancelada cancelada, InfluxDBClient influxDBClient, VeiculoService veiculoService,
+            SensorService sensorService) {
         this.repository = repository;
         this.influxDBClient = influxDBClient;
         this.veiculoService = veiculoService;
@@ -64,14 +65,13 @@ public class ViagemService {
         repository.editar(viagem.data(), id);
     }
 
-    public void alterarStatus(Long id, NovoStatus status) throws ResourceNotFoundException, SensorIndisponivelException {
+    public void alterarStatus(Long id, NovoStatus status)
+            throws ResourceNotFoundException, SensorIndisponivelException {
         Viagem viagem = repository.carregar(id);
         AlterarStatus service = services.get(status.novoStatus().toString());
         viagem = service.alterarStatus(viagem);
         repository.editar(viagem.data(), id);
     }
-
-
 
     public Page<Viagem> pesquisar(String status, LocalDate dataInicio, LocalDate dataFim, Integer page) {
         Integer pageNew = page != null && page > 0 ? page : 1;
@@ -119,8 +119,6 @@ public class ViagemService {
 
         long duracaoSegundos = diferencaNanosegundos / 1_000_000_000L;
 
-
-
         return new StatsViagem(
                 leituras.size(),
                 statsTemp.getAverage(),
@@ -129,14 +127,14 @@ public class ViagemService {
                 statsUmidade.getAverage(),
                 statsUmidade.getMin(),
                 statsUmidade.getMax(),
-                duracaoSegundos
-        );
+                duracaoSegundos);
     }
 
     public HashMap<String, List<SensorLeitura>> getLeituras(Long viagemId) throws ResourceNotFoundException {
         Viagem viagem = repository.carregar(viagemId);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        if(viagem.data().saidaRealEm() == null || viagem.data().statusViagem() == StatusViagem.PENDENTE || viagem.data().statusViagem() == StatusViagem.CANCELADA){
+        if (viagem.data().saidaRealEm() == null || viagem.data().statusViagem() == StatusViagem.PENDENTE
+                || viagem.data().statusViagem() == StatusViagem.CANCELADA) {
             throw new ResourceNotFoundException();
         }
 
@@ -147,9 +145,9 @@ public class ViagemService {
 
         String entregueEm = viagem.data().entregueEm() != null
                 ? viagem.data().entregueEm()
-                .atZone(ZoneId.of("America/Sao_Paulo"))
-                .toInstant()
-                .toString()
+                        .atZone(ZoneId.of("America/Sao_Paulo"))
+                        .toInstant()
+                        .toString()
                 : Instant.now().toString();
 
         String sql = "SELECT * " +
@@ -165,8 +163,7 @@ public class ViagemService {
                 Map.of(
                         "sensorUuid", viagem.data().sensorToken(),
                         "saidaEm", saidaEm,
-                        "entregueEm", entregueEm
-                ),
+                        "entregueEm", entregueEm),
                 new QueryOptions(QueryType.SQL))) {
 
             points.forEach(pv -> {
@@ -176,8 +173,7 @@ public class ViagemService {
                         pv.getField("lat", Double.class),
                         pv.getField("lon", Double.class),
                         pv.getField("temp", Double.class),
-                        pv.getField("umidade", Double.class)
-                );
+                        pv.getField("umidade", Double.class));
                 leituras.add(leitura);
             });
         }
@@ -201,9 +197,7 @@ public class ViagemService {
                 .setField("lon", request.lon())
                 .setField("temp", request.temp())
                 .setField("umidade", request.umidade())
-                .setTimestamp(Instant.ofEpochMilli(request.timestamp().longValue()));
-
-        influxDBClient.writePoint(point);
+                .setTimestamp(Instant.now());
 
         influxDBClient.writePoint(point);
     }

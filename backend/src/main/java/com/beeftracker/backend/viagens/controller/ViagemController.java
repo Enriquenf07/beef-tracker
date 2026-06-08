@@ -30,7 +30,7 @@ public class ViagemController {
     private final ViagemService service;
 
     @Autowired
-    public ViagemController(ViagemService service){
+    public ViagemController(ViagemService service) {
         this.service = service;
     }
 
@@ -50,13 +50,15 @@ public class ViagemController {
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<?> alterarStatus(@PathVariable Long id, @RequestBody NovoStatus status) throws ResourceNotFoundException, SensorIndisponivelException {
+    public ResponseEntity<?> alterarStatus(@PathVariable Long id, @RequestBody NovoStatus status)
+            throws ResourceNotFoundException, SensorIndisponivelException {
         service.alterarStatus(id, status);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody ViagemData data) throws ResourceNotFoundException {
+    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody ViagemData data)
+            throws ResourceNotFoundException {
         service.editar(id, data.descricao());
         return ResponseEntity.ok().build();
 

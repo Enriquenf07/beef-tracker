@@ -23,7 +23,7 @@ public class MqttConfig {
 
     @Bean
     public Mqtt5AsyncClient mqttClient() {
-        return MqttClient.builder()
+        Mqtt5AsyncClient client = MqttClient.builder()
                 .useMqttVersion5()
                 .serverHost(host)
                 .serverPort(port)
@@ -33,5 +33,19 @@ public class MqttConfig {
                 .password(password.getBytes())
                 .applySimpleAuth()
                 .buildAsync();
+
+        // ✅ Conecta de forma bloqueante antes de retornar o bean
+        // assim os subscribers já encontram o client conectado
+        try {
+            client.connectWith()
+                    .cleanStart(true)
+                    .send()
+                    .get(); // bloqueia até conectar
+            System.out.println("MQTT conectado ao broker: " + host);
+        } catch (Exception e) {
+            System.err.println("MQTT falhou ao conectar: " + e.getMessage());
+        }
+
+        return client;
     }
 }
