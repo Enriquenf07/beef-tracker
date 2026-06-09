@@ -1,5 +1,5 @@
 import { createApi } from "@/app/lib/api"
-import Content from "./components/Content"
+import Content from "./componetns/Content"
 
 export default async function SensoresPage(props: any) {
     const api = await createApi()
