@@ -1,28 +1,27 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Check, Shield, ShieldOff, Mail } from "lucide-react"
+import { Plus, Check, Shield, ShieldOff, Mail, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+export function UserDialog({ rolesOptions, form, setForm, isPending, onHandleCadastro, onHandleInativar, onHandleReenviarEmail, onHandleExcluir, open, setOpen, selectedRoles, setSelectedRoles }: any) {
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
-
-export function UserDialog({ rolesOptions, form, setForm, isPending, onHandleCadastro, onHandleInativar, onHandleReenviarEmail, open, setOpen, selectedRoles, setSelectedRoles }: any) {
-  console.log("opt", rolesOptions)
   const toggleRole = (role: string) => {
-    setSelectedRoles(prev =>
+    setSelectedRoles((prev: string[]) =>
       prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]
     )
   }
-  console.log('slr', selectedRoles)
 
   const handleOpenChange = () => {
     setForm({})
     setSelectedRoles([])
-    setOpen(prev => !prev)
+    setConfirmDelete(false)
+    setOpen((prev: boolean) => !prev)
   }
 
   return (
@@ -46,106 +45,81 @@ export function UserDialog({ rolesOptions, form, setForm, isPending, onHandleCad
         ) : (
           <>
             <form
-              onSubmit={(e) => {
-                onHandleCadastro(e)
-              }}
+              onSubmit={(e) => { onHandleCadastro(e) }}
               className="flex flex-col gap-3"
             >
               <input hidden name="id" defaultValue={form?.metadata?.id} />
 
-              {form?.metadata?.id ? (
-                <>
-                  <Input
-                    placeholder="Nome"
-                    name="nome"
-                    type="text"
-                    defaultValue={form?.data?.nome}
-                    disabled
-                  />
-                  <Input
-                    placeholder="E-mail"
-                    name="email"
-                    type="email"
-                    defaultValue={form?.data?.email}
-                    disabled
-                  />
-                </>
-              ) : (
-                <>
-                  <Input
-                    placeholder="Nome"
-                    name="nome"
-                    type="text"
-                    defaultValue={form?.data?.nome}
-                  />
-                  <Input
-                    placeholder="E-mail"
-                    name="email"
-                    type="email"
-                    defaultValue={form?.data?.email}
-                  />
-                </>
-              )}
+              <Input
+                placeholder="Nome"
+                name="nome"
+                type="text"
+                defaultValue={form?.data?.nome}
+              />
+              <Input
+                placeholder="E-mail"
+                name="email"
+                type="email"
+                defaultValue={form?.data?.email}
+              />
 
-              {
-                form?.metadata?.id && (
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-foreground">
-                      Permissões
-                    </label>
+              {form?.metadata?.id && (
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Permissões
+                  </label>
 
-                    {selectedRoles.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-1">
-                        {selectedRoles.map(role => {
-                          const found = rolesOptions.find(r => r.id === role)
-                          return (
-                            <Badge key={role} variant="secondary" className="text-xs">
-                              {found?.nome ?? role}
-                            </Badge>
-                          )
-                        })}
-                      </div>
-                    )}
-
-                    <div className="grid grid-cols-2 gap-2">
-                      {rolesOptions.map(role => {
-                        const isSelected = selectedRoles.includes(role.id)
+                  {selectedRoles.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-1">
+                      {selectedRoles.map((role: string) => {
+                        const found = rolesOptions.find((r: any) => r.id === role)
                         return (
-                          <button
-                            key={role.id}
-                            type="button"
-                            onClick={() => toggleRole(role.id)}
-                            className={cn(
-                              "flex items-start gap-2 rounded-md border p-2.5 text-left text-sm transition-all",
-                              "hover:bg-accent hover:border-accent",
-                              isSelected
-                                ? "border-primary bg-primary/5 text-primary"
-                                : "border-border bg-background text-muted-foreground"
-                            )}
-                          >
-                            <span className={cn(
-                              "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border",
-                              isSelected
-                                ? "border-primary bg-primary text-primary-foreground"
-                                : "border-muted-foreground"
-                            )}>
-                              {isSelected && <Check className="h-3 w-3" />}
-                            </span>
-                            <span className="flex flex-col">
-                              <span className={cn("font-medium", isSelected && "text-primary")}>
-                                {role.nome}
-                              </span>
-                              <span className="text-xs text-muted-foreground leading-tight">
-                                {role.descricao}
-                              </span>
-                            </span>
-                          </button>
+                          <Badge key={role} variant="secondary" className="text-xs">
+                            {found?.nome ?? role}
+                          </Badge>
                         )
                       })}
                     </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {rolesOptions.map((role: any) => {
+                      const isSelected = selectedRoles.includes(role.id)
+                      return (
+                        <button
+                          key={role.id}
+                          type="button"
+                          onClick={() => toggleRole(role.id)}
+                          className={cn(
+                            "flex items-start gap-2 rounded-md border p-2.5 text-left text-sm transition-all",
+                            "hover:bg-accent hover:border-accent",
+                            isSelected
+                              ? "border-primary bg-primary/5 text-primary"
+                              : "border-border bg-background text-muted-foreground"
+                          )}
+                        >
+                          <span className={cn(
+                            "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border",
+                            isSelected
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-muted-foreground"
+                          )}>
+                            {isSelected && <Check className="h-3 w-3" />}
+                          </span>
+                          <span className="flex flex-col">
+                            <span className={cn("font-medium", isSelected && "text-primary")}>
+                              {role.nome}
+                            </span>
+                            <span className="text-xs text-muted-foreground leading-tight">
+                              {role.descricao}
+                            </span>
+                          </span>
+                        </button>
+                      )
+                    })}
                   </div>
-                )
-              }
+                </div>
+              )}
 
               <Button type="submit" className="mt-1">Salvar</Button>
             </form>
@@ -167,16 +141,47 @@ export function UserDialog({ rolesOptions, form, setForm, isPending, onHandleCad
                 )}
               </Button>
             )}
+
             {form?.metadata?.id && !form?.data?.cadastrado && (
               <Button
                 type="button"
-                className={cn(
-                  "bg-transparent hover:bg-secondary/90 text-black"
-                )}
+                variant="outline"
                 onClick={onHandleReenviarEmail}
               >
-                <><Mail className="mr-2 h-4 w-4" /> Reenviar Email</>
+                <Mail className="mr-2 h-4 w-4" /> Reenviar Email
               </Button>
+            )}
+
+            {form?.metadata?.id && (
+              confirmDelete ? (
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={() => { setConfirmDelete(false); onHandleExcluir() }}
+                  >
+                    Confirmar exclusão
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setConfirmDelete(false)}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" /> Excluir usuário
+                </Button>
+              )
             )}
           </>
         )}

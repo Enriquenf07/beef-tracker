@@ -8,6 +8,7 @@ import com.beeftracker.backend.ativos.sensores.services.SensorService;
 import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -59,5 +60,11 @@ public class SensorController {
     @GetMapping("/{id}")
     public ResponseEntity<?> carregar(@PathVariable Long id) throws ResourceNotFoundException {
         return ResponseEntity.ok(service.carregar(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> excluir(@PathVariable Long id) throws ResourceNotFoundException {
+        service.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 }

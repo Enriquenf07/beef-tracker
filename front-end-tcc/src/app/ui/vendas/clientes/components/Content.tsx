@@ -8,7 +8,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { PenBox, Plus, Search } from "lucide-react"
+import { PenBox, Plus, Search, Trash2 } from "lucide-react"
 import {
     Table,
     TableBody,
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table"
 import { useState, useTransition } from "react"
 import { Input } from "@/components/ui/input"
-import { handleCadastro, handleInativar } from '../action'
+import { handleCadastro, handleInativar, handleExcluir } from '../action'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useSearchParams } from "next/navigation"
 import Page from "@/app/components/CrudPage"
@@ -30,6 +30,7 @@ export default function Content(props: any) {
     const [open, setOpen] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [form, setForm] = useState<any>({})
+    const [confirmDelete, setConfirmDelete] = useState(false)
     const searchParams = useSearchParams()
     const status = searchParams.get('status')
     const chave = searchParams.get('chave')
@@ -38,6 +39,14 @@ export default function Content(props: any) {
     const onHandleInativar = async () => {
         startTransition(async () => {
             const erro = await handleInativar(form?.metadata.id) as any
+            if (erro) setError(erro.detail)
+            setOpen(false)
+        })
+    }
+
+    const onHandleExcluir = async () => {
+        startTransition(async () => {
+            const erro = await handleExcluir(form?.metadata.id) as any
             if (erro) setError(erro.detail)
             setOpen(false)
         })
@@ -60,6 +69,7 @@ export default function Content(props: any) {
                 <Page.Modal>
                     <Dialog open={open} onOpenChange={() => {
                         setForm({})
+                        setConfirmDelete(false)
                         setOpen(prev => !prev)
                     }}>
                         <DialogTrigger>
@@ -133,6 +143,34 @@ export default function Content(props: any) {
                                             {form?.data?.ativo ? 'Inativar' : 'Ativar'}
                                         </Button>
                                     )}
+                                    {form?.metadata?.id && (
+                                        confirmDelete ? (
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    variant="destructive"
+                                                    className="flex-1"
+                                                    onClick={() => { setConfirmDelete(false); onHandleExcluir() }}
+                                                >
+                                                    Confirmar exclusão
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    className="flex-1"
+                                                    onClick={() => setConfirmDelete(false)}
+                                                >
+                                                    Cancelar
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <Button
+                                                variant="ghost"
+                                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                onClick={() => setConfirmDelete(true)}
+                                            >
+                                                <Trash2 className="mr-2 h-4 w-4" /> Excluir cliente
+                                            </Button>
+                                        )
+                                    )}
                                 </>
                             )}
                         </DialogContent>
@@ -191,7 +229,6 @@ export default function Content(props: any) {
                                     </TableCell>
                                     <TableCell className="font-medium">{c.data.nome}</TableCell>
                                     <TableCell>{c.data.apelido}</TableCell>
-                                    {/* Exibe CPF/CNPJ anonimizado na tabela (LGPD) */}
                                     <TableCell>{maskCpfCnpjPrivate(c.data.cpfCnpj)}</TableCell>
                                     <TableCell>{c.data.email}</TableCell>
                                     <TableCell>{c.data.telefone}</TableCell>

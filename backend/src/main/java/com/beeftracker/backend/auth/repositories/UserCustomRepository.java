@@ -10,16 +10,26 @@ import java.util.List;
 
 public interface UserCustomRepository {
     void salvar(UserData userData, String token, String senhaTemp);
+
     void update(UserData userData, String token, Long id);
+
     void finalizarCadastro(Long id, String senha);
 
     RolesFull findRolesByUser(Long userId);
+
     RolesFull findAllRoles();
 
     void editarStatus(Long id);
+
     Page<User> pesquisar(String chave, Boolean status, Integer page);
+
     User carregar(Long id);
+
     void editarRoles(Long id, UserData data);
+
+    void editarDados(Long id, UserData data);
+
+    void excluir(Long id);
 
     List<User> listAllMotoristas();
 }

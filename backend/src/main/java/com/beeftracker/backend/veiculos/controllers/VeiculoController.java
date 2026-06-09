@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.beeftracker.backend.base.BaseController;
 import com.beeftracker.backend.base.exceptions.InvalidFormException;
+import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
 import com.beeftracker.backend.veiculos.models.Veiculo;
 import com.beeftracker.backend.veiculos.models.VeiculoData;
 import com.beeftracker.backend.veiculos.services.VeiculoService;
@@ -27,5 +28,24 @@ public class VeiculoController extends BaseController {
     @GetMapping
     public ResponseEntity<List<Veiculo>> listar() {
         return ResponseEntity.ok(veiculoService.listarTodos());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody VeiculoData data)
+            throws ResourceNotFoundException, InvalidFormException {
+        veiculoService.atualizar(id, data);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> atualizarStatus(@PathVariable Long id) throws ResourceNotFoundException {
+        veiculoService.atualizarStatus(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> excluir(@PathVariable Long id) throws ResourceNotFoundException {
+        veiculoService.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 }

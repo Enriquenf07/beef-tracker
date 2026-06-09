@@ -21,7 +21,7 @@ public class SensorService {
     public List<Sensor> pesquisar(String chave, Boolean status) {
         return repository.pesquisar(chave, status);
     }
-    //todo
+
     public List<Sensor> listAll() {
         return repository.pesquisar(null, null);
     }
@@ -52,6 +52,11 @@ public class SensorService {
             throw new ResourceNotFoundException();
         }
         return sensor;
+    }
+
+    public void excluir(Long id) throws ResourceNotFoundException {
+        carregar(id);
+        repository.excluir(id);
     }
 
 }

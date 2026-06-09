@@ -10,8 +10,14 @@ import com.beeftracker.backend.ativos.sensores.models.SensorData;
 
 public interface SensorRepository {
     void salvar(SensorData data);
+
     void editar(Long id, SensorData data);
+
     void editarStatus(Long id, boolean ativo);
+
+    void excluir(Long id);
+
     Sensor carregar(Long id);
+
     List<Sensor> pesquisar(String chave, Boolean status);
 }

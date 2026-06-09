@@ -29,7 +29,8 @@ public class FornecedorService {
         return fornecedorRepository.salvar(fornecedorData);
     }
 
-    public void atualizar(Long id, FornecedorData fornecedorData) throws ResourceNotFoundException, InvalidFormException {
+    public void atualizar(Long id, FornecedorData fornecedorData)
+            throws ResourceNotFoundException, InvalidFormException {
         findById(id);
         fornecedorData.validate();
         fornecedorRepository.atualizar(id, fornecedorData);
@@ -42,5 +43,10 @@ public class FornecedorService {
 
     public Fornecedor findById(Long id) throws ResourceNotFoundException {
         return fornecedorRepository.buscarPorId(id).orElseThrow(() -> new ResourceNotFoundException());
+    }
+
+    public void excluir(Long id) throws ResourceNotFoundException {
+        findById(id);
+        fornecedorRepository.deleteById(id);
     }
 }

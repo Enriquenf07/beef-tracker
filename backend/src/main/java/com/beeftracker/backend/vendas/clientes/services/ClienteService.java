@@ -21,7 +21,6 @@ import com.beeftracker.backend.vendas.clientes.models.ClienteData;
 public class ClienteService {
     public final ClienteRepository clienteRepository;
 
-
     public ClienteService(ClienteRepository clienteRepository) {
         this.clienteRepository = clienteRepository;
     }
@@ -51,5 +50,9 @@ public class ClienteService {
         return clienteRepository.buscarPorId(id).orElseThrow(() -> new ResourceNotFoundException());
     }
 
+    public void excluir(Long id) throws ResourceNotFoundException {
+        findById(id);
+        clienteRepository.deleteById(id);
+    }
 
 }

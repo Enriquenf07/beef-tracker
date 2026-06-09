@@ -77,7 +77,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 sql,
                 new MapSqlParameterSource()
                         .addValue("id", userId),
-                (rs, rowNum) -> new Role(rs.getString("nome"), rs.getString("descricao"), Long.parseLong(rs.getString("id"))));
+                (rs, rowNum) -> new Role(rs.getString("nome"), rs.getString("descricao"),
+                        Long.parseLong(rs.getString("id"))));
         return new RolesFull(roles);
     }
 
@@ -135,19 +136,20 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         String sql = "SELECT r.nome, r.descricao, r.id from roles r";
         List<Role> roles = jdbcTemplate.query(
                 sql,
-                (rs, rowNum) -> new Role(rs.getString("nome"), rs.getString("descricao"), Long.parseLong(rs.getString("id"))));
+                (rs, rowNum) -> new Role(rs.getString("nome"), rs.getString("descricao"),
+                        Long.parseLong(rs.getString("id"))));
         return new RolesFull(roles);
     }
 
     @Override
     public void editarStatus(Long id) {
         String sql = """
-            UPDATE usuarios
-            SET ativo = :ativo,
-                nome = :nome,
-                email = :email
-            WHERE id = :id
-        """;
+                    UPDATE usuarios
+                    SET ativo = :ativo,
+                        nome = :nome,
+                        email = :email
+                    WHERE id = :id
+                """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("ativo", false)
@@ -161,27 +163,28 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     @Override
     public User carregar(Long id) {
         String sql = """
-SELECT\s
-    u.id,\s
-    u.nome,\s
-    u.email,\s
-    u.ativo,\s
-    u.token,\s
-    ARRAY_REMOVE(ARRAY_AGG(r.nome), NULL) AS roles,\s
-    ARRAY_REMOVE(ARRAY_AGG(r.id), NULL) AS rolesId,\s
-    (u.token_primeiro_acesso IS NULL) AS cadastrado\s
-FROM usuarios u\s
-LEFT JOIN role_usuario ru ON u.id = ru.usuario_id\s
-LEFT JOIN roles r ON ru.role_id = r.id\s
-WHERE u.id = :id
-GROUP BY u.id, u.nome, u.email, u.ativo, u.token, u.token_primeiro_acesso
-        """;
+                SELECT\s
+                    u.id,\s
+                    u.nome,\s
+                    u.email,\s
+                    u.ativo,\s
+                    u.token,\s
+                    ARRAY_REMOVE(ARRAY_AGG(r.nome), NULL) AS roles,\s
+                    ARRAY_REMOVE(ARRAY_AGG(r.id), NULL) AS rolesId,\s
+                    (u.token_primeiro_acesso IS NULL) AS cadastrado\s
+                FROM usuarios u\s
+                LEFT JOIN role_usuario ru ON u.id = ru.usuario_id\s
+                LEFT JOIN roles r ON ru.role_id = r.id\s
+                WHERE u.id = :id
+                GROUP BY u.id, u.nome, u.email, u.ativo, u.token, u.token_primeiro_acesso
+                        """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", id);
 
         return jdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> factory.create(rs));
     }
+
     @Override
     public void editarRoles(Long id, UserData data) {
         String deleteSql = "DELETE FROM role_usuario WHERE usuario_id = :id";
@@ -213,14 +216,29 @@ GROUP BY u.id, u.nome, u.email, u.ativo, u.token, u.token_primeiro_acesso
                         "   WHERE ru2.usuario_id = u.id AND r2.nome = :roleMotorista " +
                         ") " +
                         "GROUP BY u.id, u.nome, u.email, u.ativo, u.token " +
-                        "ORDER BY u.nome ASC" // Ordenado por nome para fazer mais sentido em listagens
-        );
+                        "ORDER BY u.nome ASC");
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("roleMotorista", "MOTORISTA"); // Ajuste a string se a sua role tiver outro nome
+                .addValue("roleMotorista", "MOTORISTA");
 
         return jdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> factory.create(rs));
     }
 
+    @Override
+    public void editarDados(Long id, UserData data) {
+        String sql = "UPDATE usuarios SET nome = :nome, email = :email WHERE id = :id";
+        jdbcTemplate.update(sql, new MapSqlParameterSource()
+                .addValue("nome", data.nome())
+                .addValue("email", data.email())
+                .addValue("id", id));
+    }
+
+    @Override
+    public void excluir(Long id) {
+        String deleteRoles = "DELETE FROM role_usuario WHERE usuario_id = :id";
+        jdbcTemplate.update(deleteRoles, new MapSqlParameterSource().addValue("id", id));
+        String deleteUser = "DELETE FROM usuarios WHERE id = :id";
+        jdbcTemplate.update(deleteUser, new MapSqlParameterSource().addValue("id", id));
+    }
 
 }

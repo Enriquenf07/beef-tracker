@@ -23,7 +23,8 @@ public class FornecedorController extends BaseController {
     }
 
     @GetMapping
-    public ResponseEntity<?> pesquisar(@RequestParam(required = false) String chave, @RequestParam(required = false) Boolean status) {
+    public ResponseEntity<?> pesquisar(@RequestParam(required = false) String chave,
+            @RequestParam(required = false) Boolean status) {
         return ResponseEntity.ok(fornecedorService.pesquisar(chave, status));
     }
 
@@ -39,7 +40,8 @@ public class FornecedorController extends BaseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody FornecedorData fornecedorData) throws ResourceNotFoundException, InvalidFormException {
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody FornecedorData fornecedorData)
+            throws ResourceNotFoundException, InvalidFormException {
         fornecedorService.atualizar(id, fornecedorData);
         return ResponseEntity.ok().build();
     }
@@ -48,6 +50,12 @@ public class FornecedorController extends BaseController {
     public ResponseEntity<?> atualizarStatus(@PathVariable Long id) throws ResourceNotFoundException {
         fornecedorService.atualizarStatus(id);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> excluir(@PathVariable Long id) throws ResourceNotFoundException {
+        fornecedorService.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 }
 

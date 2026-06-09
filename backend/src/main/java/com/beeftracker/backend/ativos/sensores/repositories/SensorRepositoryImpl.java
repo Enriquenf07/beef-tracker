@@ -125,4 +125,10 @@ public class SensorRepositoryImpl implements SensorRepository {
                             rs.getString("token")));
         });
     }
+
+    @Override
+    public void excluir(Long id) {
+        jdbcTemplate.update("DELETE FROM sensor WHERE id = :id",
+                new MapSqlParameterSource().addValue("id", id));
+    }
 }

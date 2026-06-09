@@ -1,10 +1,11 @@
+'use server'
 import { createApi } from "@/app/lib/api";
+import { revalidatePath } from "next/cache";
 
 export async function handleCadastroVeiculo(formData: FormData) {
   try {
     const id = formData.get('id');
     const api = await createApi();
-
 
     const payload = {
       placa: formData.get('placa'),
@@ -18,9 +19,30 @@ export async function handleCadastroVeiculo(formData: FormData) {
     if (!id) {
       await api.post("/api/veiculos", payload);
     } else {
-
       await api.put(`/api/veiculos/${id}`, payload);
     }
+  } catch (e: any) {
+    return e.response?.data;
+  } finally {
+    revalidatePath('/ui/veiculos');
+  }
+}
+
+export async function handleInativarVeiculo(id: number) {
+  const api = await createApi();
+  try {
+    await api.patch(`/api/veiculos/${id}/status`);
+  } catch (e: any) {
+    return e.response?.data;
+  } finally {
+    revalidatePath('/ui/veiculos');
+  }
+}
+
+export async function handleExcluirVeiculo(id: number) {
+  const api = await createApi();
+  try {
+    await api.delete(`/api/veiculos/${id}`);
   } catch (e: any) {
     return e.response?.data;
   } finally {

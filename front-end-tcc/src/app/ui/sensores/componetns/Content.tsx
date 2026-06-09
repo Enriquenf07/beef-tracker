@@ -2,19 +2,20 @@
 
 import { useState, useTransition } from "react"
 import { useSearchParams } from "next/navigation"
-import { Plus, Search, PenBox } from "lucide-react"
+import { Plus, Search, PenBox, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Page from "@/app/components/CrudPage"
-import { handleCadastroSensor, handleAlterarStatusSensor } from '../action'
+import { handleCadastroSensor, handleAlterarStatusSensor, handleExcluirSensor } from '../action'
 
 export default function Content({ sensores }: { sensores: any[] }) {
     const [open, setOpen] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [form, setForm] = useState<any>({})
+    const [confirmDelete, setConfirmDelete] = useState(false)
     const [isPending, startTransition] = useTransition()
 
     const searchParams = useSearchParams()
@@ -38,12 +39,20 @@ export default function Content({ sensores }: { sensores: any[] }) {
         })
     }
 
+    const onHandleExcluir = () => {
+        startTransition(async () => {
+            const erro = await handleExcluirSensor(form.metadata.id) as any
+            if (erro) setError(erro.detail)
+            setOpen(false)
+        })
+    }
+
     return (
         <Page.Content>
             <Page.Header>
                 <Page.Title>Gestão de Sensores</Page.Title>
                 <Page.Modal>
-                    <Dialog open={open} onOpenChange={(v) => { if (!v) { setForm({}); setError(null) } setOpen(v) }}>
+                    <Dialog open={open} onOpenChange={(v) => { if (!v) { setForm({}); setError(null); setConfirmDelete(false) } setOpen(v) }}>
                         <DialogTrigger asChild>
                             <Button><Plus className="mr-2 h-4 w-4" /> Cadastrar Sensor</Button>
                         </DialogTrigger>
@@ -70,6 +79,37 @@ export default function Content({ sensores }: { sensores: any[] }) {
                                     >
                                         {form?.data?.ativo ? 'Inativar Sensor' : 'Reativar Sensor'}
                                     </Button>
+                                )}
+                                {form?.metadata?.id && (
+                                    confirmDelete ? (
+                                        <div className="flex gap-2">
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                className="flex-1"
+                                                onClick={() => { setConfirmDelete(false); onHandleExcluir() }}
+                                            >
+                                                Confirmar exclusão
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                className="flex-1"
+                                                onClick={() => setConfirmDelete(false)}
+                                            >
+                                                Cancelar
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                            onClick={() => setConfirmDelete(true)}
+                                        >
+                                            <Trash2 className="mr-2 h-4 w-4" /> Excluir sensor
+                                        </Button>
+                                    )
                                 )}
                             </form>
                         </DialogContent>

@@ -37,9 +37,37 @@ public class VeiculoService {
         return veiculoRepository.findAll();
     }
 
+    public void atualizar(Long id, VeiculoData data) throws ResourceNotFoundException, InvalidFormException {
+        validate(id);
+        data.validate();
+        Veiculo existing = veiculoRepository.carregar(id);
+        Veiculo updated = new Veiculo(data, existing.metadata());
+        veiculoRepository.save(updated);
+    }
+
+    public void atualizarStatus(Long id) throws ResourceNotFoundException {
+        Veiculo veiculo = veiculoRepository.carregar(id);
+        if (veiculo == null) {
+            throw new ResourceNotFoundException();
+        }
+        VeiculoData novoData = new VeiculoData(
+                veiculo.data().placa(),
+                veiculo.data().modelo(),
+                veiculo.data().marca(),
+                veiculo.data().ano(),
+                veiculo.data().capacidadeCarga(),
+                !veiculo.data().ativo());
+        veiculoRepository.save(new Veiculo(novoData, veiculo.metadata()));
+    }
+
+    public void excluir(Long id) throws ResourceNotFoundException {
+        validate(id);
+        veiculoRepository.deleteById(id);
+    }
+
     public void validate(Long id) throws ResourceNotFoundException {
         Veiculo veiculo = veiculoRepository.carregar(id);
-        if(veiculo == null){
+        if (veiculo == null) {
             throw new ResourceNotFoundException();
         }
     }

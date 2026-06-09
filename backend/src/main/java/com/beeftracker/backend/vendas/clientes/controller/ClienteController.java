@@ -3,6 +3,7 @@ package com.beeftracker.backend.vendas.clientes.controller;
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -56,6 +57,12 @@ public class ClienteController extends BaseController {
     public ResponseEntity<?> atualizarStatus(@PathVariable Long id) throws ResourceNotFoundException {
         clienteService.atualizarStatus(id);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> excluir(@PathVariable Long id) throws ResourceNotFoundException {
+        clienteService.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

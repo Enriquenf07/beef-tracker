@@ -22,7 +22,7 @@ import { useState, useTransition } from "react"
 import { Input } from "@/components/ui/input"
 
 
-import { handleCadastro, handleInativar, handleReenviarEmail } from './action'
+import { handleCadastro, handleInativar, handleReenviarEmail, handleExcluir } from './action'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { usePathname, useSearchParams } from "next/navigation"
 import Fornecedores from "../page"
@@ -52,10 +52,20 @@ export default function Content(props: any) {
             setOpen(false)
         })
     }
-    
+
     const onHandleReenviarEmail = async () => {
         startTransition(async () => {
             const erro = await handleReenviarEmail(form?.metadata.id) as any
+            if (erro) {
+                setError(erro.detail)
+            }
+            setOpen(false)
+        })
+    }
+
+    const onHandleExcluir = async () => {
+        startTransition(async () => {
+            const erro = await handleExcluir(form?.metadata.id) as any
             if (erro) {
                 setError(erro.detail)
             }
@@ -99,6 +109,7 @@ export default function Content(props: any) {
                         onHandleCadastro={onHandleCadastro}
                         onHandleInativar={onHandleInativar}
                         onHandleReenviarEmail={onHandleReenviarEmail}
+                        onHandleExcluir={onHandleExcluir}
                         open={open}
                         setOpen={setOpen}
                         rolesOptions={props.roles}

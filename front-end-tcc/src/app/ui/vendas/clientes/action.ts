@@ -40,3 +40,13 @@ export async function handleInativar(id: number) {
         revalidatePath('/ui/vendas/clientes')
     }
 }
+export async function handleExcluir(id: number) {
+    const api = await createApi()
+    try {
+        await api.delete("/vendas/cliente/" + id)
+    } catch (e: any) {
+        return e.response?.data
+    } finally {
+        revalidatePath('/ui/vendas/clientes')
+    }
+}

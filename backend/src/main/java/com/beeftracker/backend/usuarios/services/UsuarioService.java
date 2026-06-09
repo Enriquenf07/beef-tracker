@@ -44,22 +44,22 @@ public class UsuarioService {
                 .to(to)
                 .subject("Bem vindo ao Beef Tracker, seu cadastro foi realizado com sucesso!")
                 .html("""
-                    <html>
-                      <body style="font-family: Arial, sans-serif; padding: 20px;">
-                        <h2>Bem-vindo ao Beef Tracker, %s!</h2>
-                        <p>Seu cadastro foi realizado com sucesso.</p>
-                        <p>Para ativar sua conta, clique no link abaixo:</p>
-                        <a href="%s">Ativar minha conta</a>
-                        <br><br>
-                        <small>Se você não criou uma conta, ignore este e-mail.</small>
-                      </body>
-                    </html>
-                """.formatted(nome, link))
+                            <html>
+                              <body style="font-family: Arial, sans-serif; padding: 20px;">
+                                <h2>Bem-vindo ao Beef Tracker, %s!</h2>
+                                <p>Seu cadastro foi realizado com sucesso.</p>
+                                <p>Para ativar sua conta, clique no link abaixo:</p>
+                                <a href="%s">Ativar minha conta</a>
+                                <br><br>
+                                <small>Se você não criou uma conta, ignore este e-mail.</small>
+                              </body>
+                            </html>
+                        """.formatted(nome, link))
                 .build();
         emailClient.enviarEmail(email);
     }
 
-    public String gerarToken(){
+    public String gerarToken() {
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[32];
         random.nextBytes(bytes);
@@ -77,7 +77,7 @@ public class UsuarioService {
 
     public void reenviarEmail(Long id) throws ResendException {
         UserData data = repository.carregar(id).data();
-        if(data.cadastrado() == true){
+        if (data.cadastrado() == true) {
             return;
         }
         String token = gerarToken();
@@ -87,7 +87,7 @@ public class UsuarioService {
 
     public void finalizarCadastro(String senha, String token) throws ResourceNotFoundException {
         User user = repository.findByDataTokenPrimeiroAcesso(token);
-        if(user == null){
+        if (user == null) {
             throw new ResourceNotFoundException();
         }
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -99,7 +99,24 @@ public class UsuarioService {
         repository.editarStatus(id);
     }
 
-    public RolesFull getRoles(Long userId){
+    public void editar(Long id, UserData user) throws ResourceNotFoundException {
+        User existing = repository.carregar(id);
+        if (existing == null) {
+            throw new ResourceNotFoundException();
+        }
+        repository.editarDados(id, user);
+        repository.editarRoles(id, user);
+    }
+
+    public void excluir(Long id) throws ResourceNotFoundException {
+        User existing = repository.carregar(id);
+        if (existing == null) {
+            throw new ResourceNotFoundException();
+        }
+        repository.excluir(id);
+    }
+
+    public RolesFull getRoles(Long userId) {
         RolesFull roles = repository.findRolesByUser(userId);
         return roles;
     }
@@ -113,11 +130,8 @@ public class UsuarioService {
     public RolesFull getAllRoles() {
         return repository.findAllRoles();
     }
-    public List<User> listAllMotoristas(){
+
+    public List<User> listAllMotoristas() {
         return repository.listAllMotoristas();
     }
 }
-
-
-
-

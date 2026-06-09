@@ -1,16 +1,15 @@
 'use server'
 import { createApi } from "@/app/lib/api";
 import { revalidatePath } from "next/cache";
-import { redirect, RedirectType } from "next/navigation";
 
 export async function handleCadastro(body: Record<string, any>) {
     try {
         const id = body.id
         const api = await createApi()
         if (!id) {
-            const { data } = await api.post("/usuario", body) as any
+            await api.post("/usuario", body)
         } else {
-            const { data } = await api.put("/usuario/" + id, body) as any
+            await api.put("/usuario/" + id, body)
         }
     } catch (e: any) {
         return e.response?.data
@@ -19,7 +18,6 @@ export async function handleCadastro(body: Record<string, any>) {
     }
 }
 
-
 export async function handleInativar(id: number, status: boolean) {
     const api = await createApi()
     try {
@@ -27,7 +25,7 @@ export async function handleInativar(id: number, status: boolean) {
     } catch (e: any) {
         return e.response?.data
     } finally {
-        revalidatePath('/ui/compras/fornecedores')
+        revalidatePath('/ui/usuarios')
     }
 }
 
@@ -38,6 +36,17 @@ export async function handleReenviarEmail(id: number) {
     } catch (e: any) {
         return e.response?.data
     } finally {
-        revalidatePath('/ui/compras/fornecedores')
+        revalidatePath('/ui/usuarios')
+    }
+}
+
+export async function handleExcluir(id: number) {
+    const api = await createApi()
+    try {
+        await api.delete("/usuario/" + id)
+    } catch (e: any) {
+        return e.response?.data
+    } finally {
+        revalidatePath('/ui/usuarios')
     }
 }

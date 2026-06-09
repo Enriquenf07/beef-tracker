@@ -40,13 +40,20 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody UserData user) throws ResourceNotFoundException {
-        //roles id e criar método
+    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody UserData user)
+            throws ResourceNotFoundException {
+        service.editar(id, user);
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> excluir(@PathVariable Long id) throws ResourceNotFoundException {
+        service.excluir(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/{id}/status")
-    public ResponseEntity<?> Inativar(@PathVariable Long id) throws ResourceNotFoundException  {
+    public ResponseEntity<?> Inativar(@PathVariable Long id) throws ResourceNotFoundException {
         service.editarStatus(id);
         return ResponseEntity.ok().build();
     }
@@ -58,25 +65,24 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}/roles")
-    public ResponseEntity<?> getRoles(@PathVariable Long id)  {
+    public ResponseEntity<?> getRoles(@PathVariable Long id) {
         return ResponseEntity.ok(service.getRoles(id));
     }
 
     @GetMapping("/roles")
-    public ResponseEntity<?> getAllRoles()  {
-        RolesFull roles =  service.getAllRoles();
+    public ResponseEntity<?> getAllRoles() {
+        RolesFull roles = service.getAllRoles();
         return ResponseEntity.ok(roles);
     }
 
     @GetMapping("/motoristas")
-    public ResponseEntity<?> getAllMotoristas()  {
+    public ResponseEntity<?> getAllMotoristas() {
         return ResponseEntity.ok(service.listAllMotoristas());
     }
 
 }
 
-
 record NovaSenha(
         String senha,
-        String token
-){}
+        String token) {
+}

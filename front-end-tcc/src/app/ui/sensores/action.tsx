@@ -35,3 +35,13 @@ export async function handleAlterarStatusSensor(id: number) {
         revalidatePath('/ui/sensores');
     }
 }
+export async function handleExcluirSensor(id: number) {
+    try {
+        const api = await createApi();
+        await api.delete(`/api/sensor/${id}`);
+    } catch (e: any) {
+        return e.response?.data;
+    } finally {
+        revalidatePath('/ui/sensores');
+    }
+}
