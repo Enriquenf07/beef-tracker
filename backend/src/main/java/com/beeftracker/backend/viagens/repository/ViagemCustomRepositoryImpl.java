@@ -75,6 +75,17 @@ public class ViagemCustomRepositoryImpl implements ViagemCustomRepository {
         }
     }
 
+        @Override
+    public Viagem carregar(String token) throws ResourceNotFoundException {
+        String sql = "SELECT v.veiculo_id, v.sensor_id, v.descricao, v.status_viagem, v.saida_em, v.saida_real_em, v.entregue_em, v.atualizado_em, v.criado_em, v.id, v.token, s.token AS sensor_token, v.motorista_id FROM viagem v LEFT JOIN sensor s ON s.id = v.sensor_id WHERE v.token = ?";
+
+        try {
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> mapRow(rs), token);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFoundException();
+        }
+    }
+
     private Viagem mapRow(ResultSet rs) throws SQLException {
         return new Viagem(
                 mapViagemData(rs),

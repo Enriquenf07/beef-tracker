@@ -74,7 +74,7 @@ public class PedidoCompraRepositoryImpl implements PedidoCompraRepository {
 
         @Override
         public PedidoCompra carregar(Long id) {
-                String sql = "SELECT p.id, p.token, p.fornecedor_id, p.valor_total, p.status, " +
+                String sql = "SELECT p.id, p.token, p.viagem_id, p.fornecedor_id, p.valor_total, p.status, " +
                                 "p.observacao, p.data_emissao, p.data_entrega, p.criado_em, p.atualizado_em " +
                                 "FROM pedido_compra p WHERE p.id = :id";
 
@@ -86,7 +86,7 @@ public class PedidoCompraRepositoryImpl implements PedidoCompraRepository {
         @Override
         public List<PedidoCompra> pesquisar(Long fornecedorId, String status, int page) {
                 StringBuilder sql = new StringBuilder(
-                                "SELECT p.id, p.token, p.fornecedor_id, p.valor_total, p.status, " +
+                                "SELECT p.id, p.token, p.viagem_id, p.fornecedor_id, p.valor_total, p.status, " +
                                                 "p.observacao, p.data_emissao, p.data_entrega, p.criado_em, p.atualizado_em "
                                                 +
                                                 "FROM pedido_compra p ");
@@ -118,6 +118,7 @@ public class PedidoCompraRepositoryImpl implements PedidoCompraRepository {
         private PedidoCompra mapRow(ResultSet rs) throws SQLException {
                 PedidoCompraData data = new PedidoCompraData(
                                 rs.getLong("fornecedor_id"),
+                                rs.getLong("viagem_id"),
                                 rs.getBigDecimal("valor_total"),
                                 rs.getString("status"),
                                 rs.getString("observacao"),
@@ -156,6 +157,15 @@ public class PedidoCompraRepositoryImpl implements PedidoCompraRepository {
                                 .addValue("nome", data.nome())
                                 .addValue("descricao", data.descricao())
                                 .addValue("peso", data.peso())
+                                .addValue("id", id));
+        }
+
+        @Override
+        public void vincularViagem(Long id, Long viagemId) {
+                String sql = "UPDATE pedido_compra SET viagem_id = :viagemId WHERE id = :id";
+
+                jdbcTemplate.update(sql, new MapSqlParameterSource()
+                                .addValue("viagemId", viagemId)
                                 .addValue("id", id));
         }
 

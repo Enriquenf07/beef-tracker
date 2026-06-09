@@ -206,4 +206,8 @@ public class ViagemService {
         requests.forEach(this::criarLeitura);
     }
 
+    public Long getIdByToken(String token) throws ResourceNotFoundException {
+        return repository.carregar(token).metadata().id();
+    }
+
 }

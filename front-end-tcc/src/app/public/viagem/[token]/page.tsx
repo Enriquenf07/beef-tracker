@@ -1,18 +1,17 @@
 import { createApi } from "@/app/lib/api"
-import Content from "./components/Content"
-import { LeituraStats } from "./components/Stats"
+import Content from "../../../ui/viagens/[id]/components/Content"
+import { LeituraStats } from "../../../ui/viagens/[id]/components/Stats"
 
 
-export default async function Viagem(props: any) {
+export default async function PublicViagem(props: any) {
     const api = await createApi()
     let itens = [] as any
     let stats = {} as LeituraStats
-    const { id } = await props?.params
-    console.log("ID: ", id)
+    const { token } = await props?.params
     try {
-        const {data} = await api.get(`/viagem/${id}/leituras`) as any
+        const {data} = await api.get(`/viagem/${token}/leituras`) as any
         itens = data.leituras
-        const res = await api.get(`/viagem/${id}/stats`) as any
+        const res = await api.get(`/viagem/${token}/stats`) as any
         stats = res.data
     } catch (e) {
         itens = []

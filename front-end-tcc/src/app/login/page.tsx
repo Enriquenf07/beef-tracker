@@ -1,11 +1,22 @@
 import { handleLogin } from "./action";
 import Link from "next/link";
 
-export default async function LoginPage() {
+interface PageProps {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function LoginPage({ searchParams }: PageProps) {
+const resolvedSearchParams = await searchParams;
+
+  const hasError = resolvedSearchParams.error === "true";
+    console.log('teste', hasError)
     return (
         <main className="min-h-screen grid grid-cols-1 md:grid-cols-2 font-sans bg-white">
             <div className="flex flex-col justify-center items-center p-8 md:p-16">
                 <div className="w-full max-w-md">
+                    {hasError && <div className="bg-red-300 p-5 rounded-sm text-zinc-600 mb-10 ">
+                        <h2>Houve um erro ao fazer o login, tente novamente!</h2>
+                    </div>}
                     <h1 className="text-4xl font-bold mb-2 text-black">Bem vindo!</h1>
                     <p className="text-gray-500 mb-8">Acesse sua conta</p>
 
@@ -15,7 +26,7 @@ export default async function LoginPage() {
                             <input
                                 type="email"
                                 name="email"
-                                placeholder="Enter your email"
+                                placeholder="Email"
                                 className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-black transition-all"
                                 required
                             />
@@ -28,7 +39,7 @@ export default async function LoginPage() {
                             <input
                                 type="password"
                                 name="password"
-                                placeholder="Password"
+                                placeholder="Senha"
                                 className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none text-black transition-all"
                                 required
                             />

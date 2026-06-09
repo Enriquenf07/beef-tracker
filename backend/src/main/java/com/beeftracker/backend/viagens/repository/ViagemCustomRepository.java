@@ -13,5 +13,6 @@ public interface ViagemCustomRepository {
 
     void editar(ViagemData viagem, Long id);
     Viagem carregar(Long id) throws ResourceNotFoundException;
+    Viagem carregar(String id) throws ResourceNotFoundException;
     Page<Viagem> findByStatusAndData(String status, LocalDate dataInicio, LocalDate dataFim, int page);
 }

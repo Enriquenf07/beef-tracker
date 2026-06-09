@@ -22,6 +22,7 @@ public interface PedidoCompraRepository {
     void editarLote(Long id, LoteBrutoData data);
 
     LoteBruto carregarLote(Long id);
+    void vincularViagem(Long id, Long viagemId);
 
     List<LoteBruto> pesquisarLotes(Long pedidoCompraId);
 }

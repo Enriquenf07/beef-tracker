@@ -77,7 +77,6 @@ export default function Content(props: any) {
 
         const formData = new FormData(e.currentTarget)
 
-        // injeta o fornecedorId do state (Select não vai pro FormData)
         formData.set('fornecedorId', fornecedorId)
 
         startTransition(async () => {
@@ -152,7 +151,6 @@ export default function Content(props: any) {
                                         defaultValue={form?.metadata?.id}
                                     />
 
-                                    {/* SELECT DE FORNECEDORES */}
                                     <Select
                                         value={fornecedorId}
                                         onValueChange={(val) => setFornecedorId(val)}
@@ -248,20 +246,16 @@ export default function Content(props: any) {
                                     Todos
                                 </SelectItem>
 
-                                <SelectItem value="RASCUNHO">
-                                    Rascunho
-                                </SelectItem>
-
                                 <SelectItem value="CONFIRMADO">
-                                    Confirmado
-                                </SelectItem>
-
-                                <SelectItem value="RECEBIDO">
-                                    Recebido
+                                    
                                 </SelectItem>
 
                                 <SelectItem value="CANCELADO">
                                     Cancelado
+                                </SelectItem>
+
+                                <SelectItem value="ENTREGUE">
+                                    Entregue
                                 </SelectItem>
                             </SelectGroup>
                         </SelectContent>

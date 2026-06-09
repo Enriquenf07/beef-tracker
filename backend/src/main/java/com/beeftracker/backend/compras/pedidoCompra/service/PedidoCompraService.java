@@ -49,7 +49,6 @@ public class PedidoCompraService {
         return repository.pesquisar(fornecedorId, status, page);
     }
 
-
     public void criarLote(LoteBrutoData data) throws ResourceNotFoundException {
         carregarOuLancarErro(data.pedidoCompraId());
         validarLote(data);
@@ -99,6 +98,19 @@ public class PedidoCompraService {
         }
     }
 
+    public void vincularViagem(Long id, Long viagemId) throws ResourceNotFoundException {
+        PedidoCompra pedido = carregarOuLancarErro(id);
+
+        if (pedido.data().status() == StatusPedidoCompra.CANCELADO) {
+            throw new IllegalStateException("Não é possível vincular viagem a um pedido cancelado.");
+        }
+        if (pedido.data().viagemId() != null) {
+            throw new IllegalStateException("Pedido já possui uma viagem vinculada.");
+        }
+
+        repository.vincularViagem(id, viagemId);
+    }
+
     private void validarLote(LoteBrutoData data) {
         if (StringUtils.isBlank(data.nome())) {
             throw new IllegalArgumentException("Nome do lote é obrigatório.");
@@ -110,18 +122,14 @@ public class PedidoCompraService {
 
     private void validarTransicaoStatus(String statusAtual, String novoStatus) {
         Map<String, List<String>> transicoesPermitidas = Map.of(
-                "RASCUNHO",   List.of("ENVIADO", "CANCELADO"),
-                "ENVIADO",    List.of("CONFIRMADO", "CANCELADO"),
-                "CONFIRMADO", List.of("FINALIZADO", "CANCELADO"),
-                "FINALIZADO", List.of(),
-                "CANCELADO",  List.of()
-        );
+                "PENDENTE", List.of("ENTREGUE", "CANCELADO"),
+                "ENTREGUE", List.of(),
+                "CANCELADO", List.of());
 
         List<String> permitidos = transicoesPermitidas.getOrDefault(statusAtual, List.of());
         if (!permitidos.contains(novoStatus)) {
             throw new IllegalStateException(
-                    String.format("Transição de status inválida: %s → %s", statusAtual, novoStatus)
-            );
+                    String.format("Transição inválida: %s → %s", statusAtual, novoStatus));
         }
     }
 }
