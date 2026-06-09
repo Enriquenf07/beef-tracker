@@ -16,26 +16,26 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 @RestController
-@RequestMapping("/sensor")
+@RequestMapping("/api/sensor")
 public class SensorController {
     private final SensorService service;
 
     public SensorController(SensorService service) {
         this.service = service;
     }
+
     @GetMapping
     public ResponseEntity<?> pesquisar(
             @RequestParam(required = false) String chave,
             @RequestParam(required = false) Boolean status) {
         return ResponseEntity.ok(service.pesquisar(chave, status));
     }
+
     @GetMapping("/all")
     public ResponseEntity<?> listAll() {
         return ResponseEntity.ok(service.listAll());
     }
-
 
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody SensorData data) {
@@ -44,7 +44,8 @@ public class SensorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody SensorData data) throws ResourceNotFoundException {
+    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody SensorData data)
+            throws ResourceNotFoundException {
         service.editar(id, data);
         return ResponseEntity.ok().build();
     }

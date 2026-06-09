@@ -1,0 +1,126 @@
+package com.beeftracker.backend.veiculo;
+
+import com.beeftracker.backend.auth.models.metadata.Metadata;
+import com.beeftracker.backend.base.exceptions.InvalidFormException;
+import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
+import com.beeftracker.backend.veiculos.models.Veiculo;
+import com.beeftracker.backend.veiculos.models.VeiculoData;
+import com.beeftracker.backend.veiculos.repositories.VeiculoRepository;
+import com.beeftracker.backend.veiculos.services.VeiculoService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class VeiculoServiceTest {
+
+    @Mock
+    private VeiculoRepository veiculoRepository;
+
+    @InjectMocks
+    private VeiculoService service;
+
+    private VeiculoData dataMock;
+    private Veiculo veiculoMock;
+
+    @BeforeEach
+    void setUp() {
+        dataMock = new VeiculoData("ABC1D23", "Scania R450", "Scania", 2022, new BigDecimal("20000"), true);
+        Metadata metadata = new Metadata(LocalDate.now(), LocalDate.now(), 1L, "token-veiculo");
+        veiculoMock = new Veiculo(dataMock, metadata);
+    }
+
+    @Test
+    void salvar_devePersistirVeiculo_quandoDadosValidos() throws InvalidFormException {
+        when(veiculoRepository.findByDataPlaca("ABC1D23")).thenReturn(Optional.empty());
+        when(veiculoRepository.save(any(Veiculo.class))).thenReturn(veiculoMock);
+
+        Veiculo resultado = service.salvar(dataMock);
+
+        verify(veiculoRepository).save(any(Veiculo.class));
+        assertThat(resultado).isEqualTo(veiculoMock);
+    }
+
+    @Test
+    void salvar_deveLancarExcecao_quandoPlacaJaCadastrada() {
+        when(veiculoRepository.findByDataPlaca("ABC1D23")).thenReturn(Optional.of(veiculoMock));
+
+        assertThatThrownBy(() -> service.salvar(dataMock))
+                .isInstanceOf(InvalidFormException.class);
+
+        verify(veiculoRepository, never()).save(any());
+    }
+
+    @Test
+    void salvar_deveLancarExcecao_quandoPlacaEmBranco() {
+        VeiculoData invalido = new VeiculoData("", "Scania R450", "Scania", 2022, new BigDecimal("20000"), true);
+
+        assertThatThrownBy(() -> service.salvar(invalido))
+                .isInstanceOf(InvalidFormException.class);
+
+        verify(veiculoRepository, never()).save(any());
+    }
+
+    @Test
+    void salvar_deveLancarExcecao_quandoModeloEmBranco() {
+        VeiculoData invalido = new VeiculoData("ABC1D23", "", "Scania", 2022, new BigDecimal("20000"), true);
+
+        assertThatThrownBy(() -> service.salvar(invalido))
+                .isInstanceOf(InvalidFormException.class);
+
+        verify(veiculoRepository, never()).save(any());
+    }
+
+    @Test
+    void salvar_deveLancarExcecao_quandoCapacidadeNula() {
+        VeiculoData invalido = new VeiculoData("ABC1D23", "Scania R450", "Scania", 2022, null, true);
+
+        assertThatThrownBy(() -> service.salvar(invalido))
+                .isInstanceOf(InvalidFormException.class);
+
+        verify(veiculoRepository, never()).save(any());
+    }
+
+    @Test
+    void listarTodos_deveRetornarLista() {
+        when(veiculoRepository.findAll()).thenReturn(List.of(veiculoMock));
+
+        List<Veiculo> resultado = service.listarTodos();
+
+        assertThat(resultado).hasSize(1).contains(veiculoMock);
+    }
+
+    @Test
+    void listarTodos_deveRetornarListaVazia_quandoNenhumVeiculo() {
+        when(veiculoRepository.findAll()).thenReturn(List.of());
+
+        assertThat(service.listarTodos()).isEmpty();
+    }
+
+    @Test
+    void validate_naoDeveLancarExcecao_quandoVeiculoExiste() throws ResourceNotFoundException {
+        when(veiculoRepository.carregar(1L)).thenReturn(veiculoMock);
+
+        assertThatNoException().isThrownBy(() -> service.validate(1L));
+    }
+
+    @Test
+    void validate_deveLancarExcecao_quandoVeiculoNaoEncontrado() {
+        when(veiculoRepository.carregar(99L)).thenReturn(null);
+
+        assertThatThrownBy(() -> service.validate(99L))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+}

@@ -1,7 +1,6 @@
 package com.beeftracker.backend.ativos.sensores.repositories;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,13 +71,15 @@ public class SensorRepositoryImpl implements SensorRepository {
                                     criadoDate,
                                     atualizadoDate,
                                     rs.getLong("id"),
-                                    rs.getString("token")
-                            )
-                    );
+                                    rs.getString("token")));
                 });
     }
+
     @Override
     public List<Sensor> pesquisar(String chave, Boolean status) {
+        int limit = 10;
+        int offset = 0;
+
         StringBuilder sql = new StringBuilder(
                 "SELECT id, token, descricao, ativo, criado_em, atualizado_em FROM sensor ");
 
@@ -97,20 +98,31 @@ public class SensorRepositoryImpl implements SensorRepository {
         }
 
         sql.append("ORDER BY id ASC ");
-        sql.append("LIMIT :limit OFFSET :offset");
+        sql.append("LIMIT ").append(limit).append(" OFFSET ").append(offset);
 
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("chave", StringUtils.isNotBlank(chave) ? "%" + chave.toLowerCase() + "%" : null)
-                .addValue("status", status)
-                .addValue("limit", 10)
-                .addValue("offset", 0);
+        MapSqlParameterSource params = new MapSqlParameterSource();
 
-        return jdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> new Sensor(
-                new SensorData(rs.getString("descricao"), rs.getBoolean("ativo")),
-                new Metadata(
-                        rs.getObject("criado_em", LocalDate.class),
-                        rs.getObject("atualizado_em", LocalDate.class),
-                        rs.getLong("id"),
-                        rs.getString("token"))));
+        if (StringUtils.isNotBlank(chave)) {
+            params.addValue("chave", "%" + chave.toLowerCase() + "%");
+        }
+        if (status != null) {
+            params.addValue("status", status);
+        }
+
+        return jdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> {
+            OffsetDateTime criadoOdt = rs.getObject("criado_em", OffsetDateTime.class);
+            OffsetDateTime atualizadoOdt = rs.getObject("atualizado_em", OffsetDateTime.class);
+
+            LocalDate criadoDate = (criadoOdt != null) ? criadoOdt.toLocalDate() : null;
+            LocalDate atualizadoDate = (atualizadoOdt != null) ? atualizadoOdt.toLocalDate() : null;
+
+            return new Sensor(
+                    new SensorData(rs.getString("descricao"), rs.getBoolean("ativo")),
+                    new Metadata(
+                            criadoDate,
+                            atualizadoDate,
+                            rs.getLong("id"),
+                            rs.getString("token")));
+        });
     }
 }
