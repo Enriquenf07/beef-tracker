@@ -2,9 +2,12 @@
 
 import { createApi } from "../lib/api";
 
-export async function finalizarCadastroAction(formData: { senha: string; token: string }) {
+export async function finalizarCadastroAction(formData: { senha: string; token: string | null }) {
   try {
-    console.log(formData)
+    const token = formData.token;
+    if(!token) {
+      return { success: false, message: "Token de cadastro não encontrado." };
+    }
     const api = await createApi();
     const response = await api.patch(`/usuario/finalizar`, formData);
     return { success: true };

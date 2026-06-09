@@ -47,6 +47,40 @@ export async function handleCadastro(
     }
 }
 
+export async function handleLoteCadastro(
+    formData: FormData
+) {
+    const api = await createApi()
+
+    const id = formData.get('id')
+
+    const body = {
+        observacao: formData.get('observacao'),
+        nome: formData.get('nome'),
+        peso: formData.get('peso'),
+    }
+
+    try {
+        if (id) {
+            await api.put(
+                `/compras/pedido/${id}`,
+                body
+            )
+        } else {
+            await api.post(
+                '/compras/pedido',
+                body
+            )
+        }
+
+        revalidatePath('/ui/compras/pedidos')
+
+        return null
+    } catch (e: any) {
+        return e?.response?.data
+    }
+}
+
 export async function handleAtualizarStatus(
     id: number,
     status: string

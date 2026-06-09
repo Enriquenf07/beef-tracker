@@ -15,6 +15,7 @@ public class Cancelada extends AlterarStatus{
 
     @Override
     Viagem sideEffect(Viagem viagem) {
+
         return viagem;
     }
 

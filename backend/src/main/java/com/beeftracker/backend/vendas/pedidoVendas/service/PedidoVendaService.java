@@ -1,16 +1,26 @@
 package com.beeftracker.backend.vendas.pedidoVendas.service;
 
+import com.beeftracker.backend.base.exceptions.InvalidFormException;
 import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
+import com.beeftracker.backend.compras.pedidoCompra.models.LoteBruto;
+import com.beeftracker.backend.compras.pedidoCompra.service.PedidoCompraService;
+import com.beeftracker.backend.email.EmailClient;
 import com.beeftracker.backend.vendas.pedidoVendas.models.LoteFracionado;
 import com.beeftracker.backend.vendas.pedidoVendas.models.LoteFracionadoData;
 import com.beeftracker.backend.vendas.pedidoVendas.models.PedidoVenda;
 import com.beeftracker.backend.vendas.pedidoVendas.models.PedidoVendaData;
 import com.beeftracker.backend.vendas.pedidoVendas.repositories.PedidoVendaRepository;
+import com.beeftracker.backend.viagens.model.Viagem;
+import com.resend.core.exception.ResendException;
+import com.resend.services.emails.model.CreateEmailOptions;
 import io.micrometer.common.util.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +29,15 @@ import java.util.Map;
 public class PedidoVendaService {
 
     private final PedidoVendaRepository repository;
+    private final PedidoCompraService compraService;
+    public final EmailClient emailClient;
+    @Value("${beeftracker.url}")
+    private String beefTrackerUrl;
 
-    public PedidoVendaService(PedidoVendaRepository repository) {
+    public PedidoVendaService(PedidoVendaRepository repository, PedidoCompraService compraService, EmailClient emailClient) {
         this.repository = repository;
+        this.compraService = compraService;
+        this.emailClient = emailClient;
     }
 
     public void criar(PedidoVendaData data) {
@@ -49,9 +65,17 @@ public class PedidoVendaService {
         return repository.pesquisar(clienteId, status, page);
     }
 
-    public void criarLote(LoteFracionadoData data) throws ResourceNotFoundException {
+    public void criarLote(LoteFracionadoData data) throws ResourceNotFoundException, InvalidFormException {
         carregarOuLancarErro(data.pedidoVendaId());
         validarLote(data);
+
+        LoteBruto loteBruto = compraService.carregarLoteOuLancarErro(data.loteOriginalId());
+
+        if (loteBruto.data().peso() < data.peso()) {
+            throw new InvalidFormException();
+        }
+
+        repository.decrementarPesoLoteBruto(data.loteOriginalId(), data.peso());
         repository.salvarLote(data);
     }
 
@@ -109,10 +133,7 @@ public class PedidoVendaService {
 
     private void validarTransicaoStatus(String statusAtual, String novoStatus) {
         Map<String, List<String>> transicoesPermitidas = Map.of(
-                "RASCUNHO", List.of("CONFIRMADO", "CANCELADO"),
-                "CONFIRMADO", List.of("FATURADO", "CANCELADO"),
-                "FATURADO", List.of("EM_TRANSITO", "CANCELADO"),
-                "EM_TRANSITO", List.of("ENTREGUE", "CANCELADO"),
+                "PENDENTE", List.of("ENTREGUE", "CANCELADO"),
                 "ENTREGUE", List.of(),
                 "CANCELADO", List.of());
 
@@ -121,5 +142,32 @@ public class PedidoVendaService {
             throw new IllegalStateException(
                     String.format("Transição de status inválida: %s → %s", statusAtual, novoStatus));
         }
+    }
+
+    public PedidoVenda findByViagem(Viagem viagem) {
+        return repository.findByViagem(viagem.metadata().id());
+    }
+
+    public void enviarEmail(String nome, String to, String token) throws ResendException {
+        String link = beefTrackerUrl + "/public/viagem/" + URLEncoder.encode(token, StandardCharsets.UTF_8);
+
+        CreateEmailOptions email = CreateEmailOptions.builder()
+                .from("CRM Frigorífico <suporte@beeftracker.xyz>")
+                .to(to)
+                .subject("Beef Tracker - Detalhes da sua Viagem")
+                .html("""
+                <html>
+                  <body style="font-family: Arial, sans-serif; padding: 20px;">
+                    <h2>Olá, %s!</h2>
+                    <p>Os detalhes da sua viagem estão disponíveis.</p>
+                    <p>Para visualizar as informações completas da viagem, clique no link abaixo:</p>
+                    <a href="%s">Visualizar Detalhes da Viagem</a>
+                    <br><br>
+                    <small>Este é um e-mail automático enviado pelo CRM Beef Tracker.</small>
+                  </body>
+                </html>
+            """.formatted(nome, link))
+                .build();
+        emailClient.enviarEmail(email);
     }
 }

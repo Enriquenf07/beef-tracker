@@ -96,8 +96,7 @@ public class UsuarioService {
     }
 
     public void editarStatus(Long id) throws ResourceNotFoundException {
-        User user = repository.carregar(id);
-        repository.editarStatus(id, !user.data().ativo());
+        repository.editarStatus(id);
     }
 
     public RolesFull getRoles(Long userId){
@@ -113,6 +112,9 @@ public class UsuarioService {
 
     public RolesFull getAllRoles() {
         return repository.findAllRoles();
+    }
+    public List<User> listAllMotoristas(){
+        return repository.listAllMotoristas();
     }
 }
 

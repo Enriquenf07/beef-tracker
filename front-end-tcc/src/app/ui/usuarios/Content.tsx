@@ -80,7 +80,8 @@ export default function Content(props: any) {
 
     const currentPage = Number(searchParams.get('page')) || 1;
 
-    const createPageURL = (pageNumber: number | string) => {
+    const createPageURL = (pageNumber: number) => {
+        console.log(pageNumber)
         const params = new URLSearchParams(searchParams);
         params.set('page', pageNumber.toString());
         return `${pathname}?${params.toString()}`;

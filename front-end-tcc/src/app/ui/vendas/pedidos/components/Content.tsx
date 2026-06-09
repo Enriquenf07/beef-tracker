@@ -50,23 +50,6 @@ import {
     handleAtualizarStatus,
 } from "../action"
 
-const STATUS_VENDA = [
-    { value: "RASCUNHO", label: "Rascunho" },
-    { value: "CONFIRMADO", label: "Confirmado" },
-    { value: "FATURADO", label: "Faturado" },
-    { value: "EM_TRANSITO", label: "Em Trânsito" },
-    { value: "ENTREGUE", label: "Entregue" },
-    { value: "CANCELADO", label: "Cancelado" },
-]
-
-const statusColor: Record<string, string> = {
-    RASCUNHO: "bg-muted",
-    CONFIRMADO: "bg-blue-200",
-    FATURADO: "bg-amber-200",
-    EM_TRANSITO: "bg-violet-200",
-    ENTREGUE: "bg-emerald-200",
-    CANCELADO: "bg-red-200",
-}
 
 export default function Content(props: any) {
     const [open, setOpen] = useState(false)
@@ -84,8 +67,6 @@ export default function Content(props: any) {
     ) => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
-
-        // injeta clienteId do state (Select não vai pro FormData)
         formData.set('clienteId', clienteId)
 
         startTransition(async () => {
@@ -281,8 +262,8 @@ export default function Content(props: any) {
                                             R$ {Number(p.data.valorTotal).toFixed(2)}
                                         </TableCell>
                                         <TableCell>
-                                            <div className={`p-1 flex justify-center items-center rounded-xl border ${statusColor[p.data.status] ?? 'bg-muted'}`}>
-                                                {STATUS_VENDA.find(s => s.value === p.data.status)?.label ?? p.data.status}
+                                            <div className={`p-1 flex justify-center items-center rounded-xl border`}>
+                                                
                                             </div>
                                         </TableCell>
                                         <TableCell>
@@ -306,23 +287,6 @@ export default function Content(props: any) {
                                             >
                                                 <PenBox />
                                             </Button>
-
-                                            <Select
-                                                onValueChange={(value) =>
-                                                    onHandleStatus(p.metadata.id, value)
-                                                }
-                                            >
-                                                <SelectTrigger className="w-40">
-                                                    <SelectValue placeholder="Alterar status" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {STATUS_VENDA.map(s => (
-                                                        <SelectItem key={s.value} value={s.value}>
-                                                            {s.label}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
                                         </TableCell>
                                     </TableRow>
                                 )

@@ -4,5 +4,6 @@ public record LoteFracionadoData(
         String nome,
         String descricao,
         Integer peso,
-        Long pedidoVendaId) {
-}
+        Long pedidoVendaId,
+        Long loteOriginalId
+) {}

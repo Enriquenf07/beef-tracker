@@ -2,13 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
+
 
 import {
     Table,
@@ -31,9 +25,13 @@ import {
 import { Input } from "@/components/ui/input"
 
 import {
+    Box,
+    Check,
     PenBox,
+    Pin,
     Plus,
-    Search
+    Search,
+    Trash
 } from "lucide-react"
 
 import {
@@ -49,9 +47,12 @@ import {
     handleCadastro,
     handleAtualizarStatus
 } from "../action"
+import { ModalLote, ModalPedido, ModalViagem } from "./Modal"
 
 export default function Content(props: any) {
     const [open, setOpen] = useState(false)
+    const [openLote, setOpenLote] = useState(false)
+    const [openViagem, setOpenViagem] = useState(false)
 
     const [error, setError] =
         useState<string | null>(null)
@@ -81,12 +82,10 @@ export default function Content(props: any) {
 
         startTransition(async () => {
             const erro = await handleCadastro(formData) as any
-
             if (erro) {
                 setError(erro.detail)
                 return
             }
-
             setOpen(false)
             setFornecedorId('')
         })
@@ -114,107 +113,29 @@ export default function Content(props: any) {
                 </Page.Title>
 
                 <Page.Modal>
-                    <Dialog
+                    <ModalPedido
                         open={open}
-                        onOpenChange={() => {
-                            setForm({})
-                            setFornecedorId('')
-                            setOpen(prev => !prev)
-                        }}
-                    >
-                        <DialogTrigger>
-                            <Button>
-                                <Plus />
-                                Cadastrar
-                            </Button>
-                        </DialogTrigger>
-
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>
-                                    {!form?.metadata?.id
-                                        ? 'Cadastrar Pedido'
-                                        : 'Editar Pedido'}
-                                </DialogTitle>
-                            </DialogHeader>
-
-                            {isPending ? (
-                                <p>Carregando</p>
-                            ) : (
-                                <form
-                                    onSubmit={onHandleCadastro}
-                                    className="flex flex-col gap-2"
-                                >
-                                    <input
-                                        hidden
-                                        name="id"
-                                        defaultValue={form?.metadata?.id}
-                                    />
-
-                                    <Select
-                                        value={fornecedorId}
-                                        onValueChange={(val) => setFornecedorId(val)}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Selecione um fornecedor" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                {fornecedores.length === 0 ? (
-                                                    <SelectItem value="__none" disabled>
-                                                        Nenhum fornecedor cadastrado
-                                                    </SelectItem>
-                                                ) : (
-                                                    fornecedores.map((f: any) => (
-                                                        <SelectItem
-                                                            key={f.metadata.id}
-                                                            value={String(f.metadata.id)}
-                                                        >
-                                                            {f.data.nome}
-                                                            {f.data.apelido ? ` (${f.data.apelido})` : ''}
-                                                        </SelectItem>
-                                                    ))
-                                                )}
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-
-                                    <Input
-                                        placeholder="Valor Total"
-                                        name="valorTotal"
-                                        type="number"
-                                        step="0.01"
-                                        defaultValue={form?.data?.valorTotal}
-                                    />
-
-                                    <Input
-                                        placeholder="Observação"
-                                        name="observacao"
-                                        type="text"
-                                        defaultValue={form?.data?.observacao}
-                                    />
-
-                                    <Input
-                                        placeholder="Data Emissão"
-                                        name="dataEmissao"
-                                        type="date"
-                                        defaultValue={form?.data?.dataEmissao}
-                                    />
-
-                                    <Input
-                                        placeholder="Data Entrega"
-                                        name="dataEntrega"
-                                        type="date"
-                                        defaultValue={form?.data?.dataEntrega}
-                                    />
-
-                                    <Button type="submit">
-                                        Salvar
-                                    </Button>
-                                </form>
-                            )}
-                        </DialogContent>
-                    </Dialog>
+                        setOpen={setOpen}
+                        form={form}
+                        setForm={setForm}
+                        fornecedorId={fornecedorId}
+                        setFornecedorId={setFornecedorId}
+                        fornecedores={fornecedores}
+                        isPending={isPending}
+                        onHandleCadastro={onHandleCadastro}
+                    />
+                    <ModalLote
+                        open={openLote}
+                        setOpen={setOpenLote}
+                        isPending={isPending}
+                        onHandleCadastro={onHandleCadastro}
+                    />
+                    <ModalViagem
+                        open={openViagem}
+                        setOpen={setOpenViagem}
+                        viagens={props.viagens}
+                        onHandleCadastro={onHandleCadastro}
+                    />
                 </Page.Modal>
             </Page.Header>
 
@@ -247,7 +168,7 @@ export default function Content(props: any) {
                                 </SelectItem>
 
                                 <SelectItem value="CONFIRMADO">
-                                    
+
                                 </SelectItem>
 
                                 <SelectItem value="CANCELADO">
@@ -276,8 +197,8 @@ export default function Content(props: any) {
                                 <TableHead>Fornecedor</TableHead>
                                 <TableHead>Valor</TableHead>
                                 <TableHead>Status</TableHead>
-                                <TableHead>Emissão</TableHead>
-                                <TableHead>Entrega</TableHead>
+                                <TableHead></TableHead>
+                                <TableHead></TableHead>
                                 <TableHead></TableHead>
                             </TableRow>
                         </TableHeader>
@@ -309,58 +230,52 @@ export default function Content(props: any) {
                                             </div>
                                         </TableCell>
 
-                                        <TableCell>
-                                            {p.data.dataEmissao}
-                                        </TableCell>
-
-                                        <TableCell>
-                                            {p.data.dataEntrega}
-                                        </TableCell>
-
                                         <TableCell className="flex gap-2">
-                                            <Button
-                                                className="bg-secondary"
-                                                onClick={() => {
-                                                    setFornecedorId(
-                                                        String(p.data.fornecedorId)
-                                                    )
-                                                    setOpen(prev => !prev)
-                                                    setForm(p)
-                                                }}
-                                            >
-                                                <PenBox />
-                                            </Button>
+                                            <div className="p-1 flex justify-center items-center rounded-xl gap-3">
 
-                                            <Select
-                                                onValueChange={(value) =>
-                                                    onHandleStatus(
-                                                        p.metadata.id,
-                                                        value
-                                                    )
-                                                }
-                                            >
-                                                <SelectTrigger className="w-40">
-                                                    <SelectValue placeholder="Status" />
-                                                </SelectTrigger>
 
-                                                <SelectContent>
-                                                    <SelectItem value="RASCUNHO">
-                                                        Rascunho
-                                                    </SelectItem>
+                                                {p.data.status == "PENDENTE" && (
+                                                    <Button
+                                                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                                                        onClick={() => {
+                                                            setForm(p);
+                                                            setOpenViagem(true);
+                                                        }}
+                                                    >
+                                                        <Pin size={16} />
+                                                    </Button>
+                                                )}
 
-                                                    <SelectItem value="CONFIRMADO">
-                                                        Confirmado
-                                                    </SelectItem>
+                                                {p.data.status == "PENDENTE" && (
+                                                    <Button
+                                                        className="bg-amber-500 hover:bg-amber-600 text-white"
+                                                        onClick={() => {
+                                                            setForm(p);
+                                                            setOpenLote(true);
+                                                        }}
+                                                    >
+                                                        <Box size={16} />
+                                                    </Button>
+                                                )}
 
-                                                    <SelectItem value="RECEBIDO">
-                                                        Recebido
-                                                    </SelectItem>
+                                                {p.data.status == "PENDENTE" && (
+                                                    <Button
+                                                        className="bg-green-600 hover:bg-green-700 text-white"
+                                                        onClick={() => onHandleStatus(p.metadata.id, "ENTREGUE")}
+                                                    >
+                                                        <Check size={16} />
+                                                    </Button>
+                                                )}
 
-                                                    <SelectItem value="CANCELADO">
-                                                        Cancelado
-                                                    </SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                                {p.data.status == "PENDENTE" && (
+                                                    <Button
+                                                        className="bg-destructive hover:bg-destructive/90"
+                                                        onClick={() => onHandleStatus(Number(p.data.id), "CANCELADO")}
+                                                    >
+                                                        <Trash size={16} />
+                                                    </Button>
+                                                )}
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 )

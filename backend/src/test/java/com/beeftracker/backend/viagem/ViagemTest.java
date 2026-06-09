@@ -2,6 +2,7 @@ package com.beeftracker.backend.viagem;
 
 import com.beeftracker.backend.ativos.sensores.services.SensorService;
 import com.beeftracker.backend.base.exceptions.SensorIndisponivelException;
+import com.beeftracker.backend.usuarios.services.UsuarioService;
 import com.beeftracker.backend.veiculos.services.VeiculoService;
 import com.influxdb.v3.client.InfluxDBClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +34,7 @@ class ViagemTest {
     private InfluxDBClient influxDBClient;
     private VeiculoService veiculoService;
     private SensorService sensorService;
+    private UsuarioService usuarioService;
 
     @BeforeEach
     void setUp() {
@@ -42,7 +44,8 @@ class ViagemTest {
         cancelada = mock(Cancelada.class);
         veiculoService = mock(VeiculoService.class);
         sensorService = mock(SensorService.class);
-        service = new ViagemService(repository, transito, concluida, cancelada, influxDBClient, veiculoService,
+        usuarioService = mock(UsuarioService.class);
+        service = new ViagemService(repository, transito, concluida, cancelada, usuarioService, influxDBClient, veiculoService,
                 sensorService);
     }
 
@@ -102,8 +105,8 @@ class ViagemTest {
 
     @Test
     void pesquisar_deveRepassarParametrosAoRepository() {
-        service.pesquisar("PENDENTE", LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31), 1);
+        service.pesquisar("PENDENTE", LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31), 1, 1L);
 
-        verify(repository).findByStatusAndData("PENDENTE", LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31), 1);
+        verify(repository).findByStatusAndData("PENDENTE", LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31), 1, false, 1L);
     }
 }

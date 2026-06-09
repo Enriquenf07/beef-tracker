@@ -9,7 +9,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
 const resolvedSearchParams = await searchParams;
 
   const hasError = resolvedSearchParams.error === "true";
-    console.log('teste', hasError)
+
     return (
         <main className="min-h-screen grid grid-cols-1 md:grid-cols-2 font-sans bg-white">
             <div className="flex flex-col justify-center items-center p-8 md:p-16">

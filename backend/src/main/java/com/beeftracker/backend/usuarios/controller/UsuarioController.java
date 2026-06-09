@@ -68,6 +68,11 @@ public class UsuarioController {
         return ResponseEntity.ok(roles);
     }
 
+    @GetMapping("/motoristas")
+    public ResponseEntity<?> getAllMotoristas()  {
+        return ResponseEntity.ok(service.listAllMotoristas());
+    }
+
 }
 
 

@@ -10,6 +10,8 @@ import java.util.stream.Stream;
 import com.beeftracker.backend.ativos.sensores.services.SensorService;
 import com.beeftracker.backend.base.Page;
 import com.beeftracker.backend.base.exceptions.SensorIndisponivelException;
+import com.beeftracker.backend.usuarios.models.RolesFull;
+import com.beeftracker.backend.usuarios.services.UsuarioService;
 import com.beeftracker.backend.veiculos.services.VeiculoService;
 import com.beeftracker.backend.viagens.model.*;
 import com.influxdb.v3.client.InfluxDBClient;
@@ -29,6 +31,7 @@ import com.beeftracker.backend.viagens.strategy.Entregue;
 @Service
 public class ViagemService {
     private final ViagemRepository repository;
+    private final UsuarioService usuarioService;
     private final HashMap<String, AlterarStatus> services;
     private final InfluxDBClient influxDBClient;
     private final VeiculoService veiculoService;
@@ -38,9 +41,10 @@ public class ViagemService {
             ViagemRepository repository,
             EmTransito transito,
             Entregue concluida,
-            Cancelada cancelada, InfluxDBClient influxDBClient, VeiculoService veiculoService,
+            Cancelada cancelada, UsuarioService usuarioService, InfluxDBClient influxDBClient, VeiculoService veiculoService,
             SensorService sensorService) {
         this.repository = repository;
+        this.usuarioService = usuarioService;
         this.influxDBClient = influxDBClient;
         this.veiculoService = veiculoService;
         this.sensorService = sensorService;
@@ -73,9 +77,13 @@ public class ViagemService {
         repository.editar(viagem.data(), id);
     }
 
-    public Page<Viagem> pesquisar(String status, LocalDate dataInicio, LocalDate dataFim, Integer page) {
+    public Page<Viagem> pesquisar(String status, LocalDate dataInicio, LocalDate dataFim, Integer page, Long id) {
         Integer pageNew = page != null && page > 0 ? page : 1;
-        Page<Viagem> viagens = repository.findByStatusAndData(status, dataInicio, dataFim, pageNew);
+        RolesFull roles = usuarioService.getRoles(id);
+        boolean isMotorista = !roles.roles().contains("ADMIN")
+                && !roles.roles().contains("VIAGEM")
+                && roles.roles().contains("MOTORISTA");
+        Page<Viagem> viagens = repository.findByStatusAndData(status, dataInicio, dataFim, pageNew, isMotorista, id);
         return viagens;
     }
 
@@ -208,6 +216,10 @@ public class ViagemService {
 
     public Long getIdByToken(String token) throws ResourceNotFoundException {
         return repository.carregar(token).metadata().id();
+    }
+
+    public List<Viagem> listAllPendente(){
+        return repository.listAllPendente();
     }
 
 }

@@ -21,6 +21,10 @@ public class SensorService {
     public List<Sensor> pesquisar(String chave, Boolean status) {
         return repository.pesquisar(chave, status);
     }
+    //todo
+    public List<Sensor> listAll() {
+        return repository.pesquisar(null, null);
+    }
 
     public void cadastrar(SensorData data) {
         repository.salvar(data);

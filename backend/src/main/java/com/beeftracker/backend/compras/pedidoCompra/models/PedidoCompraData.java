@@ -8,8 +8,5 @@ public record PedidoCompraData(
         Long viagemId,
         BigDecimal valorTotal,
         String status,
-        String observacao,
-        LocalDate dataEmissao,
-        LocalDate dataEntrega
-        
+        String observacao
 ) {}

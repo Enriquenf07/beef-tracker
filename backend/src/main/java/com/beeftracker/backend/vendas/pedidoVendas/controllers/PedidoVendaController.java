@@ -1,6 +1,7 @@
 package com.beeftracker.backend.vendas.pedidoVendas.controllers;
 
 import com.beeftracker.backend.base.BaseController;
+import com.beeftracker.backend.base.exceptions.InvalidFormException;
 import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
 import com.beeftracker.backend.vendas.pedidoVendas.form.AtualizarStatusForm;
 import com.beeftracker.backend.vendas.pedidoVendas.models.LoteFracionado;
@@ -59,15 +60,15 @@ public class PedidoVendaController extends BaseController {
 
     @PostMapping("/{pedidoId}/lote")
     public ResponseEntity<?> criarLote(@PathVariable Long pedidoId, @RequestBody LoteFracionadoData data)
-            throws ResourceNotFoundException {
-        service.criarLote(new LoteFracionadoData(data.nome(), data.descricao(), data.peso(), pedidoId));
+            throws ResourceNotFoundException, InvalidFormException {
+        service.criarLote(data);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/{pedidoId}/lote/{id}")
     public ResponseEntity<?> editarLote(@PathVariable Long pedidoId, @PathVariable Long id,
             @RequestBody LoteFracionadoData data) throws ResourceNotFoundException {
-        service.editarLote(id, new LoteFracionadoData(data.nome(), data.descricao(), data.peso(), pedidoId));
+        service.editarLote(id,data);
         return ResponseEntity.ok().build();
     }
 

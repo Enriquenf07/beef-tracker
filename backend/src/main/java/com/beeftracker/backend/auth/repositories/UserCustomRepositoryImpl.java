@@ -112,7 +112,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("chave", StringUtils.isNotBlank(chave) ? "%" + chave.toLowerCase() + "%" : null)
-                .addValue("status", status)
+                .addValue("status", true)
                 .addValue("limit", 10)
                 .addValue("offset", (page - 1) * 10);
 
@@ -140,11 +140,19 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     }
 
     @Override
-    public void editarStatus(Long id, boolean ativo) {
-        String sql = "UPDATE usuarios SET ativo = :ativo WHERE id = :id";
+    public void editarStatus(Long id) {
+        String sql = """
+            UPDATE usuarios
+            SET ativo = :ativo,
+                nome = :nome,
+                email = :email
+            WHERE id = :id
+        """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("ativo", ativo)
+                .addValue("ativo", false)
+                .addValue("nome", "Usuário Removido")
+                .addValue("email", "removido_" + id + "@anonimo.invalid")
                 .addValue("id", id);
 
         jdbcTemplate.update(sql, params);
@@ -189,4 +197,30 @@ GROUP BY u.id, u.nome, u.email, u.ativo, u.token, u.token_primeiro_acesso
             }
         }
     }
+
+    public List<User> listAllMotoristas() {
+        StringBuilder sql = new StringBuilder(
+                "SELECT u.id, u.nome, u.email, u.ativo, u.token, " +
+                        "ARRAY_REMOVE(ARRAY_AGG(r.nome), NULL) as roles, " +
+                        "ARRAY_REMOVE(ARRAY_AGG(r.id), NULL) as rolesId, " +
+                        "CASE WHEN u.token_primeiro_acesso IS NOT NULL THEN false ELSE true END as cadastrado " +
+                        "FROM usuarios u " +
+                        "LEFT JOIN role_usuario ru ON u.id = ru.usuario_id " +
+                        "LEFT JOIN roles r ON ru.role_id = r.id " +
+                        "WHERE EXISTS ( " +
+                        "   SELECT 1 FROM role_usuario ru2 " +
+                        "   JOIN roles r2 ON ru2.role_id = r2.id " +
+                        "   WHERE ru2.usuario_id = u.id AND r2.nome = :roleMotorista " +
+                        ") " +
+                        "GROUP BY u.id, u.nome, u.email, u.ativo, u.token " +
+                        "ORDER BY u.nome ASC" // Ordenado por nome para fazer mais sentido em listagens
+        );
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("roleMotorista", "MOTORISTA"); // Ajuste a string se a sua role tiver outro nome
+
+        return jdbcTemplate.query(sql.toString(), params, (rs, rowNum) -> factory.create(rs));
+    }
+
+
 }

@@ -1,10 +1,16 @@
 package com.beeftracker.backend.vendas.clientes.services;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 
 import com.beeftracker.backend.base.exceptions.InvalidFormException;
 import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
+import com.beeftracker.backend.email.EmailClient;
+import com.resend.core.exception.ResendException;
+import com.resend.services.emails.model.CreateEmailOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.beeftracker.backend.vendas.clientes.repositories.ClienteRepository;
@@ -14,6 +20,7 @@ import com.beeftracker.backend.vendas.clientes.models.ClienteData;
 @Service
 public class ClienteService {
     public final ClienteRepository clienteRepository;
+
 
     public ClienteService(ClienteRepository clienteRepository) {
         this.clienteRepository = clienteRepository;
@@ -43,4 +50,6 @@ public class ClienteService {
     public Cliente findById(Long id) throws ResourceNotFoundException {
         return clienteRepository.buscarPorId(id).orElseThrow(() -> new ResourceNotFoundException());
     }
+
+
 }

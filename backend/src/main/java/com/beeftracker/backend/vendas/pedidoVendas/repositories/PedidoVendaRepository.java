@@ -26,4 +26,8 @@ public interface PedidoVendaRepository {
     LoteFracionado carregarLote(Long id);
 
     List<LoteFracionado> pesquisarLotes(Long pedidoVendaId);
+
+    PedidoVenda findByViagem(Long id);
+
+    void decrementarPesoLoteBruto(Long aLong, Integer peso);
 }

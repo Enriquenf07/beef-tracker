@@ -124,7 +124,7 @@ public class ViagemCustomRepositoryImpl implements ViagemCustomRepository {
                 rs.getString("token")
         );
     }
-    public Page<Viagem> findByStatusAndData(String status, LocalDate dataInicio, LocalDate dataFim, int page) {
+    public Page<Viagem> findByStatusAndData(String status, LocalDate dataInicio, LocalDate dataFim, int page, Boolean isMotorista, Long id) {
         StringBuilder sql = new StringBuilder("""
     SELECT v.*, s.token AS sensor_token
     FROM viagem v
@@ -146,6 +146,9 @@ public class ViagemCustomRepositoryImpl implements ViagemCustomRepository {
         if (dataFim != null) {
             filterSql.append(" AND v.saida_real_em <= ?");
             params.add(dataFim);
+        }if(isMotorista){
+            filterSql.append(" AND v.motorista_id = ?");
+            params.add(id);
         }
 
         String sqlCount = "SELECT COUNT(*) FROM viagem v WHERE 1=1" + filterSql.toString();
@@ -173,5 +176,23 @@ public class ViagemCustomRepositoryImpl implements ViagemCustomRepository {
         List<Viagem> viagens = jdbcTemplate.query(sql.toString(), (rs, rowNum) -> mapRow(rs), params.toArray());
 
         return new Page<>(viagens, totalPaginas);
+    }
+
+    @Override
+    public List<Viagem> listAllPendente() {
+        String sql = """
+        SELECT v.id, v.veiculo_id, v.sensor_id, v.descricao, v.status_viagem, 
+               v.saida_em, v.saida_real_em, v.entregue_em, v.atualizado_em, 
+               v.criado_em, v.token, v.motorista_id, s.token AS sensor_token
+        FROM viagem v
+        LEFT JOIN sensor s ON s.id = v.sensor_id
+        WHERE v.status_viagem = ?
+    """;
+
+        try {
+            return jdbcTemplate.query(sql, (rs, rowNum) -> mapRow(rs), StatusViagem.PENDENTE.name());
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
     }
 }

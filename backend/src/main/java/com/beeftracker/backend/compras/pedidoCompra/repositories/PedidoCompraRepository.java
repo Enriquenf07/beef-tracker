@@ -2,6 +2,7 @@ package com.beeftracker.backend.compras.pedidoCompra.repositories;
 
 import java.util.List;
 
+import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
 import com.beeftracker.backend.compras.pedidoCompra.models.LoteBruto;
 import com.beeftracker.backend.compras.pedidoCompra.models.LoteBrutoData;
 import com.beeftracker.backend.compras.pedidoCompra.models.PedidoCompra;
@@ -22,7 +23,7 @@ public interface PedidoCompraRepository {
     void editarLote(Long id, LoteBrutoData data);
 
     LoteBruto carregarLote(Long id);
-    void vincularViagem(Long id, Long viagemId);
-
     List<LoteBruto> pesquisarLotes(Long pedidoCompraId);
+    void vincularViagem(Long pedidoCompraId, Long viagemId) throws ResourceNotFoundException;
+    PedidoCompra findByViagem(Long viagemId) throws ResourceNotFoundException;
 }

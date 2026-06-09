@@ -8,6 +8,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -140,14 +141,15 @@ public class PedidoVendaRepositoryImpl implements PedidoVendaRepository {
 
         @Override
         public void salvarLote(LoteFracionadoData data) {
-                String sql = "INSERT INTO lote_fracionado (nome, descricao, peso, pedido_venda_id) " +
-                                "VALUES (:nome, :descricao, :peso, :pedidoVendaId)";
+                String sql = "INSERT INTO lote_fracionado (nome, descricao, peso, lote_original_id, pedido_venda_id) " +
+                        "VALUES (:nome, :descricao, :peso, :loteOriginalId, :pedidoVendaId)";
 
                 jdbcTemplate.update(sql, new MapSqlParameterSource()
-                                .addValue("nome", data.nome())
-                                .addValue("descricao", data.descricao())
-                                .addValue("peso", data.peso())
-                                .addValue("pedidoVendaId", data.pedidoVendaId()));
+                        .addValue("nome", data.nome())
+                        .addValue("descricao", data.descricao())
+                        .addValue("peso", data.peso())
+                        .addValue("loteOriginalId", data.loteOriginalId())
+                        .addValue("pedidoVendaId", data.pedidoVendaId()));
         }
 
         @Override
@@ -181,12 +183,41 @@ public class PedidoVendaRepositoryImpl implements PedidoVendaRepository {
                                 (rs, rowNum) -> mapLoteRow(rs));
         }
 
+        @Override
+        public PedidoVenda findByViagem(Long viagemId) {
+                String sql = "SELECT p.id, p.token, p.cliente_id, p.viagem_id, p.valor_total, p.status, " +
+                        "p.observacao, p.data_venda, p.data_vencimento, p.criado_em, p.atualizado_em " +
+                        "FROM pedido_venda p " +
+                        "WHERE p.viagem_id = :viagemId " +
+                        "LIMIT 1"; // Garante no banco que só trará um registro
+
+                MapSqlParameterSource params = new MapSqlParameterSource()
+                        .addValue("viagemId", viagemId);
+
+                try {
+                        PedidoVenda pedido = jdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> mapRow(rs));
+                        return pedido;
+                } catch (EmptyResultDataAccessException e) {
+                        return null;
+                }
+        }
+
+        @Override
+        public void decrementarPesoLoteBruto(Long id, Integer peso) {
+                String sql = "UPDATE lote_bruto SET peso = peso - :peso WHERE id = :id";
+
+                jdbcTemplate.update(sql, new MapSqlParameterSource()
+                        .addValue("peso", peso)
+                        .addValue("id", id));
+        }
+
         private LoteFracionado mapLoteRow(ResultSet rs) throws SQLException {
                 LoteFracionadoData data = new LoteFracionadoData(
                                 rs.getString("nome"),
                                 rs.getString("descricao"),
                                 rs.getInt("peso"),
-                                rs.getLong("pedido_venda_id"));
+                                rs.getLong("pedido_venda_id"),
+                                rs.getLong("lote_original_id"));
 
                 Metadata metadata = new Metadata(
                                 rs.getObject("criado_em", OffsetDateTime.class) != null

@@ -1,5 +1,6 @@
 package com.beeftracker.backend.compras.pedidoCompra.service;
 
+import com.beeftracker.backend.base.exceptions.InvalidFormException;
 import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
 import com.beeftracker.backend.compras.pedidoCompra.models.LoteBruto;
 import com.beeftracker.backend.compras.pedidoCompra.models.LoteBrutoData;
@@ -24,18 +25,18 @@ public class PedidoCompraService {
         this.repository = repository;
     }
 
-    public void criar(PedidoCompraData data) {
+    public void criar(PedidoCompraData data) throws InvalidFormException {
         validarPedido(data);
         repository.salvar(data);
     }
 
-    public void editar(Long id, PedidoCompraData data) throws ResourceNotFoundException {
+    public void editar(Long id, PedidoCompraData data) throws ResourceNotFoundException, InvalidFormException {
         carregarOuLancarErro(id);
         validarPedido(data);
         repository.editar(id, data);
     }
 
-    public void atualizarStatus(Long id, String novoStatus) throws ResourceNotFoundException {
+    public void atualizarStatus(Long id, String novoStatus) throws ResourceNotFoundException, InvalidFormException {
         PedidoCompra pedido = carregarOuLancarErro(id);
         validarTransicaoStatus(pedido.data().status(), novoStatus);
         repository.editarStatus(id, novoStatus);
@@ -49,13 +50,14 @@ public class PedidoCompraService {
         return repository.pesquisar(fornecedorId, status, page);
     }
 
-    public void criarLote(LoteBrutoData data) throws ResourceNotFoundException {
+
+    public void criarLote(LoteBrutoData data) throws ResourceNotFoundException, InvalidFormException {
         carregarOuLancarErro(data.pedidoCompraId());
         validarLote(data);
         repository.salvarLote(data);
     }
 
-    public void editarLote(Long id, LoteBrutoData data) throws ResourceNotFoundException {
+    public void editarLote(Long id, LoteBrutoData data) throws ResourceNotFoundException, InvalidFormException {
         carregarLoteOuLancarErro(id);
         validarLote(data);
         repository.editarLote(id, data);
@@ -78,7 +80,7 @@ public class PedidoCompraService {
         }
     }
 
-    private LoteBruto carregarLoteOuLancarErro(Long id) throws ResourceNotFoundException {
+    public LoteBruto carregarLoteOuLancarErro(Long id) throws ResourceNotFoundException {
         try {
             return repository.carregarLote(id);
         } catch (EmptyResultDataAccessException e) {
@@ -86,22 +88,20 @@ public class PedidoCompraService {
         }
     }
 
-    private void validarPedido(PedidoCompraData data) {
+    private void validarPedido(PedidoCompraData data) throws InvalidFormException {
         if (data.fornecedorId() == null) {
-            throw new IllegalArgumentException("Fornecedor é obrigatório.");
+            throw new InvalidFormException();
         }
         if (data.valorTotal() == null || data.valorTotal().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Valor total deve ser maior que zero.");
-        }
-        if (data.dataEntrega() != null && data.dataEntrega().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Data de entrega não pode ser no passado.");
+            throw new InvalidFormException();
         }
     }
+
 
     public void vincularViagem(Long id, Long viagemId) throws ResourceNotFoundException {
         PedidoCompra pedido = carregarOuLancarErro(id);
 
-        if (pedido.data().status() == StatusPedidoCompra.CANCELADO) {
+        if (pedido.data().status() == "CANCELADO") {
             throw new IllegalStateException("Não é possível vincular viagem a um pedido cancelado.");
         }
         if (pedido.data().viagemId() != null) {
@@ -111,25 +111,28 @@ public class PedidoCompraService {
         repository.vincularViagem(id, viagemId);
     }
 
-    private void validarLote(LoteBrutoData data) {
+
+    private void validarLote(LoteBrutoData data) throws InvalidFormException {
         if (StringUtils.isBlank(data.nome())) {
-            throw new IllegalArgumentException("Nome do lote é obrigatório.");
+            throw new InvalidFormException();
+
         }
         if (data.peso() == null || data.peso() <= 0) {
-            throw new IllegalArgumentException("Peso do lote deve ser maior que zero.");
+            throw new InvalidFormException();
+
         }
     }
 
-    private void validarTransicaoStatus(String statusAtual, String novoStatus) {
+    private void validarTransicaoStatus(String statusAtual, String novoStatus) throws InvalidFormException {
         Map<String, List<String>> transicoesPermitidas = Map.of(
                 "PENDENTE", List.of("ENTREGUE", "CANCELADO"),
                 "ENTREGUE", List.of(),
                 "CANCELADO", List.of());
 
+
         List<String> permitidos = transicoesPermitidas.getOrDefault(statusAtual, List.of());
         if (!permitidos.contains(novoStatus)) {
-            throw new IllegalStateException(
-                    String.format("Transição inválida: %s → %s", statusAtual, novoStatus));
+            throw new InvalidFormException();
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.beeftracker.backend.pedidoCompra;
 
 import com.beeftracker.backend.auth.models.metadata.Metadata;
+import com.beeftracker.backend.base.exceptions.InvalidFormException;
 import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
 import com.beeftracker.backend.compras.pedidoCompra.models.LoteBruto;
 import com.beeftracker.backend.compras.pedidoCompra.models.LoteBrutoData;
@@ -43,9 +44,7 @@ class PedidoCompraServiceTest {
                 1L,
                 new BigDecimal("1500.00"),
                 "RASCUNHO",
-                "Observação teste",
-                LocalDate.now(),
-                LocalDate.now().plusDays(10));
+                "Observação teste", null);
 
         Metadata metadata = new Metadata(LocalDate.now(), LocalDate.now(), 1L, "token-abc");
         pedidoMock = new PedidoCompra(dataMock, metadata);
@@ -54,28 +53,28 @@ class PedidoCompraServiceTest {
     // ─── criar ────────────────────────────────────────────────────────────────
 
     @Test
-    void criar_deveChamarRepositorio_quandoDadosValidos() {
+    void criar_deveChamarRepositorio_quandoDadosValidos() throws InvalidFormException {
         service.criar(dataMock);
         verify(repository, times(1)).salvar(dataMock);
     }
 
     @Test
     void criar_deveLancarExcecao_quandoFornecedorNulo() {
-        PedidoCompraData invalido = new PedidoCompraData(null, new BigDecimal("100"), "RASCUNHO", null, null, null);
+        PedidoCompraData invalido = new PedidoCompraData(null, new BigDecimal("100"), "RASCUNHO", null, null);
         assertThatThrownBy(() -> service.criar(invalido))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void criar_deveLancarExcecao_quandoValorZero() {
-        PedidoCompraData invalido = new PedidoCompraData(1L, BigDecimal.ZERO, "RASCUNHO", null, null, null);
+        PedidoCompraData invalido = new PedidoCompraData(1L, BigDecimal.ZERO, "RASCUNHO", null, null);
         assertThatThrownBy(() -> service.criar(invalido))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void criar_deveLancarExcecao_quandoDataEntregaNoPassado() {
-        PedidoCompraData invalido = new PedidoCompraData(1L, new BigDecimal("100"), "RASCUNHO", null, null, LocalDate.now().minusDays(1));
+        PedidoCompraData invalido = new PedidoCompraData(1L, new BigDecimal("100"), "RASCUNHO", null, null);
         assertThatThrownBy(() -> service.criar(invalido))
                 .isInstanceOf(IllegalArgumentException.class);
     }
@@ -83,7 +82,7 @@ class PedidoCompraServiceTest {
     // ─── editar ───────────────────────────────────────────────────────────────
 
     @Test
-    void editar_deveChamarRepositorio_quandoPedidoExiste() throws ResourceNotFoundException {
+    void editar_deveChamarRepositorio_quandoPedidoExiste() throws ResourceNotFoundException, InvalidFormException {
         when(repository.carregar(1L)).thenReturn(pedidoMock);
         service.editar(1L, dataMock);
         verify(repository, times(1)).editar(eq(1L), eq(dataMock));
@@ -115,7 +114,7 @@ class PedidoCompraServiceTest {
 
     @Test
     void atualizarStatus_deveLancarExcecao_quandoStatusTerminal() {
-        PedidoCompraData cancelado = new PedidoCompraData(1L, new BigDecimal("100"), "CANCELADO", null, null, null);
+        PedidoCompraData cancelado = new PedidoCompraData(1L, new BigDecimal("100"), "CANCELADO", null, null);
         PedidoCompra pedidoCancelado = new PedidoCompra(cancelado, new Metadata(LocalDate.now(), LocalDate.now(), 1L, "token"));
 
         when(repository.carregar(1L)).thenReturn(pedidoCancelado);
@@ -158,7 +157,7 @@ class PedidoCompraServiceTest {
     // ─── criarLote ────────────────────────────────────────────────────────────
 
     @Test
-    void criarLote_deveChamarRepositorio_quandoDadosValidos() throws ResourceNotFoundException {
+    void criarLote_deveChamarRepositorio_quandoDadosValidos() throws ResourceNotFoundException, InvalidFormException {
         when(repository.carregar(1L)).thenReturn(pedidoMock);
         LoteBrutoData loteData = new LoteBrutoData("Lote A", "Descrição", 500, 1L);
         service.criarLote(loteData);
@@ -192,7 +191,7 @@ class PedidoCompraServiceTest {
     }
 
     @Test
-    void editarLote_deveChamarRepositorio_quandoDadosValidos() throws ResourceNotFoundException {
+    void editarLote_deveChamarRepositorio_quandoDadosValidos() throws ResourceNotFoundException, InvalidFormException {
         LoteBrutoData loteData = new LoteBrutoData("Lote A", "Descrição", 500, 1L);
         Metadata metadata = new Metadata(LocalDate.now(), LocalDate.now(), 1L, "token-lote");
         when(repository.carregarLote(1L)).thenReturn(new LoteBruto(loteData, metadata));

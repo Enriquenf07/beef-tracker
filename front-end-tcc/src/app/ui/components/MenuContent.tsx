@@ -49,7 +49,7 @@ export function MenuContent(props: Readonly<{ open: boolean, roles: any[] }>) {
         {
             id: "logistica",
             label: "Gestão de Ativos",
-            roles: ["ADMIN", "LOGISTICA"],
+            roles: ["ADMIN", "GESTAO"],
             icon: "route",
             menu: [
                 { id: "estoque", path: "/ui/estoque", icon: "refrigerator", label: "Estoque" },

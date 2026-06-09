@@ -25,17 +25,17 @@ public class SensorController {
     public SensorController(SensorService service) {
         this.service = service;
     }
-
-    @GetMapping("path")
-    public String getMethodName(@RequestParam String param) {
-        return new String();
-    }
-    
+    @GetMapping
     public ResponseEntity<?> pesquisar(
             @RequestParam(required = false) String chave,
             @RequestParam(required = false) Boolean status) {
         return ResponseEntity.ok(service.pesquisar(chave, status));
     }
+    @GetMapping("/all")
+    public ResponseEntity<?> listAll() {
+        return ResponseEntity.ok(service.listAll());
+    }
+
 
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody SensorData data) {
