@@ -1,6 +1,6 @@
 # BeefTracker
 
-O **BeefTracker** é uma plataforma web voltada para a gestão logística e rastreabilidade em indústrias frigoríficas. O sistema realiza o controle completo de lotes — desde a entrada do pedido de compra de matéria-prima até a venda final ao cliente —, integrando **Internet das Coisas (IoT)** para monitorar em tempo real variáveis críticas de transporte como temperatura, umidade e localização geográfica.
+O **BeefTracker** é uma plataforma web voltada para a gestão logística e rastreabilidade em indústrias frigoríficas. O sistema realiza o controle completo de lotes desde a entrada do pedido de compra de matéria-prima até a venda final ao cliente, integrando **Internet das Coisas (IoT)** para monitorar em tempo real variáveis críticas de transporte como temperatura, umidade e localização geográfica.
 
 ---
 
