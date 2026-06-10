@@ -3,47 +3,37 @@ import { createApi } from "@/app/lib/api"
 import Content from "./Content"
 
 
-export default async function Estoque() {
+
+export default async function Usuarios(props: any) {
     const api = await createApi()
-
-    let lotesBrutos: any[] = []
-    let pedidosCompra: any[] = []
-    let fornecedores: any[] = []
-
+    let usuarios = []
+    let totalPages = 0
+    let roles = []
+    const searchParams = await props?.searchParams
+    console.log(searchParams)
+    const params = {
+        ...(searchParams?.chave ? { chave: searchParams.chave } : {}),
+        ...(searchParams?.status && searchParams.status !== 'null' ? { status: searchParams.status } : {}),
+        page: searchParams?.page ? Number(searchParams.page) : 1
+    }
     try {
-        const { data } = await api.get('/compras/pedido') as any
-        pedidosCompra = data || []
-    } catch {
-        pedidosCompra = []
+        const { data } = await api.get('/usuario', { params }) as any
+        usuarios = data.content || []
+        totalPages = data.pages || 0
+    } catch (e) {
+        usuarios = []
     }
 
     try {
-        const lotesPromises = pedidosCompra.map((p: any) =>
-            api
-                .get(`/compras/pedido/${p.metadata.id}/lote`)
-                .then(({ data }: any) => data || [])
-                .catch(() => [])
-        )
-        const resultados = await Promise.all(lotesPromises)
-        lotesBrutos = resultados.flat()
-    } catch {
-        lotesBrutos = []
-    }
-
-    try {
-        const { data } = await api.get('/fornecedor') as any
-        fornecedores = data || []
-    } catch {
-        fornecedores = []
+        const { data } = await api.get('/usuario/roles') as any
+        roles = data.roles
+    } catch (e) {
+        roles = []
     }
 
     return (
         <div className="flex flex-col gap-3 justify-start">
-            <Content
-                lotesBrutos={lotesBrutos}
-                pedidosCompra={pedidosCompra}
-                fornecedores={fornecedores}
-            />
+            <Content usuarios={usuarios} roles={roles} totalPages={totalPages} />
         </div>
     )
 }
