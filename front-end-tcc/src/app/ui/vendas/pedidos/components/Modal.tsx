@@ -18,6 +18,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Plus } from "lucide-react"
+import { useEffect, useState } from "react"
 
 interface ModalPedidoProps {
     open: boolean
@@ -213,6 +214,76 @@ export function ModalLote({
                         <Button type="submit">Salvar</Button>
                     </form>
                 )}
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+interface ModalViagemProps {
+    open: boolean
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>
+    viagens: any[]
+    pedidoId: number | null
+    form: any
+    onHandleCadastro: (e: React.FormEvent<HTMLFormElement>, id: any) => void
+}
+
+export function ModalViagem({
+    open,
+    setOpen,
+    viagens = [],
+    pedidoId,
+    form,
+    onHandleCadastro,
+}: ModalViagemProps) {
+    const [viagemId, setViagemId] = useState<string>()
+
+    useEffect(() => {
+        setViagemId(String(form?.data?.viagemId ?? ""))
+    }, [form?.data?.viagemId])
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Selecionar Viagem</DialogTitle>
+                </DialogHeader>
+
+                <form onSubmit={(e) => onHandleCadastro(e, pedidoId)} className="flex flex-col gap-4 py-4">
+                    <Select
+                        value={viagemId}
+                        onValueChange={(val) => setViagemId(val)}
+                        name="viagemId"
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Selecione uma viagem" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                {viagens.length === 0 ? (
+                                    <SelectItem value="__none" disabled>
+                                        Nenhuma viagem cadastrada
+                                    </SelectItem>
+                                ) : (
+                                    viagens.map((v: any) => (
+                                        <SelectItem
+                                            key={v.metadata.id}
+                                            value={String(v.metadata.id)}
+                                        >
+                                            {v.metadata.id} - {v.data.descricao || "Sem descrição"}
+                                        </SelectItem>
+                                    ))
+                                )}
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+
+                    <input type="hidden" name="viagemId" value={viagemId} />
+
+                    <Button type="submit" disabled={!viagemId || viagemId === "__none"}>
+                        Confirmar
+                    </Button>
+                </form>
             </DialogContent>
         </Dialog>
     )

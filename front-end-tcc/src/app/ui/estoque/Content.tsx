@@ -86,9 +86,11 @@ interface Props {
     lotesBrutos: LoteBruto[]
     lotesFracionados: LoteFracionado[]
     pedidosCompra: { metadata: { id: number }; data: { fornecedorId: number, observacao: string } }[]
-    pedidosVenda: { metadata: { id: number }; data: {
-        observacao: any; clienteId: number; status: string 
-} }[]
+    pedidosVenda: {
+        metadata: { id: number }; data: {
+            observacao: any; clienteId: number; status: string
+        }
+    }[]
     fornecedores: { metadata: { id: number }; data: { nome: string } }[]
     clientes: { metadata: { id: number }; data: { nome: string } }[]
 }
@@ -258,7 +260,7 @@ function ModalLoteFracionado({
                                                 value={String(p.metadata.id)}
                                             >
                                                 {p.metadata.id} – {cliente?.data.nome ?? `Cliente ${p.data.observacao}`}
-                               </SelectItem>
+                                            </SelectItem>
                                         )
                                     })}
                                 </SelectGroup>
@@ -293,7 +295,7 @@ export default function Content(props: Props) {
         clientes,
     } = props
 
-    // ---- handlers ----------------------------------------------------------
+
 
     const onCadastrarBruto = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -330,7 +332,7 @@ export default function Content(props: Props) {
         })
     }
 
-    // ---- helpers -----------------------------------------------------------
+
 
     const fracoesPorLote = (loteId: number) =>
         lotesFracionados?.filter((f) => f.data.loteOriginalId === loteId)
@@ -393,7 +395,7 @@ export default function Content(props: Props) {
                     </TabsTrigger>
                 </TabsList>
 
-                {/* ── ABA: LOTES BRUTOS ───────────────────────────────── */}
+
                 <TabsContent value="brutos">
                     <Page.Table>
                         {lotesBrutos?.length > 0 ? (
@@ -501,7 +503,7 @@ export default function Content(props: Props) {
                     </Page.Table>
                 </TabsContent>
 
-                {/* ── ABA: LOTES FRACIONADOS ──────────────────────────── */}
+
                 <TabsContent value="fracionados">
                     <Page.Table>
                         {lotesFracionados?.length > 0 ? (

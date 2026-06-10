@@ -53,6 +53,22 @@ export async function handleLoteCadastro(pedidoId: number, formData: FormData) {
     }
 }
 
+export async function handleVincularViagem(formData: FormData, id: any) {
+    const api = await createApi()
+    const viagemId = formData.get('viagemId')
+
+    try {
+        if (id) {
+            await api.patch(`/vendas/pedido/${id}/vincular-viagem/${viagemId}`)
+        }
+
+        revalidatePath('/ui/vendas/pedidos')
+        return null
+    } catch (e: any) {
+        return e?.response?.data
+    }
+}
+
 export async function handleAtualizarStatus(id: number, status: string) {
     const api = await createApi()
     try {

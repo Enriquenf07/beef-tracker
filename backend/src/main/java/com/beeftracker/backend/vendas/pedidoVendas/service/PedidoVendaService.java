@@ -34,7 +34,8 @@ public class PedidoVendaService {
     @Value("${beeftracker.url}")
     private String beefTrackerUrl;
 
-    public PedidoVendaService(PedidoVendaRepository repository, PedidoCompraService compraService, EmailClient emailClient) {
+    public PedidoVendaService(PedidoVendaRepository repository, PedidoCompraService compraService,
+            EmailClient emailClient) {
         this.repository = repository;
         this.compraService = compraService;
         this.emailClient = emailClient;
@@ -132,6 +133,15 @@ public class PedidoVendaService {
         }
     }
 
+    public void vincularViagem(Long id, Long viagemId) throws ResourceNotFoundException {
+        PedidoVenda pedido = carregarOuLancarErro(id);
+
+        if (pedido.data().status().equals("CANCELADO")) {
+            throw new IllegalStateException("Não é possível vincular viagem a um pedido cancelado.");
+        }
+        repository.vincularViagem(id, viagemId);
+    }
+
     private void validarTransicaoStatus(String statusAtual, String novoStatus) {
         Map<String, List<String>> transicoesPermitidas = Map.of(
                 "PENDENTE", List.of("ENTREGUE", "CANCELADO"),
@@ -157,17 +167,17 @@ public class PedidoVendaService {
                 .to(to)
                 .subject("Beef Tracker - Detalhes da sua Viagem")
                 .html("""
-                <html>
-                  <body style="font-family: Arial, sans-serif; padding: 20px;">
-                    <h2>Olá, %s!</h2>
-                    <p>Os detalhes da sua viagem estão disponíveis.</p>
-                    <p>Para visualizar as informações completas da viagem, clique no link abaixo:</p>
-                    <a href="%s">Visualizar Detalhes da Viagem</a>
-                    <br><br>
-                    <small>Este é um e-mail automático enviado pelo CRM Beef Tracker.</small>
-                  </body>
-                </html>
-            """.formatted(nome, link))
+                            <html>
+                              <body style="font-family: Arial, sans-serif; padding: 20px;">
+                                <h2>Olá, %s!</h2>
+                                <p>Os detalhes da sua viagem estão disponíveis.</p>
+                                <p>Para visualizar as informações completas da viagem, clique no link abaixo:</p>
+                                <a href="%s">Visualizar Detalhes da Viagem</a>
+                                <br><br>
+                                <small>Este é um e-mail automático enviado pelo CRM Beef Tracker.</small>
+                              </body>
+                            </html>
+                        """.formatted(nome, link))
                 .build();
         emailClient.enviarEmail(email);
     }

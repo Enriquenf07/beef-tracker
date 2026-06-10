@@ -14,13 +14,13 @@ const STATUS_CORES: Record<string, string> = {
 
 export default function RelatorioComprasClient({ pedidos, fornecedores }: { pedidos: any[], fornecedores: any[] }) {
 
-    // Total geral
+
     const totalGeral = pedidos.reduce((acc, p) => acc + Number(p.data.valorTotal ?? 0), 0)
     const totalEntregue = pedidos.filter(p => p.data.status === 'ENTREGUE').reduce((acc, p) => acc + Number(p.data.valorTotal ?? 0), 0)
     const totalCancelado = pedidos.filter(p => p.data.status === 'CANCELADO').reduce((acc, p) => acc + Number(p.data.valorTotal ?? 0), 0)
     const totalPendente = pedidos.filter(p => p.data.status === 'PENDENTE').reduce((acc, p) => acc + Number(p.data.valorTotal ?? 0), 0)
 
-    // Por status (pizza)
+
     const porStatus = Object.entries(
         pedidos.reduce((acc: Record<string, number>, p) => {
             const s = p.data.status ?? 'DESCONHECIDO'
@@ -61,7 +61,7 @@ export default function RelatorioComprasClient({ pedidos, fornecedores }: { pedi
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Pizza - por status */}
+
                 <div className="bg-white rounded-xl border p-4">
                     <h2 className="font-semibold mb-4">Pedidos por Status</h2>
                     {porStatus.length > 0 ? (
@@ -79,7 +79,7 @@ export default function RelatorioComprasClient({ pedidos, fornecedores }: { pedi
                     ) : <p className="text-center text-muted-foreground py-10">Sem dados</p>}
                 </div>
 
-                {/* Barras - valor por fornecedor */}
+
                 <div className="bg-white rounded-xl border p-4">
                     <h2 className="font-semibold mb-4">Valor Total por Fornecedor</h2>
                     {porFornecedor.length > 0 ? (
@@ -95,7 +95,7 @@ export default function RelatorioComprasClient({ pedidos, fornecedores }: { pedi
                 </div>
             </div>
 
-            {/* Tabela detalhada */}
+
             <div className="bg-white rounded-xl border p-4">
                 <h2 className="font-semibold mb-4">Detalhamento por Fornecedor</h2>
                 <table className="w-full text-sm">

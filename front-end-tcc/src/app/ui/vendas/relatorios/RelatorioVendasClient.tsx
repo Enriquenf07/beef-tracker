@@ -19,7 +19,7 @@ export default function RelatorioVendasClient({ pedidos, clientes }: { pedidos: 
     const totalCancelado = pedidos.filter(p => p.data.status === 'CANCELADO').reduce((acc, p) => acc + Number(p.data.valorTotal ?? 0), 0)
     const totalPendente = pedidos.filter(p => p.data.status === 'PENDENTE').reduce((acc, p) => acc + Number(p.data.valorTotal ?? 0), 0)
 
-    // Por status (pizza)
+
     const porStatus = Object.entries(
         pedidos.reduce((acc: Record<string, number>, p) => {
             const s = p.data.status ?? 'DESCONHECIDO'
@@ -28,14 +28,14 @@ export default function RelatorioVendasClient({ pedidos, clientes }: { pedidos: 
         }, {})
     ).map(([name, value]) => ({ name, value }))
 
-    // Por cliente (barras)
+
     const porCliente = clientes.map(c => {
         const pedsCli = pedidos.filter(p => p.data.clienteId === c.metadata.id)
         const total = pedsCli.reduce((acc, p) => acc + Number(p.data.valorTotal ?? 0), 0)
         return { nome: c.data.apelido || c.data.nome, total, qtd: pedsCli.length }
     }).filter(c => c.qtd > 0).sort((a, b) => b.total - a.total)
 
-    // Evolução mensal
+
     const porMes = pedidos.reduce((acc: Record<string, number>, p) => {
         if (!p.data.dataVenda) return acc
         const mes = new Date(p.data.dataVenda).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })
@@ -50,7 +50,7 @@ export default function RelatorioVendasClient({ pedidos, clientes }: { pedidos: 
         <div className="flex flex-col gap-6 p-4">
             <h1 className="text-2xl font-bold">Relatório de Vendas</h1>
 
-            {/* Cards */}
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
                     { label: 'Total Geral', valor: totalGeral, cor: 'bg-blue-100 text-blue-800', count: pedidos.length },
@@ -67,7 +67,7 @@ export default function RelatorioVendasClient({ pedidos, clientes }: { pedidos: 
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Pizza - por status */}
+
                 <div className="bg-white rounded-xl border p-4">
                     <h2 className="font-semibold mb-4">Pedidos por Status</h2>
                     {porStatus.length > 0 ? (
@@ -85,7 +85,7 @@ export default function RelatorioVendasClient({ pedidos, clientes }: { pedidos: 
                     ) : <p className="text-center text-muted-foreground py-10">Sem dados</p>}
                 </div>
 
-                {/* Barras - valor por cliente */}
+
                 <div className="bg-white rounded-xl border p-4">
                     <h2 className="font-semibold mb-4">Valor Total por Cliente</h2>
                     {porCliente.length > 0 ? (
@@ -101,7 +101,7 @@ export default function RelatorioVendasClient({ pedidos, clientes }: { pedidos: 
                 </div>
             </div>
 
-            {/* Evolução mensal */}
+
             {evolucao.length > 0 && (
                 <div className="bg-white rounded-xl border p-4">
                     <h2 className="font-semibold mb-4">Evolução de Vendas por Mês</h2>
@@ -117,7 +117,7 @@ export default function RelatorioVendasClient({ pedidos, clientes }: { pedidos: 
                 </div>
             )}
 
-            {/* Tabela detalhada */}
+
             <div className="bg-white rounded-xl border p-4">
                 <h2 className="font-semibold mb-4">Detalhamento por Cliente</h2>
                 <table className="w-full text-sm">

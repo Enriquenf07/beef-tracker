@@ -7,6 +7,7 @@ export default async function PedidosVenda(props: any) {
     let pedidos = []
     let clientes = []
     let lotesBrutos = []
+    let viagens = []
 
     const searchParams = await props?.searchParams
 
@@ -29,7 +30,6 @@ export default async function PedidosVenda(props: any) {
     }
 
     try {
-        // Busca lotes brutos de pedidos entregues para fracionar
         const { data } = await api.get('/compras/pedido', { params: { status: 'ENTREGUE' } }) as any
         const pedidosEntregues = data ?? []
         const lotes = await Promise.all(
@@ -45,9 +45,16 @@ export default async function PedidosVenda(props: any) {
         lotesBrutos = []
     }
 
+    try {
+        const { data } = await api.get('/viagem/pendentes') as any
+        viagens = data
+    } catch (e) {
+        viagens = []
+    }
+
     return (
         <div className="flex flex-col gap-3 justify-start">
-            <Content pedidos={pedidos} clientes={clientes} lotesBrutos={lotesBrutos} />
+            <Content pedidos={pedidos} clientes={clientes} lotesBrutos={lotesBrutos} viagens={viagens} />
         </div>
     )
 }

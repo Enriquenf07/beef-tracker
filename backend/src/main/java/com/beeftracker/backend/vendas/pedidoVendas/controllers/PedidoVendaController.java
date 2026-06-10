@@ -68,7 +68,7 @@ public class PedidoVendaController extends BaseController {
     @PutMapping("/{pedidoId}/lote/{id}")
     public ResponseEntity<?> editarLote(@PathVariable Long pedidoId, @PathVariable Long id,
             @RequestBody LoteFracionadoData data) throws ResourceNotFoundException {
-        service.editarLote(id,data);
+        service.editarLote(id, data);
         return ResponseEntity.ok().build();
     }
 
@@ -83,4 +83,12 @@ public class PedidoVendaController extends BaseController {
             throws ResourceNotFoundException {
         return ResponseEntity.ok(service.pesquisarLotes(pedidoId));
     }
+
+    @PatchMapping("/{pedidoId}/vincular-viagem/{viagemId}")
+    public ResponseEntity<?> vincularViagem(@PathVariable Long pedidoId, @PathVariable Long viagemId)
+            throws ResourceNotFoundException {
+        service.vincularViagem(pedidoId, viagemId);
+        return ResponseEntity.ok().build();
+    }
+
 }

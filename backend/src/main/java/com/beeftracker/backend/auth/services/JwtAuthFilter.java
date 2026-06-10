@@ -19,7 +19,6 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
-
     @Autowired
     @Qualifier("handlerExceptionResolver")
     private HandlerExceptionResolver resolver;
@@ -40,9 +39,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) {
 
-
-
-        try{
+        try {
             String header = request.getHeader("Authorization");
 
             if (header == null || !header.startsWith("Bearer ")) {
@@ -53,7 +50,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String id = jwtService.validarToken(token);
             request.setAttribute("userId", id);
             filterChain.doFilter(request, response);
-        }catch (Exception e){
+        } catch (Exception e) {
             resolver.resolveException(request, response, null, new UnauthorizedException());
         }
     }

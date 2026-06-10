@@ -15,6 +15,8 @@ public interface PedidoVendaRepository {
 
     void editarStatus(Long id, String status);
 
+    void vincularViagem(Long id, Long viagemId);
+
     PedidoVenda carregar(Long id);
 
     List<PedidoVenda> pesquisar(Long clienteId, String status, int page);

@@ -39,11 +39,22 @@ public class PedidoVendaRepositoryImpl implements PedidoVendaRepository {
                 jdbcTemplate.update(sql, new MapSqlParameterSource()
                                 .addValue("clienteId", data.clienteId())
                                 .addValue("valorTotal", data.valorTotal())
-                                .addValue("status", data.status() != null ? data.status() : "RASCUNHO")
+                                .addValue("status", data.status() != null ? data.status() : "PENDENTE") // <- aqui (era
+                                                                                                        // "RASCUNHO")
                                 .addValue("observacao", data.observacao())
                                 .addValue("dataVenda",
                                                 data.dataVenda() != null ? data.dataVenda() : LocalDateTime.now())
                                 .addValue("dataVencimento", data.dataVencimento()));
+        }
+
+        @Override
+        public void vincularViagem(Long id, Long viagemId) {
+                String sql = "UPDATE pedido_venda SET viagem_id = :viagemId WHERE id = :id";
+
+                jdbcTemplate.update(sql, new MapSqlParameterSource()
+                                .addValue("viagemId", viagemId)
+                                .addValue("id", id));
+
         }
 
         @Override
@@ -142,14 +153,14 @@ public class PedidoVendaRepositoryImpl implements PedidoVendaRepository {
         @Override
         public void salvarLote(LoteFracionadoData data) {
                 String sql = "INSERT INTO lote_fracionado (nome, descricao, peso, lote_original_id, pedido_venda_id) " +
-                        "VALUES (:nome, :descricao, :peso, :loteOriginalId, :pedidoVendaId)";
+                                "VALUES (:nome, :descricao, :peso, :loteOriginalId, :pedidoVendaId)";
 
                 jdbcTemplate.update(sql, new MapSqlParameterSource()
-                        .addValue("nome", data.nome())
-                        .addValue("descricao", data.descricao())
-                        .addValue("peso", data.peso())
-                        .addValue("loteOriginalId", data.loteOriginalId())
-                        .addValue("pedidoVendaId", data.pedidoVendaId()));
+                                .addValue("nome", data.nome())
+                                .addValue("descricao", data.descricao())
+                                .addValue("peso", data.peso())
+                                .addValue("loteOriginalId", data.loteOriginalId())
+                                .addValue("pedidoVendaId", data.pedidoVendaId()));
         }
 
         @Override
@@ -174,25 +185,25 @@ public class PedidoVendaRepositoryImpl implements PedidoVendaRepository {
         }
 
         public List<LoteFracionado> pesquisarLotes(Long pedidoVendaId) {
-                String sql = "SELECT id, token, nome, descricao, peso, pedido_venda_id, lote_original_id, criado_em, atualizado_em " +
-                        "FROM lote_fracionado WHERE pedido_venda_id = :pedidoVendaId ORDER BY id ASC";
+                String sql = "SELECT id, token, nome, descricao, peso, pedido_venda_id, lote_original_id, criado_em, atualizado_em "
+                                +
+                                "FROM lote_fracionado WHERE pedido_venda_id = :pedidoVendaId ORDER BY id ASC";
 
                 return jdbcTemplate.query(sql,
-                        new MapSqlParameterSource().addValue("pedidoVendaId", pedidoVendaId),
-                        (rs, rowNum) -> mapLoteRow(rs));
+                                new MapSqlParameterSource().addValue("pedidoVendaId", pedidoVendaId),
+                                (rs, rowNum) -> mapLoteRow(rs));
         }
-
 
         @Override
         public PedidoVenda findByViagem(Long viagemId) {
                 String sql = "SELECT p.id, p.token, p.cliente_id, p.viagem_id, p.valor_total, p.status, " +
-                        "p.observacao, p.data_venda, p.data_vencimento, p.criado_em, p.atualizado_em " +
-                        "FROM pedido_venda p " +
-                        "WHERE p.viagem_id = :viagemId " +
-                        "LIMIT 1"; // Garante no banco que só trará um registro
+                                "p.observacao, p.data_venda, p.data_vencimento, p.criado_em, p.atualizado_em " +
+                                "FROM pedido_venda p " +
+                                "WHERE p.viagem_id = :viagemId " +
+                                "LIMIT 1"; // Garante no banco que só trará um registro
 
                 MapSqlParameterSource params = new MapSqlParameterSource()
-                        .addValue("viagemId", viagemId);
+                                .addValue("viagemId", viagemId);
 
                 try {
                         PedidoVenda pedido = jdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> mapRow(rs));
@@ -207,8 +218,8 @@ public class PedidoVendaRepositoryImpl implements PedidoVendaRepository {
                 String sql = "UPDATE lote_bruto SET peso = peso - :peso WHERE id = :id";
 
                 jdbcTemplate.update(sql, new MapSqlParameterSource()
-                        .addValue("peso", peso)
-                        .addValue("id", id));
+                                .addValue("peso", peso)
+                                .addValue("id", id));
         }
 
         private LoteFracionado mapLoteRow(ResultSet rs) throws SQLException {

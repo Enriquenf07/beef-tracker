@@ -11,9 +11,10 @@ import com.beeftracker.backend.auth.services.JwtService;
 public class AuthController {
     public final JwtService service;
 
-    public AuthController(JwtService service){
+    public AuthController(JwtService service) {
         this.service = service;
     }
+
     @PostMapping
     public ResponseEntity<?> login(@RequestBody UserData user) throws Exception {
         return ResponseEntity.ok(new Token(service.gerarToken(user)));
@@ -21,7 +22,6 @@ public class AuthController {
 }
 
 record Token(
-    String token
-){
+        String token) {
 
 }

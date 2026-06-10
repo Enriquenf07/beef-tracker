@@ -17,12 +17,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Box, Check, PenBox, Search, Trash } from "lucide-react"
+import { Check, PenBox, Pin, Search, Trash } from "lucide-react"
 import { useState, useTransition } from "react"
 import { useSearchParams } from "next/navigation"
 import Page from "@/app/components/CrudPage"
-import { handleCadastro, handleLoteCadastro, handleAtualizarStatus } from "../action"
-import { ModalLote, ModalPedido } from "./Modal"
+import { handleCadastro, handleAtualizarStatus, handleVincularViagem } from "../action"
+import { ModalPedido, ModalViagem } from "./Modal"
 
 const STATUS_CORES: Record<string, string> = {
     PENDENTE: 'bg-yellow-100 text-yellow-800',
@@ -33,7 +33,7 @@ const STATUS_CORES: Record<string, string> = {
 
 export default function Content(props: any) {
     const [open, setOpen] = useState(false)
-    const [openLote, setOpenLote] = useState(false)
+    const [openViagem, setOpenViagem] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [form, setForm] = useState<any>({})
     const [clienteId, setClienteId] = useState<string>('')
@@ -41,7 +41,7 @@ export default function Content(props: any) {
     const searchParams = useSearchParams()
     const status = searchParams.get('status')
     const clientes: any[] = props.clientes ?? []
-    const lotesBrutos: any[] = props.lotesBrutos ?? []
+    const viagens: any[] = props.viagens ?? []
 
     const onHandleCadastro = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -55,13 +55,13 @@ export default function Content(props: any) {
         })
     }
 
-    const onHandleLote = async (e: React.FormEvent<HTMLFormElement>) => {
+    const onHandleCadastroViagem = (e: React.FormEvent<HTMLFormElement>, id: any) => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
         startTransition(async () => {
-            const erro = await handleLoteCadastro(form?.metadata?.id, formData) as any
+            const erro = await handleVincularViagem(formData, id) as any
             if (erro) { setError(erro.detail); return }
-            setOpenLote(false)
+            setOpenViagem(false)
         })
     }
 
@@ -88,13 +88,13 @@ export default function Content(props: any) {
                         isPending={isPending}
                         onHandleCadastro={onHandleCadastro}
                     />
-                    <ModalLote
-                        open={openLote}
-                        setOpen={setOpenLote}
+                    <ModalViagem
+                        open={openViagem}
+                        setOpen={setOpenViagem}
+                        form={form}
+                        viagens={viagens}
                         pedidoId={form?.metadata?.id ?? null}
-                        lotesBrutos={lotesBrutos}
-                        isPending={isPending}
-                        onHandleLote={onHandleLote}
+                        onHandleCadastro={onHandleCadastroViagem}
                     />
                 </Page.Modal>
             </Page.Header>
@@ -180,13 +180,13 @@ export default function Content(props: any) {
 
                                             {p.data.status === 'PENDENTE' && (
                                                 <Button
-                                                    className="bg-amber-500 hover:bg-amber-600 text-white"
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white"
                                                     onClick={() => {
                                                         setForm(p)
-                                                        setOpenLote(true)
+                                                        setOpenViagem(true)
                                                     }}
                                                 >
-                                                    <Box size={16} />
+                                                    <Pin size={16} />
                                                 </Button>
                                             )}
 
