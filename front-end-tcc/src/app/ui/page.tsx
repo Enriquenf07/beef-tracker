@@ -2,6 +2,7 @@ import { createApi } from "@/app/lib/api"
 import { Building2, Users, ShoppingBag, Store, Truck } from "lucide-react"
 import Link from "next/link"
 import GraficosHome from "./components/GraficosHome"
+import { getRolesFromBackend } from "./layout"
 
 async function getDados(api: any) {
     const resultados = await Promise.allSettled([
@@ -132,6 +133,9 @@ export default async function Ui() {
     const dadosLinha = valorPorMesVenda(pedidosVenda)
     const dadosBarras = agruparPorMes(pedidosCompra, pedidosVenda)
 
+	const roles = await getRolesFromBackend()
+
+
     return (
         <div className="flex flex-col gap-8 p-2">
 
@@ -159,11 +163,13 @@ export default async function Ui() {
             </div>
 
             { }
-            <GraficosHome
-                dadosPizza={dadosPizza}
-                dadosLinha={dadosLinha}
-                dadosBarras={dadosBarras}
-            />
+            { roles.includes('ADMIN') && (
+                <GraficosHome
+                    dadosPizza={dadosPizza}
+                    dadosLinha={dadosLinha}
+                    dadosBarras={dadosBarras}
+                />
+            )}
 
         </div>
     )

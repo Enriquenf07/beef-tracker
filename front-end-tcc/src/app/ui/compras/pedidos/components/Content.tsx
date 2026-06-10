@@ -214,6 +214,7 @@ export default function Content(props: any) {
                                 <TableHead>ID</TableHead>
                                 <TableHead>Fornecedor</TableHead>
                                 <TableHead>Valor</TableHead>
+                                <TableHead>Observaçao</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead></TableHead>
                                 <TableHead></TableHead>
@@ -241,12 +242,17 @@ export default function Content(props: any) {
                                         <TableCell>
                                             R$ {p.data.valorTotal}
                                         </TableCell>
-
+                                        <TableCell>
+                                            {p.data.observacao || '-'}
+                                        </TableCell>
                                         <TableCell>
                                             <div className="p-1 flex justify-center items-center rounded-xl border bg-muted">
                                                 {p.data.status}
                                             </div>
                                         </TableCell>
+
+
+
 
                                         <TableCell className="flex gap-2">
                                             <div className="p-1 flex justify-center items-center rounded-xl gap-3">

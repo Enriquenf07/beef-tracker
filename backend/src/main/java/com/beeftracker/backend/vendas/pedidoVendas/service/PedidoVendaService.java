@@ -40,12 +40,12 @@ public class PedidoVendaService {
         this.emailClient = emailClient;
     }
 
-    public void criar(PedidoVendaData data) {
+    public void criar(PedidoVendaData data) throws InvalidFormException {
         validarPedido(data);
         repository.salvar(data);
     }
 
-    public void editar(Long id, PedidoVendaData data) throws ResourceNotFoundException {
+    public void editar(Long id, PedidoVendaData data) throws ResourceNotFoundException, InvalidFormException {
         carregarOuLancarErro(id);
         validarPedido(data);
         repository.editar(id, data);
@@ -91,7 +91,8 @@ public class PedidoVendaService {
 
     public List<LoteFracionado> pesquisarLotes(Long pedidoVendaId) throws ResourceNotFoundException {
         carregarOuLancarErro(pedidoVendaId);
-        return repository.pesquisarLotes(pedidoVendaId);
+        List<LoteFracionado> lista = repository.pesquisarLotes(pedidoVendaId);
+        return lista;
     }
 
     private PedidoVenda carregarOuLancarErro(Long id) throws ResourceNotFoundException {
@@ -110,15 +111,15 @@ public class PedidoVendaService {
         }
     }
 
-    private void validarPedido(PedidoVendaData data) {
+    private void validarPedido(PedidoVendaData data) throws InvalidFormException {
         if (data.clienteId() == null) {
-            throw new IllegalArgumentException("Cliente é obrigatório.");
+            throw new InvalidFormException();
         }
         if (data.valorTotal() == null || data.valorTotal().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Valor total deve ser maior que zero.");
+            throw new InvalidFormException();
         }
         if (data.dataVencimento() != null && data.dataVencimento().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Data de vencimento não pode ser no passado.");
+            throw new InvalidFormException();
         }
     }
 

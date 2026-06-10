@@ -59,10 +59,13 @@ import {
     handleDeleteLoteFracionado,
 } from "./action"
 
+<<<<<<< Updated upstream
 // ---------------------------------------------------------------------------
 // Tipos
 // ---------------------------------------------------------------------------
 
+=======
+>>>>>>> Stashed changes
 interface LoteBruto {
     metadata: { id: number; token: string }
     data: {
@@ -89,15 +92,25 @@ interface LoteFracionado {
 interface Props {
     lotesBrutos: LoteBruto[]
     lotesFracionados: LoteFracionado[]
+<<<<<<< Updated upstream
     pedidosCompra: { metadata: { id: number }; data: { fornecedorId: number } }[]
     pedidosVenda: { metadata: { id: number }; data: { clienteId: number; status: string } }[]
+=======
+    pedidosCompra: { metadata: { id: number }; data: { fornecedorId: number, observacao: string } }[]
+    pedidosVenda: { metadata: { id: number }; data: {
+        observacao: any; clienteId: number; status: string 
+} }[]
+>>>>>>> Stashed changes
     fornecedores: { metadata: { id: number }; data: { nome: string } }[]
     clientes: { metadata: { id: number }; data: { nome: string } }[]
 }
 
+<<<<<<< Updated upstream
 // ---------------------------------------------------------------------------
 // Modal — Novo Lote Bruto
 // ---------------------------------------------------------------------------
+=======
+>>>>>>> Stashed changes
 
 function ModalLoteBruto({
     open,
@@ -131,7 +144,11 @@ function ModalLoteBruto({
                 <form onSubmit={onSubmit} className="flex flex-col gap-4 mt-2">
                     <div className="flex flex-col gap-1">
                         <Label htmlFor="nome">Nome</Label>
+<<<<<<< Updated upstream
                         <Input id="nome" name="nome" placeholder="Ex: Lote A – Carga 01" required />
+=======
+                        <Input id="nome" name="nome" placeholder="Ex: Lote A – Carga 01" />
+>>>>>>> Stashed changes
                     </div>
 
                     <div className="flex flex-col gap-1">
@@ -146,7 +163,11 @@ function ModalLoteBruto({
 
                     <div className="flex flex-col gap-1">
                         <Label htmlFor="pedidoCompraId">Pedido de Compra</Label>
+<<<<<<< Updated upstream
                         <Select name="pedidoCompraId" required>
+=======
+                        <Select name="pedidoCompraId">
+>>>>>>> Stashed changes
                             <SelectTrigger>
                                 <SelectValue placeholder="Selecione um pedido" />
                             </SelectTrigger>
@@ -161,7 +182,11 @@ function ModalLoteBruto({
                                                 key={p.metadata.id}
                                                 value={String(p.metadata.id)}
                                             >
+<<<<<<< Updated upstream
                                                 #{p.metadata.id} – {forn?.data.nome ?? `Fornecedor #${p.data.fornecedorId}`}
+=======
+                                                {p.metadata.id} – {p.data.observacao}
+>>>>>>> Stashed changes
                                             </SelectItem>
                                         )
                                     })}
@@ -179,9 +204,12 @@ function ModalLoteBruto({
     )
 }
 
+<<<<<<< Updated upstream
 // ---------------------------------------------------------------------------
 // Modal — Novo Lote Fracionado
 // ---------------------------------------------------------------------------
+=======
+>>>>>>> Stashed changes
 
 function ModalLoteFracionado({
     open,
@@ -214,7 +242,11 @@ function ModalLoteFracionado({
                 <form onSubmit={onSubmit} className="flex flex-col gap-4 mt-2">
                     <div className="flex flex-col gap-1">
                         <Label htmlFor="nome">Nome</Label>
+<<<<<<< Updated upstream
                         <Input id="nome" name="nome" placeholder="Ex: Fração 01 – Lote A" required />
+=======
+                        <Input id="nome" name="nome" placeholder="Ex: Fração 01 – Lote A" />
+>>>>>>> Stashed changes
                     </div>
 
                     <div className="flex flex-col gap-1">
@@ -232,7 +264,10 @@ function ModalLoteFracionado({
                         <Select
                             name="loteOriginalId"
                             defaultValue={loteOriginalIdPreset ? String(loteOriginalIdPreset) : undefined}
+<<<<<<< Updated upstream
                             required
+=======
+>>>>>>> Stashed changes
                         >
                             <SelectTrigger>
                                 <SelectValue placeholder="Selecione o lote bruto" />
@@ -241,7 +276,11 @@ function ModalLoteFracionado({
                                 <SelectGroup>
                                     {lotesBrutos?.map((l) => (
                                         <SelectItem key={l.metadata.id} value={String(l.metadata.id)}>
+<<<<<<< Updated upstream
                                             #{l.metadata.id} – {l.data.nome}
+=======
+                                            {l.metadata.id} – {l.data.nome}
+>>>>>>> Stashed changes
                                         </SelectItem>
                                     ))}
                                 </SelectGroup>
@@ -251,7 +290,11 @@ function ModalLoteFracionado({
 
                     <div className="flex flex-col gap-1">
                         <Label htmlFor="pedidoVendaId">Pedido de Venda</Label>
+<<<<<<< Updated upstream
                         <Select name="pedidoVendaId" required>
+=======
+                        <Select name="pedidoVendaId">
+>>>>>>> Stashed changes
                             <SelectTrigger>
                                 <SelectValue placeholder="Selecione um pedido de venda" />
                             </SelectTrigger>
@@ -266,7 +309,11 @@ function ModalLoteFracionado({
                                                 key={p.metadata.id}
                                                 value={String(p.metadata.id)}
                                             >
+<<<<<<< Updated upstream
                                                 #{p.metadata.id} – {cliente?.data.nome ?? `Cliente #${p.data.clienteId}`}
+=======
+                                                {p.metadata.id} – {cliente?.data.nome ?? `Cliente ${p.data.observacao}`}
+>>>>>>> Stashed changes
                                             </SelectItem>
                                         )
                                     })}
@@ -284,9 +331,12 @@ function ModalLoteFracionado({
     )
 }
 
+<<<<<<< Updated upstream
 // ---------------------------------------------------------------------------
 // Componente principal
 // ---------------------------------------------------------------------------
+=======
+>>>>>>> Stashed changes
 
 export default function Content(props: Props) {
     const [openBruto, setOpenBruto] = useState(false)
@@ -349,7 +399,11 @@ export default function Content(props: Props) {
     const pesoFracionado = (loteId: number) =>
         fracoesPorLote(loteId)?.reduce((acc, f) => acc + (f.data.peso ?? 0), 0)
 
+<<<<<<< Updated upstream
     // ---- render ------------------------------------------------------------
+=======
+
+>>>>>>> Stashed changes
 
     return (
         <Page.Content>
@@ -452,12 +506,16 @@ export default function Content(props: Props) {
 
                                                 <TableCell>
                                                     <div className="text-sm">
+<<<<<<< Updated upstream
                                                         <p>#{l.data.pedidoCompraId}</p>
                                                         {forn && (
                                                             <p className="text-xs text-muted-foreground">
                                                                 {forn.data.nome}
                                                             </p>
                                                         )}
+=======
+                                                        <p>{l.data.pedidoCompraId}</p>
+>>>>>>> Stashed changes
                                                     </div>
                                                 </TableCell>
 
@@ -468,6 +526,7 @@ export default function Content(props: Props) {
                                                 <TableCell>
                                                     <div className="text-sm">
                                                         <span>{pesoFrac > 0 ? `${pesoFrac} kg` : '—'}</span>
+<<<<<<< Updated upstream
                                                         {pesoBruto > 0 && pesoFrac > 0 && (
                                                             <p className="text-xs text-muted-foreground">
                                                                 {pesoRestante >= 0
@@ -476,6 +535,8 @@ export default function Content(props: Props) {
                                                                 }
                                                             </p>
                                                         )}
+=======
+>>>>>>> Stashed changes
                                                     </div>
                                                 </TableCell>
 
@@ -570,7 +631,11 @@ export default function Content(props: Props) {
 
                                                 <TableCell>
                                                     <div className="text-sm">
+<<<<<<< Updated upstream
                                                         <p>#{f.data.loteOriginalId}</p>
+=======
+                                                        <p>{f.data.loteOriginalId}</p>
+>>>>>>> Stashed changes
                                                         {loteOriginal && (
                                                             <p className="text-xs text-muted-foreground">
                                                                 {loteOriginal.data.nome}
@@ -581,7 +646,11 @@ export default function Content(props: Props) {
 
                                                 <TableCell>
                                                     <div className="text-sm">
+<<<<<<< Updated upstream
                                                         <p>#{f.data.pedidoVendaId}</p>
+=======
+                                                        <p>{f.data.pedidoVendaId}</p>
+>>>>>>> Stashed changes
                                                         {cliente && (
                                                             <p className="text-xs text-muted-foreground">
                                                                 {cliente.data.nome}

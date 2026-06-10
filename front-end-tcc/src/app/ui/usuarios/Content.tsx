@@ -143,7 +143,7 @@ export default function Content(props: any) {
                 </form>
             </Page.Filter>
             <Page.Table>
-                {props.usuarios.length > 0 ? (
+                {props.usuarios?.length > 0 ? (
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -156,7 +156,7 @@ export default function Content(props: any) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {props.usuarios.map((f: any) => (
+                            {props.usuarios?.map((f: any) => (
                                 <TableRow key={f.metadata.id}>
                                     <TableCell>{f.metadata.token}</TableCell>
 

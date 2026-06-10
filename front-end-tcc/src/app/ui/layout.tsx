@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 	title: "Beef Tracker",
 };
 
-async function getRolesFromBackend() {
+export async function getRolesFromBackend() {
 	const api = await createApi()
 	const res = await api.get("/auth/validate/roles");
 	return res?.data?.roles || [];

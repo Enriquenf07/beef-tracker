@@ -173,15 +173,15 @@ public class PedidoVendaRepositoryImpl implements PedidoVendaRepository {
                                 (rs, rowNum) -> mapLoteRow(rs));
         }
 
-        @Override
         public List<LoteFracionado> pesquisarLotes(Long pedidoVendaId) {
-                String sql = "SELECT id, token, nome, descricao, peso, pedido_venda_id, criado_em, atualizado_em " +
-                                "FROM lote_fracionado WHERE pedido_venda_id = :pedidoVendaId ORDER BY id ASC";
+                String sql = "SELECT id, token, nome, descricao, peso, pedido_venda_id, lote_original_id, criado_em, atualizado_em " +
+                        "FROM lote_fracionado WHERE pedido_venda_id = :pedidoVendaId ORDER BY id ASC";
 
                 return jdbcTemplate.query(sql,
-                                new MapSqlParameterSource().addValue("pedidoVendaId", pedidoVendaId),
-                                (rs, rowNum) -> mapLoteRow(rs));
+                        new MapSqlParameterSource().addValue("pedidoVendaId", pedidoVendaId),
+                        (rs, rowNum) -> mapLoteRow(rs));
         }
+
 
         @Override
         public PedidoVenda findByViagem(Long viagemId) {

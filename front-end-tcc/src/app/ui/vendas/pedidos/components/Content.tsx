@@ -144,9 +144,9 @@ export default function Content(props: any) {
                                 const cliente = clientes.find((c: any) => c.metadata.id === p.data.clienteId)
                                 return (
                                     <TableRow key={p.metadata.id}>
-                                        <TableCell>#{p.metadata.id}</TableCell>
+                                        <TableCell>{p.metadata.id}</TableCell>
                                         <TableCell>
-                                            {cliente ? cliente.data.nome : `#${p.data.clienteId}`}
+                                            {cliente ? cliente.data.nome : `${p.data.clienteId}`}
                                         </TableCell>
                                         <TableCell>
                                             R$ {Number(p.data.valorTotal).toFixed(2)}

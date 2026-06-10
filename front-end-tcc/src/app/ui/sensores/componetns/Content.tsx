@@ -150,7 +150,7 @@ export default function Content({ sensores }: { sensores: any[] }) {
                                         {s.data.ativo ? 'Ativo' : 'Inativo'}
                                     </span>
                                 </TableCell>
-                                <TableCell className="font-mono text-sm text-muted-foreground">#{s.metadata.id}</TableCell>
+                                <TableCell className="font-mono text-sm text-muted-foreground">{s.metadata.id}</TableCell>
                                 <TableCell>{s.data.descricao}</TableCell>
                                 <TableCell>
                                     <Button variant="ghost" size="icon" onClick={() => { setForm(s); setOpen(true) }}>

@@ -53,7 +53,6 @@ export function MenuContent(props: Readonly<{ open: boolean, roles: any[] }>) {
             menu: [
                 { id: "estoque", path: "/ui/estoque", icon: "refrigerator", label: "Estoque" },
                 { id: "veiculos", path: "/ui/veiculos", icon: "truck", label: "Veículos" },
-                { id: "motoristas", path: "/ui/motorista", icon: "user", label: "Motoristas" },
                 { id: "sensores", path: "/ui/sensores", icon: "thermometer", label: "Sensores (Hardware)" }
             ]
         },

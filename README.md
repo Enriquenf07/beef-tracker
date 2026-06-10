@@ -27,8 +27,7 @@ O projeto foi construído utilizando uma arquitetura moderna dividida em micross
 
 ### Frontend (Web App)
 * **Framework:** Next.js (React)
-* **Estilização:** Tailwind CSS 
-* **Consumo de API:** Axios 
+* **Estilização:** Tailwind CSS  
 
 ### Engenharia de Hardware (IoT)
 * **Microcontrolador:** ESP32
@@ -43,3 +42,32 @@ O repositório está organizado da seguinte forma:
 *  `/backend` — API REST desenvolvida em Spring Boot.
 *  `/front-end-tcc` — Interface administrativa e painel do cliente em Next.js.
  *  `iot/beeftrackeriot` — Código da Firmware do IOT.
+
+## Backend
+Para rodar o backend, instale o projeto com o maven normalmente. 
+
+## Frontend
+Para rodar o front end, rode npm install e depois npm run dev.
+     
+## Váriaveis de ambiente FE
+API_URL = http://localhost:8080
+
+## Váriaveis de ambiente BE/ application.properties
+spring.datasource.url=jdbc:postgresql://aws-1-sa-east-1.pooler.supabase.com:5432/postgres
+spring.datasource.username=postgres.vxtrxbytdhstkooepnda
+spring.datasource.password=sWQGRx2CYW8I0KOF
+resend.api.key=re_CBfhddaa_9KX87N22zqA42KmrWKN4x8k4
+spring.application.name=backend
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.secret=47d68f59ef61038b0a223b19913a61c4e
+beeftracker.url=http://localhost:3000
+beeftracker.influx.url=https://us-east-1-1.aws.cloud2.influxdata.com
+beeftracker.influx.token=CWOjTVRcsZVsuOOtdbOw7cM-Vfl-zMHFieZRdyMXM6KFEc9k08uKGnyIZEaaypoX1LdzxVYxsOv9BY540LhtSg==
+logging.level.org.springframework.jdbc=DEBUG
+logging.level.java.sql=DEBUG
+
+hivemq.host=6dad182b442b4e5faedf835d3ec12587.s1.eu.hivemq.cloud
+hivemq.port=8883
+hivemq.username=admin
+hivemq.password=31xm30JsNbKCn6KoKNnE
+

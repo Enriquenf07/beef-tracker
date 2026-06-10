@@ -26,14 +26,14 @@ public class PedidoVendaController extends BaseController {
     }
 
     @PostMapping
-    public ResponseEntity<?> criar(@RequestBody PedidoVendaData data) {
+    public ResponseEntity<?> criar(@RequestBody PedidoVendaData data) throws InvalidFormException {
         service.criar(data);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody PedidoVendaData data)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, InvalidFormException {
         service.editar(id, data);
         return ResponseEntity.ok().build();
     }

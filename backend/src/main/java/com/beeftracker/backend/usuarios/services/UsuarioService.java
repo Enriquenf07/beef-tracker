@@ -42,7 +42,7 @@ public class UsuarioService {
         CreateEmailOptions email = CreateEmailOptions.builder()
                 .from("CRM Frigorífico <suporte@beeftracker.xyz>")
                 .to(to)
-                .subject("Bem vindo ao Beef Tracker, seu cadastro foi realizado com sucesso!")
+                .subject("Bem-vindo ao Beef Tracker, seu cadastro foi realizado com sucesso!")
                 .html("""
                             <html>
                               <body style="font-family: Arial, sans-serif; padding: 20px;">

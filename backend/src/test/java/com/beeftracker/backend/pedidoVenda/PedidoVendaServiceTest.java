@@ -64,7 +64,7 @@ class PedidoVendaServiceTest {
     }
 
     @Test
-    void criar_deveChamarRepositorio_quandoDadosValidos() {
+    void criar_deveChamarRepositorio_quandoDadosValidos() throws InvalidFormException {
         service.criar(dataMock);
         verify(repository, times(1)).salvar(dataMock);
     }
