@@ -44,23 +44,23 @@ class VeiculoServiceTest {
 
     @Test
     void salvar_devePersistirVeiculo_quandoDadosValidos() throws InvalidFormException {
-        when(veiculoRepository.findByDataPlaca("ABC1D23")).thenReturn(Optional.empty());
-        when(veiculoRepository.save(any(Veiculo.class))).thenReturn(veiculoMock);
+        when(veiculoRepository.buscarPorPlaca("ABC1D23")).thenReturn(Optional.empty());
+        when(veiculoRepository.salvar(any(VeiculoData.class))).thenReturn(1L);
 
-        Veiculo resultado = service.salvar(dataMock);
+        Long id = service.salvar(dataMock);
 
-        verify(veiculoRepository).save(any(Veiculo.class));
-        assertThat(resultado).isEqualTo(veiculoMock);
+        verify(veiculoRepository).salvar(any(VeiculoData.class));
+        assertThat(id).isEqualTo(1L);
     }
 
     @Test
     void salvar_deveLancarExcecao_quandoPlacaJaCadastrada() {
-        when(veiculoRepository.findByDataPlaca("ABC1D23")).thenReturn(Optional.of(veiculoMock));
+        when(veiculoRepository.buscarPorPlaca("ABC1D23")).thenReturn(Optional.of(veiculoMock));
 
         assertThatThrownBy(() -> service.salvar(dataMock))
                 .isInstanceOf(InvalidFormException.class);
 
-        verify(veiculoRepository, never()).save(any());
+        verify(veiculoRepository, never()).salvar(any());
     }
 
     @Test
@@ -70,7 +70,7 @@ class VeiculoServiceTest {
         assertThatThrownBy(() -> service.salvar(invalido))
                 .isInstanceOf(InvalidFormException.class);
 
-        verify(veiculoRepository, never()).save(any());
+        verify(veiculoRepository, never()).salvar(any());
     }
 
     @Test
@@ -80,7 +80,7 @@ class VeiculoServiceTest {
         assertThatThrownBy(() -> service.salvar(invalido))
                 .isInstanceOf(InvalidFormException.class);
 
-        verify(veiculoRepository, never()).save(any());
+        verify(veiculoRepository, never()).salvar(any());
     }
 
     @Test
@@ -90,35 +90,35 @@ class VeiculoServiceTest {
         assertThatThrownBy(() -> service.salvar(invalido))
                 .isInstanceOf(InvalidFormException.class);
 
-        verify(veiculoRepository, never()).save(any());
+        verify(veiculoRepository, never()).salvar(any());
     }
 
     @Test
     void listarTodos_deveRetornarLista() {
-        when(veiculoRepository.findAll()).thenReturn(List.of(veiculoMock));
+        when(veiculoRepository.pesquisar(null, null)).thenReturn(List.of(veiculoMock));
 
-        List<Veiculo> resultado = service.listarTodos();
+        List<Veiculo> resultado = service.pesquisar(null, null);
 
         assertThat(resultado).hasSize(1).contains(veiculoMock);
     }
 
     @Test
     void listarTodos_deveRetornarListaVazia_quandoNenhumVeiculo() {
-        when(veiculoRepository.findAll()).thenReturn(List.of());
+        when(veiculoRepository.pesquisar(null, null)).thenReturn(List.of());
 
-        assertThat(service.listarTodos()).isEmpty();
+        assertThat(service.pesquisar(null, null)).isEmpty();
     }
 
     @Test
     void validate_naoDeveLancarExcecao_quandoVeiculoExiste() throws ResourceNotFoundException {
-        when(veiculoRepository.carregar(1L)).thenReturn(veiculoMock);
+        when(veiculoRepository.buscarPorId(1L)).thenReturn(Optional.of(veiculoMock));
 
         assertThatNoException().isThrownBy(() -> service.validate(1L));
     }
 
     @Test
     void validate_deveLancarExcecao_quandoVeiculoNaoEncontrado() {
-        when(veiculoRepository.carregar(99L)).thenReturn(null);
+        when(veiculoRepository.buscarPorId(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.validate(99L))
                 .isInstanceOf(ResourceNotFoundException.class);

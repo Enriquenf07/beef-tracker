@@ -6,13 +6,18 @@ export default async function VeiculosPage(props: any) {
     let veiculos = []
     const searchParams = await props?.searchParams
 
-    const params = {
-        chave: searchParams?.chave,
-        status: searchParams?.status !== 'null' ? searchParams?.status : null,
-    }
-
     try {
-        const { data } = await api.get('/api/veiculos', { params }) as any
+        const query: Record<string, any> = {}
+
+        if (searchParams?.chave) {
+            query.chave = searchParams.chave
+        }
+
+        if (searchParams?.status && searchParams.status !== 'null') {
+            query.status = searchParams.status
+        }
+
+        const { data } = await api.get('/api/veiculos', { params: query }) as any
         veiculos = data
     } catch (e) {
         veiculos = []

@@ -1,26 +1,24 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Check, Shield, ShieldOff, Mail, Trash2 } from "lucide-react"
+import { Plus, Check, Shield, ShieldOff, Mail } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export function UserDialog({ rolesOptions, form, setForm, isPending, onHandleCadastro, onHandleInativar, onHandleReenviarEmail, onHandleExcluir, open, setOpen, selectedRoles, setSelectedRoles }: any) {
-  const [confirmDelete, setConfirmDelete] = useState(false)
+export function UserDialog({ rolesOptions, form, setForm, isPending, onHandleCadastro, onHandleInativar, onHandleReenviarEmail, open, setOpen, selectedRoles, setSelectedRoles }: any) {
 
-  const toggleRole = (role: string) => {
+  const toggleRole = (roleName: string) => {
     setSelectedRoles((prev: string[]) =>
-      prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]
+      prev.includes(roleName) ? prev.filter(r => r !== roleName) : [...prev, roleName]
     )
   }
 
   const handleOpenChange = () => {
     setForm({})
     setSelectedRoles([])
-    setConfirmDelete(false)
     setOpen((prev: boolean) => !prev)
   }
 
@@ -44,24 +42,24 @@ export function UserDialog({ rolesOptions, form, setForm, isPending, onHandleCad
           <p className="text-sm text-muted-foreground py-4">Carregando...</p>
         ) : (
           <>
-            <form
-              onSubmit={(e) => { onHandleCadastro(e) }}
-              className="flex flex-col gap-3"
-            >
+            <form onSubmit={onHandleCadastro} className="flex flex-col gap-3">
               <input hidden name="id" defaultValue={form?.metadata?.id} />
 
-              <Input
-                placeholder="Nome"
-                name="nome"
-                type="text"
-                defaultValue={form?.data?.nome}
-              />
-              <Input
-                placeholder="E-mail"
-                name="email"
-                type="email"
-                defaultValue={form?.data?.email}
-              />
+              {form?.metadata?.id ? (
+                <>
+                  <Input placeholder="Nome" name="nome" type="text"
+                    defaultValue={form?.data?.nome} disabled />
+                  <Input placeholder="E-mail" name="email" type="email"
+                    defaultValue={form?.data?.email} disabled />
+                </>
+              ) : (
+                <>
+                  <Input placeholder="Nome" name="nome" type="text"
+                    defaultValue={form?.data?.nome} />
+                  <Input placeholder="E-mail" name="email" type="email"
+                    defaultValue={form?.data?.email} />
+                </>
+              )}
 
               {form?.metadata?.id && (
                 <div className="flex flex-col gap-2">
@@ -71,25 +69,22 @@ export function UserDialog({ rolesOptions, form, setForm, isPending, onHandleCad
 
                   {selectedRoles.length > 0 && (
                     <div className="flex flex-wrap gap-1 mb-1">
-                      {selectedRoles.map((role: string) => {
-                        const found = rolesOptions.find((r: any) => r.id === role)
-                        return (
-                          <Badge key={role} variant="secondary" className="text-xs">
-                            {found?.nome ?? role}
-                          </Badge>
-                        )
-                      })}
+                      {selectedRoles.map((roleName: string) => (
+                        <Badge key={roleName} variant="secondary" className="text-xs">
+                          {roleName}
+                        </Badge>
+                      ))}
                     </div>
                   )}
 
                   <div className="grid grid-cols-2 gap-2">
-                    {rolesOptions.map((role: any) => {
-                      const isSelected = selectedRoles.includes(role.id)
+                    {rolesOptions?.map((role: any) => {
+                      const isSelected = selectedRoles.includes(role.nome)
                       return (
                         <button
                           key={role.id}
                           type="button"
-                          onClick={() => toggleRole(role.id)}
+                          onClick={() => toggleRole(role.nome)}
                           className={cn(
                             "flex items-start gap-2 rounded-md border p-2.5 text-left text-sm transition-all",
                             "hover:bg-accent hover:border-accent",
@@ -134,54 +129,20 @@ export function UserDialog({ rolesOptions, form, setForm, isPending, onHandleCad
                 )}
                 onClick={onHandleInativar}
               >
-                {form?.data?.ativo ? (
-                  <><ShieldOff className="mr-2 h-4 w-4" /> Inativar</>
-                ) : (
-                  <><Shield className="mr-2 h-4 w-4" /> Ativar</>
-                )}
+                {form?.data?.ativo
+                  ? <><ShieldOff className="mr-2 h-4 w-4" /> Inativar</>
+                  : <><Shield className="mr-2 h-4 w-4" /> Ativar</>}
               </Button>
             )}
 
             {form?.metadata?.id && !form?.data?.cadastrado && (
               <Button
                 type="button"
-                variant="outline"
+                className="bg-transparent hover:bg-secondary/90 text-black"
                 onClick={onHandleReenviarEmail}
               >
                 <Mail className="mr-2 h-4 w-4" /> Reenviar Email
               </Button>
-            )}
-
-            {form?.metadata?.id && (
-              confirmDelete ? (
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    className="flex-1"
-                    onClick={() => { setConfirmDelete(false); onHandleExcluir() }}
-                  >
-                    Confirmar exclusão
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => setConfirmDelete(false)}
-                  >
-                    Cancelar
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                  onClick={() => setConfirmDelete(true)}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" /> Excluir usuário
-                </Button>
-              )
             )}
           </>
         )}

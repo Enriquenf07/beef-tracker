@@ -1,45 +1,43 @@
 package com.beeftracker.backend.veiculos.controllers;
 
+import com.beeftracker.backend.base.exceptions.InvalidFormException;
+import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
+import com.beeftracker.backend.veiculos.models.VeiculoData;
+import com.beeftracker.backend.veiculos.services.VeiculoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.beeftracker.backend.base.BaseController;
-import com.beeftracker.backend.base.exceptions.InvalidFormException;
-import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
-import com.beeftracker.backend.veiculos.models.Veiculo;
-import com.beeftracker.backend.veiculos.models.VeiculoData;
-import com.beeftracker.backend.veiculos.services.VeiculoService;
-
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/veiculos")
-public class VeiculoController extends BaseController {
+public class VeiculoController {
 
     @Autowired
     private VeiculoService veiculoService;
 
-    @PostMapping
-    public ResponseEntity<Veiculo> cadastrar(@RequestBody VeiculoData data) throws InvalidFormException {
-        return ResponseEntity.ok(veiculoService.salvar(data));
+    @GetMapping
+    public ResponseEntity<?> listar(
+            @RequestParam(required = false) String chave,
+            @RequestParam(required = false) Boolean status) {
+        return ResponseEntity.ok(veiculoService.pesquisar(chave, status));
     }
 
-    @GetMapping
-    public ResponseEntity<List<Veiculo>> listar() {
-        return ResponseEntity.ok(veiculoService.listarTodos());
+    @PostMapping
+    public ResponseEntity<?> cadastrar(@RequestBody VeiculoData data) throws InvalidFormException {
+        veiculoService.salvar(data);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody VeiculoData data)
-            throws ResourceNotFoundException, InvalidFormException {
-        veiculoService.atualizar(id, data);
+    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody VeiculoData data)
+            throws InvalidFormException, ResourceNotFoundException {
+        veiculoService.editar(id, data);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<?> atualizarStatus(@PathVariable Long id) throws ResourceNotFoundException {
-        veiculoService.atualizarStatus(id);
+    public ResponseEntity<?> alterarStatus(@PathVariable Long id) throws ResourceNotFoundException {
+        veiculoService.alterarStatus(id);
         return ResponseEntity.ok().build();
     }
 

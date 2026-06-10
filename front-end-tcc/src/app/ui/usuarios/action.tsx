@@ -6,10 +6,18 @@ export async function handleCadastro(body: Record<string, any>) {
     try {
         const id = body.id
         const api = await createApi()
+
+
+        const payload = {
+            nome: body.nome,
+            email: body.email,
+            roles: body.rolesId ?? [],
+        }
+
         if (!id) {
-            await api.post("/usuario", body)
+            await api.post("/usuario", payload)
         } else {
-            await api.put("/usuario/" + id, body)
+            await api.put("/usuario/" + id, payload)
         }
     } catch (e: any) {
         return e.response?.data
@@ -29,10 +37,10 @@ export async function handleInativar(id: number, status: boolean) {
     }
 }
 
-export async function handleReenviarEmail(id: number) {
+export async function handleExcluir(id: number) {
     const api = await createApi()
     try {
-        await api.post("/usuario/" + id + '/reenviar-email')
+        await api.delete("/usuario/" + id)
     } catch (e: any) {
         return e.response?.data
     } finally {
@@ -40,10 +48,10 @@ export async function handleReenviarEmail(id: number) {
     }
 }
 
-export async function handleExcluir(id: number) {
+export async function handleReenviarEmail(id: number) {
     const api = await createApi()
     try {
-        await api.delete("/usuario/" + id)
+        await api.post("/usuario/" + id + '/reenviar-email')
     } catch (e: any) {
         return e.response?.data
     } finally {

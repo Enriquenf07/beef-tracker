@@ -2,20 +2,19 @@
 
 import { useState, useTransition } from "react"
 import { useSearchParams } from "next/navigation"
-import { Plus, Search, PenBox, Trash2 } from "lucide-react"
+import { Plus, Search, PenBox } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Page from "@/app/components/CrudPage"
-import { handleCadastroVeiculo, handleInativarVeiculo, handleExcluirVeiculo } from '../action'
+import { handleCadastroVeiculo, handleAlterarStatusVeiculo } from '../action'
 
 export default function Content({ veiculos }: { veiculos: any[] }) {
     const [open, setOpen] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [form, setForm] = useState<any>({})
-    const [confirmDelete, setConfirmDelete] = useState(false)
     const [isPending, startTransition] = useTransition()
 
     const searchParams = useSearchParams()
@@ -32,18 +31,9 @@ export default function Content({ veiculos }: { veiculos: any[] }) {
         })
     }
 
-    const onHandleInativar = async () => {
+    const onHandleInativar = () => {
         startTransition(async () => {
-            const erro = await handleInativarVeiculo(form?.metadata?.id) as any
-            if (erro) setError(erro.detail)
-            setOpen(false)
-        })
-    }
-
-    const onHandleExcluir = async () => {
-        startTransition(async () => {
-            const erro = await handleExcluirVeiculo(form?.metadata?.id) as any
-            if (erro) setError(erro.detail)
+            await handleAlterarStatusVeiculo(form.metadata.id)
             setOpen(false)
         })
     }
@@ -53,7 +43,7 @@ export default function Content({ veiculos }: { veiculos: any[] }) {
             <Page.Header>
                 <Page.Title>Gestão de Veículos</Page.Title>
                 <Page.Modal>
-                    <Dialog open={open} onOpenChange={(v) => { if (!v) { setForm({}); setConfirmDelete(false); } setOpen(v); }}>
+                    <Dialog open={open} onOpenChange={(v) => { if (!v) setForm({}); setOpen(v); }}>
                         <DialogTrigger asChild>
                             <Button><Plus className="mr-2 h-4 w-4" /> Cadastrar Veículo</Button>
                         </DialogTrigger>
@@ -81,37 +71,6 @@ export default function Content({ veiculos }: { veiculos: any[] }) {
                                     >
                                         {form?.data?.ativo ? 'Inativar Veículo' : 'Reativar Veículo'}
                                     </Button>
-                                )}
-                                {form?.metadata?.id && (
-                                    confirmDelete ? (
-                                        <div className="flex gap-2">
-                                            <Button
-                                                type="button"
-                                                variant="destructive"
-                                                className="flex-1"
-                                                onClick={() => { setConfirmDelete(false); onHandleExcluir() }}
-                                            >
-                                                Confirmar exclusão
-                                            </Button>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                className="flex-1"
-                                                onClick={() => setConfirmDelete(false)}
-                                            >
-                                                Cancelar
-                                            </Button>
-                                        </div>
-                                    ) : (
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                            onClick={() => setConfirmDelete(true)}
-                                        >
-                                            <Trash2 className="mr-2 h-4 w-4" /> Excluir veículo
-                                        </Button>
-                                    )
                                 )}
                             </form>
                         </DialogContent>

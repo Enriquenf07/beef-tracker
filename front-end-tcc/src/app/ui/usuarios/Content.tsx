@@ -184,7 +184,7 @@ export default function Content(props: any) {
                                         <Button className="bg-secondary text-black hover:text-[#F1F5F9]" onClick={() => {
                                             setOpen(prev => !prev)
                                             setForm(f)
-                                            setSelectedRoles(f?.data?.rolesId ?? [])
+                                            setSelectedRoles(f?.data?.roles ?? [])
                                         }}>
                                             <PenBox />
                                         </Button>

@@ -100,11 +100,7 @@ public class UsuarioService {
     }
 
     public void editar(Long id, UserData user) throws ResourceNotFoundException {
-        User existing = repository.carregar(id);
-        if (existing == null) {
-            throw new ResourceNotFoundException();
-        }
-        repository.editarDados(id, user);
+        repository.carregar(id);
         repository.editarRoles(id, user);
     }
 

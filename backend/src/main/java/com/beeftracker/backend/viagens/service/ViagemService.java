@@ -41,7 +41,8 @@ public class ViagemService {
             ViagemRepository repository,
             EmTransito transito,
             Entregue concluida,
-            Cancelada cancelada, UsuarioService usuarioService, InfluxDBClient influxDBClient, VeiculoService veiculoService,
+            Cancelada cancelada, UsuarioService usuarioService, InfluxDBClient influxDBClient,
+            VeiculoService veiculoService,
             SensorService sensorService) {
         this.repository = repository;
         this.usuarioService = usuarioService;
@@ -218,7 +219,7 @@ public class ViagemService {
         return repository.carregar(token).metadata().id();
     }
 
-    public List<Viagem> listAllPendente(){
+    public List<Viagem> listAllPendente() {
         return repository.listAllPendente();
     }
 
