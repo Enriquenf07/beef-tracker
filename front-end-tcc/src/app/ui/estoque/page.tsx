@@ -1,9 +1,7 @@
-
 import { createApi } from "@/app/lib/api"
 import Content from "./Content"
 
-
-export default async function Estoque() {
+export default async function Estoque(props: any) {
     const api = await createApi()
 
     let lotesBrutos: any[] = []

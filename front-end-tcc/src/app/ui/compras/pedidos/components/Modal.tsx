@@ -16,7 +16,7 @@ import {
     SelectValue
 } from "@/components/ui/select"
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ModalProps {
     open: boolean;
@@ -124,19 +124,13 @@ export function ModalPedido({
 
 
 
-interface ModalLoteProps {
-    open: boolean;
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    isPending?: boolean;
-    onHandleCadastro: (e: React.FormEvent<HTMLFormElement>) => void;
-}
-
 export function ModalLote({
     open,
     setOpen,
     isPending,
-    onHandleCadastro
-}: ModalLoteProps) {
+    onHandleCadastro,
+    pedidoId
+}: any) {
     return (
         <Dialog
             open={open}
@@ -144,35 +138,27 @@ export function ModalLote({
                 setOpen(prev => !prev);
             }}
         >
-
-
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>
-                        {'Cadastrar Lote'}
-                    </DialogTitle>
+                    <DialogTitle>Cadastrar Lote</DialogTitle>
                 </DialogHeader>
 
                 {isPending ? (
                     <p>Carregando...</p>
                 ) : (
-                    <form onSubmit={onHandleCadastro} className="flex flex-col gap-2">
-                        <input hidden name="id" />
-
+                    <form onSubmit={(e) => onHandleCadastro(e, pedidoId)} className="flex flex-col gap-2">
                         <Input
                             placeholder="Nome do lote"
                             name="nome"
                             type="text"
                             required
                         />
-
                         <Input
                             placeholder="Peso (kg)"
                             name="peso"
                             type="number"
                             step="0.01"
                         />
-
                         <Button type="submit">Salvar</Button>
                     </form>
                 )}
@@ -187,9 +173,13 @@ export function ModalLote({
 
 
 
-export function ModalViagem({ open, setOpen, viagens = [] }: any) {
-    const [viagemId, setViagemId] = useState<string>("");
-    console.log(viagens)
+export function ModalViagem({ open, setOpen, viagens = [], onHandleCadastro, pedidoId, form }: any) {
+    const [viagemId, setViagemId] = useState<string>();
+    console.log('form', form)
+
+    useEffect(() => {
+        setViagemId(String(form?.data?.viagemId ?? ""))
+    }, [form?.data?.viagemId])
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent>
@@ -197,10 +187,11 @@ export function ModalViagem({ open, setOpen, viagens = [] }: any) {
                     <DialogTitle>Selecionar Viagem</DialogTitle>
                 </DialogHeader>
 
-                <div className="py-4">
+                <form onSubmit={(e) => onHandleCadastro(e, pedidoId)} className="flex flex-col gap-4 py-4">
                     <Select
                         value={viagemId}
                         onValueChange={(val) => setViagemId(val)}
+                        name="viagemId"
                     >
                         <SelectTrigger>
                             <SelectValue placeholder="Selecione uma viagem" />
@@ -211,7 +202,7 @@ export function ModalViagem({ open, setOpen, viagens = [] }: any) {
                                     <SelectItem value="__none" disabled>
                                         Nenhuma viagem cadastrada
                                     </SelectItem>
-                                ) : ( 
+                                ) : (
                                     viagens.map((v: any) => (
                                         <SelectItem
                                             key={v.metadata.id}
@@ -224,7 +215,13 @@ export function ModalViagem({ open, setOpen, viagens = [] }: any) {
                             </SelectGroup>
                         </SelectContent>
                     </Select>
-                </div>
+
+                    <input type="hidden" name="viagemId" value={viagemId} />
+
+                    <Button type="submit" disabled={!viagemId || viagemId === "__none"}>
+                        Confirmar
+                    </Button>
+                </form>
             </DialogContent>
         </Dialog>
     );

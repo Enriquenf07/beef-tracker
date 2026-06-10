@@ -99,7 +99,7 @@ public class PedidoCompraController extends BaseController {
         return ResponseEntity.ok(service.pesquisarLotes(pedidoId));
     }
 
-    @PatchMapping("/{pedidoId}/viagem/{viagemId}")
+    @PatchMapping("/{pedidoId}/vincular-viagem/{viagemId}")
     public ResponseEntity<?> vincularViagem(@RequestAttribute("userId") String userId,@PathVariable Long pedidoId, @PathVariable Long viagemId)
             throws ResourceNotFoundException, UnauthorizedException {
         roleValidator.validate(Long.parseLong(userId), List.of("ADMIN", "COMPRAS"));

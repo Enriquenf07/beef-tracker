@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache"
 export async function handleCadastro(
     formData: FormData
 ) {
+    console.log('1')
+
     const api = await createApi()
 
     const id = formData.get('id')
@@ -48,11 +50,11 @@ export async function handleCadastro(
 }
 
 export async function handleLoteCadastro(
-    formData: FormData
+    formData: FormData, id: any
 ) {
     const api = await createApi()
+    console.log('2')
 
-    const id = formData.get('id')
 
     const body = {
         observacao: formData.get('observacao'),
@@ -62,16 +64,34 @@ export async function handleLoteCadastro(
 
     try {
         if (id) {
-            await api.put(
-                `/compras/pedido/${id}`,
-                body
-            )
-        } else {
             await api.post(
-                '/compras/pedido',
+                `/compras/pedido/${id}/lote`,
                 body
             )
         }
+
+        revalidatePath('/ui/compras/pedidos')
+
+        return null
+    } catch (e: any) {
+        return e?.response?.data
+    }
+}
+
+export async function handleVincularViagem(
+    formData: FormData, id: any
+) {
+    console.log('3')
+    const api = await createApi()
+    const viagemId = formData.get('viagemId')
+
+    try {
+        if (id) {
+            await api.patch(
+                `/compras/pedido/${id}/vincular-viagem/${viagemId}`
+            )
+        }
+        console.log(`/compras/pedido/${id}/vincular-viagem/${viagemId}`)
 
         revalidatePath('/ui/compras/pedidos')
 

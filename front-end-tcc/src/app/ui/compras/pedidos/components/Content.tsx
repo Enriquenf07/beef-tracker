@@ -45,7 +45,9 @@ import Page from "@/app/components/CrudPage"
 
 import {
     handleCadastro,
-    handleAtualizarStatus
+    handleAtualizarStatus,
+    handleLoteCadastro,
+    handleVincularViagem
 } from "../action"
 import { ModalLote, ModalPedido, ModalViagem } from "./Modal"
 
@@ -53,6 +55,7 @@ export default function Content(props: any) {
     const [open, setOpen] = useState(false)
     const [openLote, setOpenLote] = useState(false)
     const [openViagem, setOpenViagem] = useState(false)
+    const [pedidoId, setPedidoId] = useState(null)
 
     const [error, setError] =
         useState<string | null>(null)
@@ -86,6 +89,29 @@ export default function Content(props: any) {
                 setError(erro.detail)
                 return
             }
+            setOpen(false)
+            setFornecedorId('')
+        })
+    }
+    const onHandleCadastroLote = (e: React.FormEvent<HTMLFormElement>, id: any) => {
+        e.preventDefault()
+        const formData = new FormData(e.currentTarget)
+
+        startTransition(async () => {
+            const erro = await handleLoteCadastro(formData, id) as any
+            if (erro) { setError(erro.detail); return }
+            setOpen(false)
+            setFornecedorId('')
+        })
+    }
+
+    const onHandleCadastroViagem = (e: React.FormEvent<HTMLFormElement>, id: any) => {
+        e.preventDefault()
+        const formData = new FormData(e.currentTarget)
+
+        startTransition(async () => {
+            const erro = await handleVincularViagem(formData, id) as any
+            if (erro) { setError(erro.detail); return }
             setOpen(false)
             setFornecedorId('')
         })
@@ -124,17 +150,13 @@ export default function Content(props: any) {
                         isPending={isPending}
                         onHandleCadastro={onHandleCadastro}
                     />
-                    <ModalLote
-                        open={openLote}
-                        setOpen={setOpenLote}
-                        isPending={isPending}
-                        onHandleCadastro={onHandleCadastro}
-                    />
                     <ModalViagem
                         open={openViagem}
+                        form={form}
                         setOpen={setOpenViagem}
                         viagens={props.viagens}
-                        onHandleCadastro={onHandleCadastro}
+                        pedidoId={pedidoId}
+                        onHandleCadastro={onHandleCadastroViagem}
                     />
                 </Page.Modal>
             </Page.Header>
@@ -165,10 +187,6 @@ export default function Content(props: any) {
                             <SelectGroup>
                                 <SelectItem value="null">
                                     Todos
-                                </SelectItem>
-
-                                <SelectItem value="CONFIRMADO">
-
                                 </SelectItem>
 
                                 <SelectItem value="CANCELADO">
@@ -211,7 +229,7 @@ export default function Content(props: any) {
                                 return (
                                     <TableRow key={p.metadata.id}>
                                         <TableCell>
-                                            #{p.metadata.id}
+                                            {p.metadata.id}
                                         </TableCell>
 
                                         <TableCell>
@@ -239,6 +257,7 @@ export default function Content(props: any) {
                                                         className="bg-blue-600 hover:bg-blue-700 text-white"
                                                         onClick={() => {
                                                             setForm(p);
+                                                            setPedidoId(p.metadata.id)
                                                             setOpenViagem(true);
                                                         }}
                                                     >
@@ -251,6 +270,7 @@ export default function Content(props: any) {
                                                         className="bg-amber-500 hover:bg-amber-600 text-white"
                                                         onClick={() => {
                                                             setForm(p);
+                                                            setPedidoId(p.metadata.id)
                                                             setOpenLote(true);
                                                         }}
                                                     >

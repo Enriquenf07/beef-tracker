@@ -104,10 +104,6 @@ public class PedidoCompraService {
         if (pedido.data().status() == "CANCELADO") {
             throw new IllegalStateException("Não é possível vincular viagem a um pedido cancelado.");
         }
-        if (pedido.data().viagemId() != null) {
-            throw new IllegalStateException("Pedido já possui uma viagem vinculada.");
-        }
-
         repository.vincularViagem(id, viagemId);
     }
 

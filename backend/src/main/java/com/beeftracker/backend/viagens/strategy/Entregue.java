@@ -52,7 +52,7 @@ public class Entregue extends AlterarStatus {
         );
     }
 
-        @Override
+    @Override
     StatusViagem getStatus() {
        return StatusViagem.ENTREGUE   ;
     }

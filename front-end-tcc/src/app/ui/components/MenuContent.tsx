@@ -39,11 +39,10 @@ export function MenuContent(props: Readonly<{ open: boolean, roles: any[] }>) {
         {
             id: "monitoramento",
             label: "Monitoramento",
-            roles: ["ADMIN", "MONITORAMENTO"],
+            roles: ["ADMIN", "MONITORAMENTO", "MOTORISTA"],
             icon: "timer",
             menu: [
                 { id: "viagens", path: "/ui/viagens", icon: "globe", label: "Viagens" },
-                { id: "alertas", path: "/ui/viagens/alertas", icon: "bell", label: "Alertas de Carga" }
             ]
         },
         {
