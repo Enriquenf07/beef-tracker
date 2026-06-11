@@ -67,8 +67,8 @@ public class PedidoVendaController extends BaseController {
 
     @PutMapping("/{pedidoId}/lote/{id}")
     public ResponseEntity<?> editarLote(@PathVariable Long pedidoId, @PathVariable Long id,
-            @RequestBody LoteFracionadoData data) throws ResourceNotFoundException {
-        service.editarLote(id, data);
+            @RequestBody LoteFracionadoData data) throws ResourceNotFoundException, InvalidFormException {
+        service.editarLote(id,data);
         return ResponseEntity.ok().build();
     }
 

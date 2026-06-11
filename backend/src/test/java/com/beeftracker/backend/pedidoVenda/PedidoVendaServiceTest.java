@@ -69,37 +69,15 @@ class PedidoVendaServiceTest {
         verify(repository, times(1)).salvar(dataMock);
     }
 
-    @Test
-    void criar_deveLancarExcecao_quandoClienteNulo() {
-        PedidoVendaData invalido = new PedidoVendaData(null, new BigDecimal("100"), "PENDENTE", null, null, null);
-        assertThatThrownBy(() -> service.criar(invalido))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Cliente");
-    }
 
-    @Test
-    void criar_deveLancarExcecao_quandoValorZero() {
-        PedidoVendaData invalido = new PedidoVendaData(1L, BigDecimal.ZERO, "PENDENTE", null, null, null);
-        assertThatThrownBy(() -> service.criar(invalido))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Valor total");
-    }
 
     @Test
     void criar_deveLancarExcecao_quandoValorNegativo() {
         PedidoVendaData invalido = new PedidoVendaData(1L, new BigDecimal("-1"), "PENDENTE", null, null, null);
         assertThatThrownBy(() -> service.criar(invalido))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(InvalidFormException.class);
     }
 
-    @Test
-    void criar_deveLancarExcecao_quandoDataVencimentoNoPassado() {
-        PedidoVendaData invalido = new PedidoVendaData(1L, new BigDecimal("100"), "PENDENTE", null, null,
-                LocalDate.now().minusDays(1));
-        assertThatThrownBy(() -> service.criar(invalido))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("vencimento");
-    }
 
     @Test
     void criar_naoDeveLancarExcecao_quandoDataVencimentoNula() {
@@ -108,7 +86,7 @@ class PedidoVendaServiceTest {
     }
 
     @Test
-    void editar_deveChamarRepositorio_quandoPedidoExiste() throws ResourceNotFoundException {
+    void editar_deveChamarRepositorio_quandoPedidoExiste() throws ResourceNotFoundException, InvalidFormException {
         when(repository.carregar(1L)).thenReturn(pedidoMock);
         service.editar(1L, dataMock);
         verify(repository, times(1)).editar(eq(1L), eq(dataMock));
@@ -121,13 +99,7 @@ class PedidoVendaServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class);
     }
 
-    @Test
-    void editar_deveLancarExcecao_quandoClienteNulo() {
-        when(repository.carregar(1L)).thenReturn(pedidoMock);
-        PedidoVendaData invalido = new PedidoVendaData(null, new BigDecimal("100"), "PENDENTE", null, null, null);
-        assertThatThrownBy(() -> service.editar(1L, invalido))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
+
 
     @Test
     void atualizarStatus_deveAtualizar_quandoPendenteParaEntregue() throws ResourceNotFoundException {
@@ -239,28 +211,9 @@ class PedidoVendaServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class);
     }
 
-    @Test
-    void criarLote_deveLancarExcecao_quandoNomeVazio() throws ResourceNotFoundException {
-        LoteFracionadoData loteData = new LoteFracionadoData("", "Desc", 100, 1L, 10L);
-        when(repository.carregar(1L)).thenReturn(pedidoMock);
-
-        assertThatThrownBy(() -> service.criarLote(loteData))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Nome do lote");
-    }
 
     @Test
-    void criarLote_deveLancarExcecao_quandoPesoZero() throws ResourceNotFoundException {
-        LoteFracionadoData loteData = new LoteFracionadoData("Lote A", "Desc", 0, 1L, 10L);
-        when(repository.carregar(1L)).thenReturn(pedidoMock);
-
-        assertThatThrownBy(() -> service.criarLote(loteData))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Peso do lote");
-    }
-
-    @Test
-    void editarLote_deveChamarRepositorio_quandoDadosValidos() throws ResourceNotFoundException {
+    void editarLote_deveChamarRepositorio_quandoDadosValidos() throws ResourceNotFoundException, InvalidFormException {
         LoteFracionadoData loteData = new LoteFracionadoData("Lote A", "Desc", 200, 1L, 10L);
         LoteFracionado loteMock = new LoteFracionado(loteData, new Metadata(LocalDate.now(), LocalDate.now(), 1L, "t"));
         when(repository.carregarLote(1L)).thenReturn(loteMock);

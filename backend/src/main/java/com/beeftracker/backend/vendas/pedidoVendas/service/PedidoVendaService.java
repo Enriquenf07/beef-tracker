@@ -79,8 +79,9 @@ public class PedidoVendaService {
         repository.decrementarPesoLoteBruto(data.loteOriginalId(), data.peso());
         repository.salvarLote(data);
     }
+    
 
-    public void editarLote(Long id, LoteFracionadoData data) throws ResourceNotFoundException {
+    public void editarLote(Long id, LoteFracionadoData data) throws ResourceNotFoundException, InvalidFormException {
         carregarLoteOuLancarErro(id);
         validarLote(data);
         repository.editarLote(id, data);
@@ -124,12 +125,12 @@ public class PedidoVendaService {
         }
     }
 
-    private void validarLote(LoteFracionadoData data) {
+    private void validarLote(LoteFracionadoData data) throws InvalidFormException {
         if (StringUtils.isBlank(data.nome())) {
-            throw new IllegalArgumentException("Nome do lote é obrigatório.");
+            throw new InvalidFormException();
         }
         if (data.peso() == null || data.peso() <= 0) {
-            throw new IllegalArgumentException("Peso do lote deve ser maior que zero.");
+            throw new InvalidFormException();
         }
     }
 

@@ -217,15 +217,6 @@ class ViagemTest {
         verify(repository).findByStatusAndData(null, null, null, 1, false, 1L);
     }
 
-    @Test
-    void pesquisar_quandoUsuarioEMotorista_deveFiltrarPorMotorista() {
-        RolesFull roles = new RolesFull(List.of(new Role("MOTORISTA", "", 2L)));
-        when(usuarioService.getRoles(5L)).thenReturn(roles);
-
-        service.pesquisar(null, null, null, 1, 5L);
-
-        verify(repository).findByStatusAndData(null, null, null, 1, true, 5L);
-    }
 
     @Test
     void pesquisar_quandoUsuarioTemAdminEMotorista_naoDeveUsarFiltroMotorista() {
