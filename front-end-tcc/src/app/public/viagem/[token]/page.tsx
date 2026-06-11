@@ -9,9 +9,9 @@ export default async function PublicViagem(props: any) {
     let stats = {} as LeituraStats
     const { token } = await props?.params
     try {
-        const {data} = await api.get(`/viagem/${token}/leituras`) as any
+        const {data} = await api.get(`/public/viagem/${token}/leituras`) as any
         itens = data.leituras
-        const res = await api.get(`/viagem/${token}/stats`) as any
+        const res = await api.get(`/public/viagem/${token}/stats`) as any
         stats = res.data
     } catch (e) {
         itens = []

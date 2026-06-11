@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public class ViagemCustomRepositoryImpl implements ViagemCustomRepository {
@@ -80,7 +81,7 @@ public class ViagemCustomRepositoryImpl implements ViagemCustomRepository {
         String sql = "SELECT v.veiculo_id, v.sensor_id, v.descricao, v.status_viagem, v.saida_em, v.saida_real_em, v.entregue_em, v.atualizado_em, v.criado_em, v.id, v.token, s.token AS sensor_token, v.motorista_id FROM viagem v LEFT JOIN sensor s ON s.id = v.sensor_id WHERE v.token = ?";
 
         try {
-            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> mapRow(rs), token);
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> mapRow(rs), UUID.fromString(token));
         } catch (EmptyResultDataAccessException e) {
             throw new ResourceNotFoundException();
         }
