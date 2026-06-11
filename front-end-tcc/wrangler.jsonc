@@ -42,7 +42,9 @@
 		}
 	],
 	"vars": {
-		"API_URL": "https://api.beeftracker.xyz"}
+		"API_URL": "https://api.beeftracker.xyz",
+
+	 }
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

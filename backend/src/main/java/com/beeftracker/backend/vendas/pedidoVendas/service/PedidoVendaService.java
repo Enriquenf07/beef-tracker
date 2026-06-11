@@ -161,7 +161,7 @@ public class PedidoVendaService {
     }
 
     public void enviarEmail(String nome, String to, String token) throws ResendException {
-        String link = beefTrackerUrl + "/public/viagem/" + URLEncoder.encode(token, StandardCharsets.UTF_8);
+        String link = beefTrackerUrl + "/publics/viagem/" + URLEncoder.encode(token, StandardCharsets.UTF_8);
 
         CreateEmailOptions email = CreateEmailOptions.builder()
                 .from("CRM Frigorífico <suporte@beeftracker.xyz>")
