@@ -3,6 +3,8 @@ package com.beeftracker.backend.vendas.pedidoVendas.controllers;
 import com.beeftracker.backend.base.BaseController;
 import com.beeftracker.backend.base.exceptions.InvalidFormException;
 import com.beeftracker.backend.base.exceptions.ResourceNotFoundException;
+import com.beeftracker.backend.base.exceptions.UnauthorizedException;
+import com.beeftracker.backend.usuarios.services.ValidateRoleService;
 import com.beeftracker.backend.vendas.pedidoVendas.form.AtualizarStatusForm;
 import com.beeftracker.backend.vendas.pedidoVendas.models.LoteFracionado;
 import com.beeftracker.backend.vendas.pedidoVendas.models.LoteFracionadoData;
@@ -20,75 +22,115 @@ import java.util.List;
 public class PedidoVendaController extends BaseController {
 
     private final PedidoVendaService service;
+    private final ValidateRoleService roleService;
 
-    public PedidoVendaController(PedidoVendaService service) {
+    public PedidoVendaController(PedidoVendaService service, ValidateRoleService roleService) {
         this.service = service;
+        this.roleService = roleService;
     }
 
     @PostMapping
-    public ResponseEntity<?> criar(@RequestBody PedidoVendaData data) throws InvalidFormException {
+    public ResponseEntity<?> criar(
+            @RequestAttribute("userId") String userId,
+            @RequestBody PedidoVendaData data)
+            throws InvalidFormException, UnauthorizedException {
+        roleService.validate(Long.parseLong(userId), List.of("ADMIN", "VENDAS"));
         service.criar(data);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody PedidoVendaData data)
-            throws ResourceNotFoundException, InvalidFormException {
+    public ResponseEntity<?> editar(
+            @RequestAttribute("userId") String userId,
+            @PathVariable Long id,
+            @RequestBody PedidoVendaData data)
+            throws ResourceNotFoundException, InvalidFormException, UnauthorizedException {
+        roleService.validate(Long.parseLong(userId), List.of("ADMIN", "VENDAS"));
         service.editar(id, data);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<?> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusForm request)
-            throws ResourceNotFoundException {
+    public ResponseEntity<?> atualizarStatus(
+            @RequestAttribute("userId") String userId,
+            @PathVariable Long id,
+            @RequestBody AtualizarStatusForm request)
+            throws ResourceNotFoundException, UnauthorizedException {
+        roleService.validate(Long.parseLong(userId), List.of("ADMIN", "VENDAS"));
         service.atualizarStatus(id, request.status());
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PedidoVenda> carregar(@PathVariable Long id) throws ResourceNotFoundException {
+    public ResponseEntity<PedidoVenda> carregar(
+            @RequestAttribute("userId") String userId,
+            @PathVariable Long id)
+            throws ResourceNotFoundException, UnauthorizedException {
+        roleService.validate(Long.parseLong(userId), List.of("ADMIN", "VENDAS"));
         return ResponseEntity.ok(service.carregar(id));
     }
 
     @GetMapping
     public ResponseEntity<List<PedidoVenda>> pesquisar(
+            @RequestAttribute("userId") String userId,
             @RequestParam(required = false) Long clienteId,
             @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "0") int page) {
+            @RequestParam(defaultValue = "0") int page)
+            throws UnauthorizedException {
+        roleService.validate(Long.parseLong(userId), List.of("ADMIN", "VENDAS"));
         return ResponseEntity.ok(service.pesquisar(clienteId, status, page));
     }
 
     @PostMapping("/{pedidoId}/lote")
-    public ResponseEntity<?> criarLote(@PathVariable Long pedidoId, @RequestBody LoteFracionadoData data)
-            throws ResourceNotFoundException, InvalidFormException {
+    public ResponseEntity<?> criarLote(
+            @RequestAttribute("userId") String userId,
+            @PathVariable Long pedidoId,
+            @RequestBody LoteFracionadoData data)
+            throws ResourceNotFoundException, InvalidFormException, UnauthorizedException {
+        roleService.validate(Long.parseLong(userId), List.of("ADMIN", "VENDAS"));
         service.criarLote(data);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/{pedidoId}/lote/{id}")
-    public ResponseEntity<?> editarLote(@PathVariable Long pedidoId, @PathVariable Long id,
-            @RequestBody LoteFracionadoData data) throws ResourceNotFoundException, InvalidFormException {
-        service.editarLote(id,data);
+    public ResponseEntity<?> editarLote(
+            @RequestAttribute("userId") String userId,
+            @PathVariable Long pedidoId,
+            @PathVariable Long id,
+            @RequestBody LoteFracionadoData data)
+            throws ResourceNotFoundException, InvalidFormException, UnauthorizedException {
+        roleService.validate(Long.parseLong(userId), List.of("ADMIN", "VENDAS"));
+        service.editarLote(id, data);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{pedidoId}/lote/{id}")
-    public ResponseEntity<LoteFracionado> carregarLote(@PathVariable Long pedidoId, @PathVariable Long id)
-            throws ResourceNotFoundException {
+    public ResponseEntity<LoteFracionado> carregarLote(
+            @RequestAttribute("userId") String userId,
+            @PathVariable Long pedidoId,
+            @PathVariable Long id)
+            throws ResourceNotFoundException, UnauthorizedException {
+        roleService.validate(Long.parseLong(userId), List.of("ADMIN", "VENDAS"));
         return ResponseEntity.ok(service.carregarLote(id));
     }
 
     @GetMapping("/{pedidoId}/lote")
-    public ResponseEntity<List<LoteFracionado>> pesquisarLotes(@PathVariable Long pedidoId)
-            throws ResourceNotFoundException {
+    public ResponseEntity<List<LoteFracionado>> pesquisarLotes(
+            @RequestAttribute("userId") String userId,
+            @PathVariable Long pedidoId)
+            throws ResourceNotFoundException, UnauthorizedException {
+        roleService.validate(Long.parseLong(userId), List.of("ADMIN", "VENDAS"));
         return ResponseEntity.ok(service.pesquisarLotes(pedidoId));
     }
 
     @PatchMapping("/{pedidoId}/vincular-viagem/{viagemId}")
-    public ResponseEntity<?> vincularViagem(@PathVariable Long pedidoId, @PathVariable Long viagemId)
-            throws ResourceNotFoundException {
+    public ResponseEntity<?> vincularViagem(
+            @RequestAttribute("userId") String userId,
+            @PathVariable Long pedidoId,
+            @PathVariable Long viagemId)
+            throws ResourceNotFoundException, UnauthorizedException {
+        roleService.validate(Long.parseLong(userId), List.of("ADMIN", "VENDAS"));
         service.vincularViagem(pedidoId, viagemId);
         return ResponseEntity.ok().build();
     }
-
 }

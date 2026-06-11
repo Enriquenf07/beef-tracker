@@ -134,7 +134,7 @@ export default async function Ui() {
     const dadosBarras = agruparPorMes(pedidosCompra, pedidosVenda)
 
 	const roles = await getRolesFromBackend()
-
+    console.log('Roles do usuário:', roles)
 
     return (
         <div className="flex flex-col gap-8 p-2">
@@ -163,7 +163,7 @@ export default async function Ui() {
             </div>
 
             { }
-            { roles.includes('ADMIN') && (
+            { roles.map(r => r.nome).includes('ADMIN') && (
                 <GraficosHome
                     dadosPizza={dadosPizza}
                     dadosLinha={dadosLinha}
