@@ -143,34 +143,6 @@ export default function Content(props: any) {
                                             {form?.data?.ativo ? 'Inativar' : 'Ativar'}
                                         </Button>
                                     )}
-                                    {form?.metadata?.id && (
-                                        confirmDelete ? (
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    variant="destructive"
-                                                    className="flex-1"
-                                                    onClick={() => { setConfirmDelete(false); onHandleExcluir() }}
-                                                >
-                                                    Confirmar exclusão
-                                                </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    className="flex-1"
-                                                    onClick={() => setConfirmDelete(false)}
-                                                >
-                                                    Cancelar
-                                                </Button>
-                                            </div>
-                                        ) : (
-                                            <Button
-                                                variant="ghost"
-                                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                                onClick={() => setConfirmDelete(true)}
-                                            >
-                                                <Trash2 className="mr-2 h-4 w-4" /> Excluir cliente
-                                            </Button>
-                                        )
-                                    )}
                                 </>
                             )}
                         </DialogContent>

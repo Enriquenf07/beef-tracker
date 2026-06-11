@@ -86,7 +86,7 @@ export function ModalPedido({
                                             Nenhum cliente cadastrado
                                         </SelectItem>
                                     ) : (
-                                        clientes.map((c: any) => (
+                                        clientes.filter(c => c.data.ativo).map((c: any) => (
                                             <SelectItem
                                                 key={c.metadata.id}
                                                 value={String(c.metadata.id)}
