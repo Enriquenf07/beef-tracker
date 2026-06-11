@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
 	title: "Beef Tracker",
 };
-
+//
 export default function RootLayout({
 	children,
 }: Readonly<{
